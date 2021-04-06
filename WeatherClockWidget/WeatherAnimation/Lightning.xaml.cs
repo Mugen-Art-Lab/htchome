@@ -91,7 +91,7 @@ namespace WeatherClockWidget.WeatherAnimation
 
         public void PlayLightningSound()
         {
-            WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Thunder.wav")));
+            //WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Thunder.wav")));
         }
 
         private void DoubleAnimationUsingKeyFrames_CurrentStateInvalidated(object sender, EventArgs e)

@@ -33,26 +33,45 @@ namespace HTCHome.Core
         {
             LocaleCode = localeCode;
             if (File.Exists(LocaleBasePath + "\\" + LocaleCode + ".xaml"))
-            locale.Source = new Uri(LocaleBasePath + "\\" + LocaleCode + ".xaml");
+                try
+                {
+                    locale.Source = new Uri(LocaleBasePath + "\\" + LocaleCode + ".xaml");
+                }
+                catch (Exception ex)
+                {
+                    HTCHome.Core.Logger.Log("Can't load locale " + localeCode + ". Exception: " + ex.ToString());
+                    locale.Source = new Uri(LocaleBasePath + "\\en-US.xaml");
+                }
             else
                 locale.Source = new Uri(LocaleBasePath + "\\en-US.xaml");
         }
 
         public static string GetLocaleName(string path)
         {
-            ResourceDictionary l = new ResourceDictionary();
-            l.Source = new Uri(path);
-            if (l["LocaleName"] != null)
-                return l["LocaleName"].ToString();
+            var l = new ResourceDictionary();
+            try
+            {
+                l.Source = new Uri(path);
+                if (l["LocaleName"] != null)
+                    return l["LocaleName"].ToString();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log("Localization " + path + " is broken.\n" + ex.ToString());
+            }
             return String.Empty;
         }
 
         public static string GetLocaleCode(string path)
         {
-            ResourceDictionary l = new ResourceDictionary();
-            l.Source = new Uri(path);
-            if (l["LocaleCode"] != null)
-                return l["LocaleCode"].ToString();
+            var l = new ResourceDictionary();
+            try
+            {
+                l.Source = new Uri(path);
+                if (l["LocaleCode"] != null)
+                    return l["LocaleCode"].ToString();
+            }
+            catch { }
             return String.Empty;
         }
 
@@ -60,7 +79,8 @@ namespace HTCHome.Core
         {
             if (locale[s] != null)
                 return locale[s].ToString();
-            return String.Empty;
+            var enLocale = new ResourceDictionary {Source = new Uri(LocaleBasePath + "\\en-US.xaml")};
+            return (string)enLocale[s];
         }
     }
 }

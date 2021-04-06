@@ -45,6 +45,7 @@ namespace WeatherClockWidget
         private WallpaperManager _wallpaperManager;
 
         public static MediaPlayer mediaPlayer;
+        private MenuItem lastCitiesItem;
 
         public WeatherClock()
         {
@@ -57,8 +58,8 @@ namespace WeatherClockWidget
         {
             if (!Directory.Exists(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin))
                 Widget.Sett.Skin = "Modern Sense";
-            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("bg.png")));
-            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_bg.png")));
+            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("base_default.png")));
+            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_base_default.png")));
 
             FrostLeft.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_left.png")));
             FrostRight.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_right.png")));
@@ -82,8 +83,8 @@ namespace WeatherClockWidget
             Skin.Source = new Uri(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin + "\\Layout.xaml");
             Widget.ResourceManager = new ResourceManager(E.Path + "\\WeatherClock", Widget.Sett.Skin);
 
-            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("bg.png")));
-            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_bg.png")));
+            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("base_default.png")));
+            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_base_default.png")));
             FrostLeft.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_left.png")));
             FrostRight.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_right.png")));
 
@@ -99,7 +100,7 @@ namespace WeatherClockWidget
             Widget.Instance.UpdateAero(this);
         }
 
-        private void UserControl_Loaded(object sender, RoutedEventArgs e)
+        public void Load()
         {
             weatherReport = WeatherReport.Read(E.Path + "\\WeatherClock\\Weather.data");
 
@@ -123,16 +124,19 @@ namespace WeatherClockWidget
             if (Widget.Sett.ShowIconOnTaskbar)
                 Widget.Parent.ShowInTaskbar = true;
 
-            /*Image icon = new Image();
-            icon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.NowSkyCode))));
-            icon.MouseLeftButtonDown += icon_MouseLeftButtonDown;
-            WeatherIconGrid.Children.Add(icon);*/
             WeatherIcon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.NowSkyCode))));
             if (Widget.Sett.ShowIconOnTaskbar)
             {
                 if (!string.IsNullOrEmpty(weatherReport.NowSky))
                     Widget.Parent.Title = weatherReport.NowSky;
                 Widget.Parent.Icon = WeatherIcon.Source;
+            }
+
+            if (Widget.Sett.ShowIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
+            {
+                System.Drawing.Icon oicon = DrawIcon(weatherReport.NowTemp); //System.Drawing.Icon.FromHandle(bitmap.GetHicon());
+                Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance.SetOverlayIcon(Widget.Parent, oicon, "test");
+                //Widget.Parent.Icon = MakeIcon(15, 2);
             }
 
             for (int i = 0; i < ForecastPanel.Children.Count; i++)
@@ -153,14 +157,6 @@ namespace WeatherClockWidget
             FItem2.Day.Text = Widget.LocaleManager.GetString("Tomorrow");
 
 
-
-            if (Widget.Sett.ShowIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
-            {
-                System.Drawing.Icon oicon = DrawIcon(weatherReport.NowTemp); //System.Drawing.Icon.FromHandle(bitmap.GetHicon());
-                Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance.SetOverlayIcon(Widget.Parent, oicon, "test");
-                //Widget.Parent.Icon = MakeIcon(15, 2);
-            }
-
             ForecastGrid.Visibility = Widget.Sett.ShowForecast ? Visibility.Visible : Visibility.Collapsed;
 
             GetWeatherProviders();
@@ -180,9 +176,15 @@ namespace WeatherClockWidget
             showForecastItem.Checked += new RoutedEventHandler(showForecastItem_Checked);
             showForecastItem.Unchecked += new RoutedEventHandler(showForecastItem_Unchecked);
 
+            lastCitiesItem = new MenuItem();
+            lastCitiesItem.Header = Widget.LocaleManager.GetString("LastResults");
+            lastCitiesItem.IsEnabled = false;
+            Widget.Parent.ContextMenu.Opened += new RoutedEventHandler(ContextMenu_Opened);
+
             Widget.Parent.ContextMenu.Items.Insert(0, new Separator());
             Widget.Parent.ContextMenu.Items.Insert(0, showForecastItem);
             Widget.Parent.ContextMenu.Items.Insert(0, optionsItem);
+            Widget.Parent.ContextMenu.Items.Insert(0, lastCitiesItem);
             Widget.Parent.ContextMenu.Items.Insert(0, refreshItem);
 
             if (Widget.Sett.Debug)
@@ -242,6 +244,37 @@ namespace WeatherClockWidget
             mediaPlayer.Volume = 1;
         }
 
+        void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            lastCitiesItem.Items.Clear();
+            if (Widget.Sett.LastCities != null && Widget.Sett.LastCities.Count > 0)
+            {
+                lastCitiesItem.IsEnabled = true;
+                lastCitiesItem.Header = Widget.LocaleManager.GetString("LastResults");
+                foreach (CityLocation city in Widget.Sett.LastCities)
+                {
+                    var subItem = new MenuItem();
+                    subItem.Header = city.City;
+                    subItem.Click += new RoutedEventHandler(subItem_Click);
+                    lastCitiesItem.Items.Add(subItem);
+                }
+            }
+            else
+                lastCitiesItem.IsEnabled = false;
+        }
+
+        void subItem_Click(object sender, RoutedEventArgs e)
+        {
+            int index = lastCitiesItem.Items.IndexOf(sender);
+            if (index > -1)
+            {
+                Widget.Sett.Locationcode = Widget.Sett.LastCities[index].Code;
+                refreshItem_Click(sender, e);
+                //MessageBox.Show(Widget.Sett.LastCities[index].City);
+            }
+        }
+
+
         void showForecastItem_Unchecked(object sender, RoutedEventArgs e)
         {
             ForecastGrid.Visibility = Visibility.Collapsed;
@@ -256,7 +289,6 @@ namespace WeatherClockWidget
 
         private System.Drawing.Icon MakeIcon(int degrees, int skycode)
         {
-
             System.Drawing.Icon oIcon = null;
             try
             {

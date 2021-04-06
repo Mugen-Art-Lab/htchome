@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Xml.Serialization;
 
 namespace WeatherClockWidget.Domain
@@ -19,7 +20,9 @@ namespace WeatherClockWidget.Domain
 
         public bool EnableWeatherAnimation = true;
 
-        public double Interval = 20;
+        public double Interval = 30;
+
+        public List<CityLocation> LastCities;
 
         public string Locationcode = "";
 

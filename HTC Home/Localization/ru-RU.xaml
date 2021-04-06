@@ -5,6 +5,10 @@
     <s:String x:Key="LocaleName">Русский</s:String>
     <s:String x:Key="LocaleAuthor">Автор перевода: Stealth</s:String>
     <!-- General strings -->
+    <s:String x:Key="SkinInstalled">Скин установлен!</s:String>
+    <s:String x:Key="SkinNotInstalled">Невозможно установить скин!</s:String>
+    <s:String x:Key="ExtensionInstalled">Расширение установлено!</s:String>
+    <s:String x:Key="ExtensionNotInstalled">Невозможно установить расширение!</s:String>
     <!-- Menu strings -->
     <s:String x:Key="Pin">Закрепить</s:String>
     <s:String x:Key="Refresh">Обновить</s:String>
@@ -12,7 +16,7 @@
     <s:String x:Key="HomeOptions">Настройки HTC Home</s:String>
     <s:String x:Key="Close">Закрыть виджет</s:String>
     <s:String x:Key="CloseHome">Закрыть HTC Home</s:String>
-    <s:String x:Key="Add">Добавить виджет</s:String>
+    <s:String x:Key="Widgets">Виджеты</s:String>
     <!-- Options strings -->
     <s:String x:Key="Title">Настройки</s:String>
     <s:String x:Key="General">Общие</s:String>

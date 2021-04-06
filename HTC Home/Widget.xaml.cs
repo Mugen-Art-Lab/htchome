@@ -88,7 +88,8 @@ namespace HTCHome
 
             CloseItem.Header = App.LocaleManager.GetString("Close");
             CloseHomeItem.Header = App.LocaleManager.GetString("CloseHome");
-           
+
+            GalleryItem.Header = App.LocaleManager.GetString("Widgets");
             HomeOptionsItem.Header = App.LocaleManager.GetString("HomeOptions");
             PinItem.Header = App.LocaleManager.GetString("Pin");
             TopMostItem.Header = App.LocaleManager.GetString("TopMost");
@@ -106,9 +107,9 @@ namespace HTCHome
 
         public void Load()
         {
+            widget.SetParent(this);
             UserControl w = widget.Load();
             w.SizeChanged += new SizeChangedEventHandler(w_SizeChanged);
-            widget.SetParent(this);
             this.Width = w.Width;
             this.Height = w.Height;
 
@@ -298,7 +299,22 @@ namespace HTCHome
             {
                 foreach (string f in files)
                 {
-                    App.Unpack(App.Path, f);
+                    try
+                    {
+                        App.Unpack(App.Path, f);
+                        if (f.EndsWith(".hhskin"))
+                            MessageBox.Show(App.LocaleManager.GetString("SkinInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Information);
+                        else
+                            MessageBox.Show(App.LocaleManager.GetString("ExtensionInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (f.EndsWith(".hhskin"))
+                            MessageBox.Show(App.LocaleManager.GetString("SkinNotInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                        else
+                            MessageBox.Show(App.LocaleManager.GetString("ExtensionNotInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                        App.Log("Can't install exntension " + f + "\n" + ex.ToString());
+                    }
                 }
             }
         }
@@ -316,7 +332,7 @@ namespace HTCHome
             {
                 var item = new ToggleButton();
                 item.ToolTip = widget1.WidgetName;
-                item.Margin = new Thickness(0,0,5,0);
+                item.Margin = new Thickness(0, 0, 5, 0);
                 Image icon = new Image();
                 icon.Source = new BitmapImage(new Uri(widget1.WidgetIcon));
                 icon.Width = 20;
@@ -328,6 +344,18 @@ namespace HTCHome
                 item.Unchecked += item_Unchecked;
                 AddWidgetPanel.Children.Add(item);
             }
+        }
+
+        private void GalleryItemClick(object sender, RoutedEventArgs e)
+        {
+            App.Gallery = new Gallery.Gallery()
+                              {
+                                  Left = 0,
+                                  Top = 0,
+                                  Width = SystemParameters.PrimaryScreenWidth,
+                                  Height = SystemParameters.PrimaryScreenHeight
+                              };
+            App.Gallery.ShowDialog();
         }
     }
 }

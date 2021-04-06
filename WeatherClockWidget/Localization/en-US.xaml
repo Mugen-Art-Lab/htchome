@@ -10,7 +10,9 @@
     <s:String x:Key="Today">Today</s:String>
     <s:String x:Key="Tomorrow">Tomorrow</s:String>
     <!-- Menu strings -->
+    <s:String x:Key="Refresh">Refresh</s:String>
     <s:String x:Key="Options">Widget settings</s:String>
+    <s:String x:Key="LastResults">Last locations</s:String>
     <!-- Options strings -->
     <s:String x:Key="Title">Settings</s:String>
     <s:String x:Key="General">General</s:String>
@@ -27,6 +29,7 @@
     <s:String x:Key="EnableSounds">Enable weather sounds</s:String>
     <s:String x:Key="CurrentLocationText">Current location:</s:String>
     <s:String x:Key="TypeLocationText">Type the name of your city:</s:String>
+    <s:String x:Key="NoResults">No cities found. Try another weather provider.</s:String>
     <s:String x:Key="Interval">Interval (minutes):</s:String>
     <s:String x:Key="EnableWallpaperChanging">Change desktop wallpaper with weather</s:String>
     <s:String x:Key="WallpapersFolder">Wallpapers folder:</s:String>

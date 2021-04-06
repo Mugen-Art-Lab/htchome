@@ -112,7 +112,7 @@ namespace WeatherClockWidget
                 wallpapers = from x in _wallpapers where x.Wtype == weather && x.Type == DateTimeType.None select x;
 
             var r = new Random(Environment.TickCount);
-            var index = r.Next(wallpapers.Count());
+            var index = r.Next(0, wallpapers.Count() -1 );
             HTCHome.Core.WinAPI.SystemParametersInfo(HTCHome.Core.WinAPI.SPI_SETDESKWALLPAPER, 0, wallpapers.ElementAt(index).Path, HTCHome.Core.WinAPI.SPIF_UPDATEINIFILE).ToString();
         }
     }

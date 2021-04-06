@@ -44,7 +44,7 @@ namespace HTCHome
             if (result.LoadedWidgets == null || result.LoadedWidgets.Count == 0)
             {
                 result.LoadedWidgets = new List<string>();
-                result.LoadedWidgets.Add("Weather/Clock");
+                result.LoadedWidgets.Add("Weather/Clock widget");
             }
             return result;
         }

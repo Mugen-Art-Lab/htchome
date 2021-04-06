@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
              d:DesignHeight="280" d:DesignWidth="500"
              Style="{DynamicResource WidgetStyle}"
-             Loaded="UserControl_Loaded" MouseLeftButtonDown="UserControl_MouseLeftButtonDown">
+             MouseLeftButtonDown="UserControl_MouseLeftButtonDown">
     <UserControl.Resources>
         <ResourceDictionary x:Name="Skin"/>
     </UserControl.Resources>

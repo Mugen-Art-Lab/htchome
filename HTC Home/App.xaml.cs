@@ -40,13 +40,16 @@ namespace HTCHome
 
         public static LocaleManager LocaleManager;
 
-        private HotKey hotkey;
+        private HotKey moveForegroundHotkey;
+        private HotKey galleryHotkey;
+
+        public static Gallery.Gallery Gallery;
 
         private void ApplicationDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             Log("Unhandled exception!");
             Log(e.Exception.ToString());
-            MessageBox.Show(e.Exception.Message);
+            MessageBox.Show(e.Exception.Message, "HTC Home error", MessageBoxButton.OK, MessageBoxImage.Error);
             e.Handled = true;
         }
 
@@ -82,33 +85,6 @@ namespace HTCHome
                 var p = new ProcessStartInfo { Verb = "runas", FileName = Assembly.GetExecutingAssembly().Location };
                 Process.Start(p);
                 Shutdown();
-            }
-
-            if (e.Args.Length != 0)
-            {
-                var skins = from x in e.Args
-                            where x.EndsWith(".hhskin") && File.Exists(x)
-                            select x;
-                if (skins.Count() > 0)
-                {
-                    foreach (var s in skins)
-                    {
-                        Unpack(Path, s);
-                        Shutdown();
-                    }
-                }
-
-                var extensions = from x in e.Args
-                                 where x.EndsWith(".hhext") && File.Exists(x)
-                                 select x;
-                if (extensions.Count() > 0)
-                {
-                    foreach (var ext in extensions)
-                    {
-                        Unpack(Path, ext);
-                        Shutdown();
-                    }
-                }
             }
 
             if (!Directory.Exists(Path + "\\Config"))
@@ -150,13 +126,58 @@ namespace HTCHome
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo(sett.Locale);
             }
-            catch
-            {
-            }
+            catch { }
 
             HTCHome.Core.Environment.Path = Path + "\\Widgets";
             HTCHome.Core.Environment.ConfigDirectory = Path + "\\Config";
             HTCHome.Core.Environment.Locale = sett.Locale;
+
+            if (e.Args.Length != 0)
+            {
+                var skins = from x in e.Args
+                            where x.EndsWith(".hhskin") && File.Exists(x)
+                            select x;
+                if (skins.Count() > 0)
+                {
+                    foreach (var s in skins)
+                    {
+                        try
+                        {
+                            Unpack(Path, s);
+                            MessageBox.Show(App.LocaleManager.GetString("SkinInstalled"), "", MessageBoxButton.OK,
+                                            MessageBoxImage.Information);
+                            Shutdown();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(App.LocaleManager.GetString("SkinNotInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Log("Can't install skin " + s + "\n" + ex.ToString());
+                        }
+                    }
+                }
+
+                var extensions = from x in e.Args
+                                 where x.EndsWith(".hhext") && File.Exists(x)
+                                 select x;
+                if (extensions.Count() > 0)
+                {
+                    foreach (var ext in extensions)
+                    {
+                        try
+                        {
+                            Unpack(Path, ext);
+                            MessageBox.Show(App.LocaleManager.GetString("ExtensionInstalled"), "", MessageBoxButton.OK,
+                                            MessageBoxImage.Information);
+                            Shutdown();
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(App.LocaleManager.GetString("ExtensionNotInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                            Log("Can't install exntension " + ext + "\n" + ex.ToString());
+                        }
+                    }
+                }
+            }
 
             if (e.Args.Contains("-addicon"))
                 AddTrayIcon();
@@ -203,22 +224,37 @@ namespace HTCHome
 
             if (widgets != null && widgets.Count > 0)
             {
-                hotkey = new HotKey(System.Windows.Input.ModifierKeys.Windows, Keys.H, IntPtr.Zero);
-                hotkey.HotKeyPressed += (k) =>
+                moveForegroundHotkey = new HotKey(System.Windows.Input.ModifierKeys.Windows, Keys.H, IntPtr.Zero);
+                moveForegroundHotkey.HotKeyPressed += (k) =>
                 {
                     foreach (Widget w in widgets)
                         w.Activate();
                 };
+
+                galleryHotkey = new HotKey(System.Windows.Input.ModifierKeys.Windows, Keys.J, IntPtr.Zero);
+                galleryHotkey.HotKeyPressed += (k) =>
+                {
+                    var gallery = new Gallery.Gallery()
+                    {
+                        Left = 0,
+                        Top = 0,
+                        Width = SystemParameters.PrimaryScreenWidth,
+                        Height = SystemParameters.PrimaryScreenHeight
+                    };
+                    gallery.ShowDialog();
+                };
             }
         }
-
 
         private void ApplicationExit(object sender, ExitEventArgs e)
         {
             //RemoveTrayIcon();
 
-            if (hotkey != null)
-                hotkey.Dispose();
+            if (moveForegroundHotkey != null)
+                moveForegroundHotkey.Dispose();
+
+            if (galleryHotkey != null)
+                galleryHotkey.Dispose();
 
             sett.LoadedWidgets = new List<string>();
 
@@ -234,7 +270,7 @@ namespace HTCHome
             }
             catch (Exception)
             {
-                
+
             }
         }
 

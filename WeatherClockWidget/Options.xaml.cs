@@ -107,14 +107,15 @@ namespace WeatherClockWidget
             ApplyButton.Content = Widget.LocaleManager.GetString("Apply");
 
             CurrentLocationTextBlock.Text = Widget.LocaleManager.GetString("CurrentLocation");
-            EnterLocationTextBlock.Text = Widget.LocaleManager.GetString("EnterLocation");
+            EnterLocationTextBlock.Text = Widget.LocaleManager.GetString("TypeLocationText");
             DetectLocationCheckBox.Content = Widget.LocaleManager.GetString("DetectLocation");
 
             TaskbarIconCheckBox.IsChecked = Widget.Sett.ShowIconOnTaskbar;
             WeatherCheckBox.IsChecked = Widget.Sett.EnableWeather;
             WeatherAnimationCheckBox.IsChecked = Widget.Sett.EnableWeatherAnimation;
             ShowForecastCheckBox.IsChecked = Widget.Sett.ShowForecast;
-            IntervalTextBox.Text = Widget.Sett.Interval.ToString();
+            //IntervalTextBox.Text = Widget.Sett.Interval.ToString();
+            IntervalComboBox.Text = Widget.Sett.Interval.ToString();
             EnableSoundsCheckBox.IsChecked = Widget.Sett.EnableSounds;
             WallpaperChangingCheckBox.IsChecked = Widget.Sett.EnableWallpaperChanging;
 
@@ -218,17 +219,32 @@ namespace WeatherClockWidget
             }, null);
 
             List<CityLocation> locations = widget.currentProvider.GetLocation(l);
-            foreach (CityLocation location in locations)
+            if (locations != null && locations.Count > 0)
+            {
+                foreach (CityLocation location in locations)
+                {
+                    SearchResults.Dispatcher.Invoke((Action)delegate
+                                                                 {
+                                                                     LocationItem item = new LocationItem();
+                                                                     item.Header = location.City;
+                                                                     item.Order = SearchResults.Children.Count;
+                                                                     item.MouseLeftButtonDown +=
+                                                                         new MouseButtonEventHandler(
+                                                                             item_MouseLeftButtonDown);
+                                                                     SearchResults.Children.Add(item);
+                                                                 }, null);
+                    results.Add(location);
+                }
+            }
+            else
             {
                 SearchResults.Dispatcher.Invoke((Action)delegate
-                {
-                    LocationItem item = new LocationItem();
-                    item.Header = location.City;
-                    item.Order = SearchResults.Children.Count;
-                    item.MouseLeftButtonDown += new MouseButtonEventHandler(item_MouseLeftButtonDown);
-                    SearchResults.Children.Add(item);
-                }, null);
-                results.Add(location);
+                                             {
+                                                 LocationItem item = new LocationItem();
+                                                 item.Header = Widget.LocaleManager.GetString("NoResults");
+                                                 item.IsEnabled = false;
+                                                 SearchResults.Children.Add(item);
+                                             }, null);
             }
 
             SearchProgress.Dispatcher.Invoke((Action)delegate
@@ -240,6 +256,12 @@ namespace WeatherClockWidget
         void item_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.SelectedIndex = SearchResults.Children.IndexOf((LocationItem)sender);
+            if (!Widget.Sett.LastCities.Contains(results[SelectedIndex]))
+            {
+                Widget.Sett.LastCities.Insert(0, results[SelectedIndex]);
+                if (Widget.Sett.LastCities.Count > 5)
+                    Widget.Sett.LastCities.RemoveAt(Widget.Sett.LastCities.Count - 1);
+            }
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
@@ -293,10 +315,13 @@ namespace WeatherClockWidget
 
         private void ApplySettings()
         {
+            if (Widget.Sett.WeatherProvider != ProviderComboBox.Text)
+                Widget.Sett.LastCities.Clear();
+
             Widget.Sett.ShowIconOnTaskbar = (bool)TaskbarIconCheckBox.IsChecked;
             Widget.Sett.EnableWeather = (bool)WeatherCheckBox.IsChecked;
             Widget.Sett.EnableWeatherAnimation = (bool)WeatherAnimationCheckBox.IsChecked;
-            Widget.Sett.Interval = Convert.ToInt32(IntervalTextBox.Text);
+            Widget.Sett.Interval = Convert.ToInt32(IntervalComboBox.Text);
             Widget.Sett.EnableWallpaperChanging = (bool)WallpaperChangingCheckBox.IsChecked;
             Widget.Sett.ShowForecast = (bool)ShowForecastCheckBox.IsChecked;
             Widget.Sett.WeatherProvider = ProviderComboBox.Text;

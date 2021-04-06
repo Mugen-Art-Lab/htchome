@@ -74,6 +74,11 @@
       <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="V2\Domain\ForecastData.cs" />
+    <Compile Include="V2\Domain\LocationData.cs" />
+    <Compile Include="V2\Domain\WeatherReportData.cs" />
+    <Compile Include="V2\IWeatherProvider.cs" />
+    <Compile Include="V2\WeatherProviderTemplate.cs" />
     <Compile Include="Wallpaper.cs" />
     <Compile Include="WallpaperManager.cs" />
     <Compile Include="WeatherAnimation\Cloud.xaml.cs">
@@ -162,10 +167,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Resource Include="Resources\taskbar_preview.png" />
-    <Content Include="Resources\bg.png">
+    <Content Include="Resources\base_default.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Resources\forecast_bg.png">
+    <Content Include="Resources\forecast_base_default.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Weather\overlay_icon.png">
@@ -201,10 +206,10 @@
     <Content Include="Resources\Weather\snowflake5.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Classic Sense\bg.png">
+    <Content Include="Skins\Classic Sense\base_default.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Classic Sense\forecast_bg.png">
+    <Content Include="Skins\Classic Sense\forecast_base_default.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skins\Classic Sense\Preview.png">
@@ -285,9 +290,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\forecast_base_default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\FlipAnim\Background\flip_bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

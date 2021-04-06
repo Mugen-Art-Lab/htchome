@@ -5,6 +5,10 @@
     <s:String x:Key="LocaleName">English</s:String>
     <s:String x:Key="LocaleAuthor">Translated by Stealth</s:String>
     <!-- General strings -->
+    <s:String x:Key="SkinInstalled">Skin installed!</s:String>
+    <s:String x:Key="SkinNotInstalled">Skin installation failed!</s:String>
+    <s:String x:Key="ExtensionInstalled">Extension installed!</s:String>
+    <s:String x:Key="ExtensionNotInstalled">Extension installation failed!</s:String>
     <!-- Menu strings -->
     <s:String x:Key="Pin">Pin</s:String>
     <s:String x:Key="Refresh">Refresh</s:String>
@@ -12,7 +16,7 @@
     <s:String x:Key="HomeOptions">HTC Home settings</s:String>
     <s:String x:Key="Close">Close widget</s:String>
     <s:String x:Key="CloseHome">Close HTC Home</s:String>
-    <s:String x:Key="Add">Add widget</s:String>
+    <s:String x:Key="Widgets">Widgets</s:String>
     <!-- Options strings -->
     <s:String x:Key="Title">Options</s:String>
     <s:String x:Key="General">General</s:String>

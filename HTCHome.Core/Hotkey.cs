@@ -70,8 +70,11 @@ namespace HTCHome.Core
 
         public void Dispose()
         {
-            ComponentDispatcher.ThreadPreprocessMessage -= ThreadPreprocessMessageMethod;
-            UnregisterHotKey();
+            if (_isKeyRegistered)
+            {
+                ComponentDispatcher.ThreadPreprocessMessage -= ThreadPreprocessMessageMethod;
+                UnregisterHotKey();
+            }
         }
 
         private void ThreadPreprocessMessageMethod(ref MSG msg, ref bool handled)

@@ -21,6 +21,11 @@
             <MenuItem Name="CloseItem" Header="Close widget" Click="CloseItem_Click"/>
             <Separator/>
             <StackPanel Name="AddWidgetPanel" Orientation="Horizontal"/>
+            <MenuItem Name="GalleryItem" Header="Widgets" Click="GalleryItemClick">
+                <MenuItem.Icon>
+                    <Image Source="Resources/icon.png" Width="16" Height="16"/>
+                </MenuItem.Icon>
+            </MenuItem>
             <MenuItem Name="HomeOptionsItem" Header="HTC Home settings" Click="HomeOptionsItem_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/icon.png" Width="16" Height="16"/>

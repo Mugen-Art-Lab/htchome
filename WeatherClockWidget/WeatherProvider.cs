@@ -41,21 +41,29 @@ namespace WeatherClockWidget
 
         public List<CityLocation> GetLocation(string s)
         {
-            return _provider.GetLocation(s);
+            try
+            {
+                return _provider.GetLocation(s);
+            }
+            catch (Exception ex)
+            {
+                HTCHome.Core.Logger.Log("Can't find location.\n" + ex.ToString());
+                return null;
+            }
         }
 
         public WeatherReport GetWeatherReport(string locale, string locationcode, int degreeType)
         {
-            WeatherReport weatherReport = null;
             try
             {
-                 weatherReport= _provider.GetWeatherReport(locale, locationcode, degreeType);
+                var weatherReport = _provider.GetWeatherReport(locale, locationcode, degreeType);
+                return weatherReport;
             }
             catch (Exception ex)
             {
-                HTCHome.Core.Logger.Log(ex.ToString());
+                HTCHome.Core.Logger.Log("Can't get weather report.\n" + ex.ToString());
             }
-            return weatherReport;
+            return null;
         }
 
         /// <exception cref = "System.TypeLoadException"><c>TypeLoadException</c>.</exception>

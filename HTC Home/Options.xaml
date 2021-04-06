@@ -249,7 +249,7 @@
                             <StackPanel Margin="10,10,10,20">
                                 <CheckBox Name="AutostartCheckBox" Click="CheckBox_Click" Content="Autostart with Windows"/>
                                 <CheckBox Name="EnableGlassCheckBox" Click="CheckBox_Click" Content="Enable Aero Glass"/>
-                                <CheckBox Name="CheckForUpdatesCheckBox" Click="CheckBox_Click" Content="Check for updates"/>
+                                <CheckBox Name="CheckForUpdatesCheckBox" Click="CheckBox_Click" Content="Check for updates" Visibility="Collapsed"/>
                                 <TextBlock Name="LangTextBlock" Margin="0,3,0,3" Text="Language:"/>
                                 <ComboBox Name="LangComboBox" SelectedIndex="2" SelectionChanged="ComboBox_SelectionChanged_1"/>
                             </StackPanel>

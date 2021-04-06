@@ -36,16 +36,12 @@ namespace WeatherClockWidget
 
         public string GetWidgetName()
         {
-            return "Weather/Clock";
+            return "Weather/Clock widget";
         }
 
         public UserControl Load()
         {
-            //var stopwatch = new Stopwatch();
-            //stopwatch.Start();
             Sett = Settings.Read(E.ConfigDirectory + "\\WeatherClockWidget.conf");
-            //stopwatch.Stop();
-            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString());
 
             LocaleManager = new HTCHome.Core.LocaleManager(E.Path + "\\WeatherClock\\Localization");
             LocaleManager.LoadLocale(E.Locale);
@@ -58,6 +54,7 @@ namespace WeatherClockWidget
             }
 
             _widgetControl = new WeatherClock();
+            ((WeatherClock)_widgetControl).Load();
             return _widgetControl;
         }
 
