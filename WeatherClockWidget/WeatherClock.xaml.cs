@@ -42,6 +42,9 @@ namespace WeatherClockWidget
         private Options options;
 
         public static bool UseClockAnimation = true;
+        private WallpaperManager _wallpaperManager;
+
+        public static MediaPlayer mediaPlayer;
 
         public WeatherClock()
         {
@@ -52,16 +55,16 @@ namespace WeatherClockWidget
 
         private void Initialize()
         {
-            if (!Directory.Exists(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.skin))
-                Widget.Sett.skin = "Sense";
+            if (!Directory.Exists(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin))
+                Widget.Sett.Skin = "Modern Sense";
             Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("bg.png")));
-            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_base_default.png")));
+            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_bg.png")));
 
             FrostLeft.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_left.png")));
             FrostRight.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_right.png")));
 
             DateTime d = DateTime.Now.AddHours(-1).AddMinutes(-2);
-            if (Widget.Sett.timeMode == 1)
+            if (Widget.Sett.TimeMode == 1)
             {
                 int h = Convert.ToInt32(d.ToString("hh"));
                 Hours.Initialize(h);
@@ -71,20 +74,20 @@ namespace WeatherClockWidget
 
             Minutes.Initialize(d.Minute);
 
-            Skin.Source = new Uri(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.skin + "\\Layout.xaml");
+            Skin.Source = new Uri(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin + "\\Layout.xaml");
         }
 
         public void ReloadSkin()
         {
-            Skin.Source = new Uri(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.skin + "\\Layout.xaml");
-            Widget.ResourceManager = new ResourceManager(E.Path + "\\WeatherClock", Widget.Sett.skin);
+            Skin.Source = new Uri(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin + "\\Layout.xaml");
+            Widget.ResourceManager = new ResourceManager(E.Path + "\\WeatherClock", Widget.Sett.Skin);
 
-            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("base_default.png")));
-            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_base_default.png")));
+            Bg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("bg.png")));
+            ForecastBg.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("forecast_bg.png")));
             FrostLeft.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_left.png")));
             FrostRight.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath("Weather\\frost_right.png")));
 
-            if (Widget.Sett.timeMode == 1)
+            if (Widget.Sett.TimeMode == 1)
             {
                 int h = Convert.ToInt32(DateTime.Now.ToString("hh"));
                 Hours.Initialize(h);
@@ -105,7 +108,7 @@ namespace WeatherClockWidget
             timer.Tick += new EventHandler(timer_Tick);
 
             weatherTimer = new DispatcherTimer();
-            weatherTimer.Interval = TimeSpan.FromMinutes(Widget.Sett.interval);
+            weatherTimer.Interval = TimeSpan.FromMinutes(Widget.Sett.Interval);
             weatherTimer.Tick += weatherTimer_Tick;
 
             Minutes.HalfFlip += Minutes_HalfFlip;
@@ -117,7 +120,7 @@ namespace WeatherClockWidget
             Weather.Text = weatherReport.NowSky;
             Temperature.Text = weatherReport.NowTemp.ToString() + "°";
 
-            if (Widget.Sett.showIconOnTaskbar)
+            if (Widget.Sett.ShowIconOnTaskbar)
                 Widget.Parent.ShowInTaskbar = true;
 
             /*Image icon = new Image();
@@ -125,7 +128,7 @@ namespace WeatherClockWidget
             icon.MouseLeftButtonDown += icon_MouseLeftButtonDown;
             WeatherIconGrid.Children.Add(icon);*/
             WeatherIcon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.NowSkyCode))));
-            if (Widget.Sett.showIconOnTaskbar)
+            if (Widget.Sett.ShowIconOnTaskbar)
             {
                 if (!string.IsNullOrEmpty(weatherReport.NowSky))
                     Widget.Parent.Title = weatherReport.NowSky;
@@ -134,7 +137,7 @@ namespace WeatherClockWidget
 
             for (int i = 0; i < ForecastPanel.Children.Count; i++)
             {
-                ForecastItem item = (ForecastItem)ForecastPanel.Children[i];
+                var item = (ForecastItem)ForecastPanel.Children[i];
                 item.Initialize();
                 item.Day.Text = DateTime.Today.AddDays(i).ToString((string)Skin["ForecastDateFormat"]);
                 if (weatherReport.Forecast != null && weatherReport.Forecast.Count == 5)
@@ -149,76 +152,74 @@ namespace WeatherClockWidget
             FItem1.Day.Text = Widget.LocaleManager.GetString("Today");
             FItem2.Day.Text = Widget.LocaleManager.GetString("Tomorrow");
 
-            
 
-            if (Widget.Sett.showIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
+
+            if (Widget.Sett.ShowIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
             {
                 System.Drawing.Icon oicon = DrawIcon(weatherReport.NowTemp); //System.Drawing.Icon.FromHandle(bitmap.GetHicon());
                 Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance.SetOverlayIcon(Widget.Parent, oicon, "test");
                 //Widget.Parent.Icon = MakeIcon(15, 2);
             }
 
-            ForecastGrid.Visibility = Widget.Sett.showForecast ? Visibility.Visible : Visibility.Collapsed;
+            ForecastGrid.Visibility = Widget.Sett.ShowForecast ? Visibility.Visible : Visibility.Collapsed;
 
             GetWeatherProviders();
 
-            MenuItem optionsItem = new MenuItem();
+            var optionsItem = new MenuItem();
             optionsItem.Header = Widget.LocaleManager.GetString("Options");
             optionsItem.Click += optionsItem_Click;
 
-            MenuItem refreshItem = new MenuItem();
+            var refreshItem = new MenuItem();
             refreshItem.Header = Widget.LocaleManager.GetString("Refresh");
             refreshItem.Click += new RoutedEventHandler(refreshItem_Click);
 
+            var showForecastItem = new MenuItem();
+            showForecastItem.Header = Widget.LocaleManager.GetString("ShowForecast");
+            showForecastItem.IsChecked = Widget.Sett.ShowForecast;
+            showForecastItem.IsCheckable = true;
+            showForecastItem.Checked += new RoutedEventHandler(showForecastItem_Checked);
+            showForecastItem.Unchecked += new RoutedEventHandler(showForecastItem_Unchecked);
 
             Widget.Parent.ContextMenu.Items.Insert(0, new Separator());
+            Widget.Parent.ContextMenu.Items.Insert(0, showForecastItem);
             Widget.Parent.ContextMenu.Items.Insert(0, optionsItem);
             Widget.Parent.ContextMenu.Items.Insert(0, refreshItem);
 
-            if (Widget.Sett.debug)
+            if (Widget.Sett.Debug)
             {
-                MenuItem DemoItem = new MenuItem();
-                DemoItem.Header = "Demo";
+                var demoItem = new MenuItem { Header = "Demo" };
 
-                MenuItem rainDemo = new MenuItem();
-                rainDemo.Header = "Rain";
+                var rainDemo = new MenuItem { Header = "Rain" };
                 rainDemo.Click += new RoutedEventHandler(rainDemo_Click);
 
-                MenuItem snowDemo = new MenuItem();
-                snowDemo.Header = "Snow";
+                var snowDemo = new MenuItem { Header = "Snow" };
                 snowDemo.Click += new RoutedEventHandler(snowDemo_Click);
 
-                MenuItem cloudsDemo = new MenuItem();
-                cloudsDemo.Header = "Clouds";
+                var cloudsDemo = new MenuItem { Header = "Clouds" };
                 cloudsDemo.Click += new RoutedEventHandler(cloudsDemo_Click);
 
-                MenuItem lightningDemo = new MenuItem();
-                lightningDemo.Header = "Lightning";
+                var lightningDemo = new MenuItem { Header = "Lightning" };
                 lightningDemo.Click += new RoutedEventHandler(lightningDemo_Click);
 
-                MenuItem frostDemo = new MenuItem();
-                frostDemo.Header = "Cold";
+                var frostDemo = new MenuItem { Header = "Cold" };
                 frostDemo.Click += new RoutedEventHandler(frostDemo_Click);
 
-                DemoItem.Items.Add(rainDemo);
-                DemoItem.Items.Add(snowDemo);
-                DemoItem.Items.Add(cloudsDemo);
-                DemoItem.Items.Add(lightningDemo);
-                DemoItem.Items.Add(frostDemo);
+                demoItem.Items.Add(rainDemo);
+                demoItem.Items.Add(snowDemo);
+                demoItem.Items.Add(cloudsDemo);
+                demoItem.Items.Add(lightningDemo);
+                demoItem.Items.Add(frostDemo);
 
-                Widget.Parent.ContextMenu.Items.Insert(0, DemoItem);
+                Widget.Parent.ContextMenu.Items.Insert(0, demoItem);
             }
 
-            if (Widget.Sett.timeMode == 1)
-                Hours.ShowAmPm = true;
-            else
-                Hours.ShowAmPm = false;
+            Hours.ShowAmPm = Widget.Sett.TimeMode == 1;
 
-            Scale.ScaleX = Widget.Sett.scaleFactor;
+            Scale.ScaleX = Widget.Sett.ScaleFactor;
 
             options = new Options(this);
 
-            XDocument doc = XDocument.Load(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.skin + "\\Skin.xml");
+            XDocument doc = XDocument.Load(E.Path + "\\WeatherClock\\Skins\\" + Widget.Sett.Skin + "\\Skin.xml");
             WeatherClock.UseClockAnimation = Convert.ToBoolean(doc.Root.Element("UseClockAnimation").Value);
 
             if (UseClockAnimation)
@@ -228,11 +229,29 @@ namespace WeatherClockWidget
             else
             {
                 lastMinute = 0;
-                Minutes.Flip(DateTime.Now.Minute, Widget.Sett.timeMode, UseClockAnimation);
+                Minutes.Flip(DateTime.Now.Minute, Widget.Sett.TimeMode, UseClockAnimation);
                 timer.Start();
                 weatherTimer.Start();
                 weatherTimer_Tick(null, EventArgs.Empty);
             }
+
+            _wallpaperManager = new WallpaperManager();
+            _wallpaperManager.Scan(Widget.Sett.WallpapersFolder);
+
+            mediaPlayer = new MediaPlayer();
+            mediaPlayer.Volume = 1;
+        }
+
+        void showForecastItem_Unchecked(object sender, RoutedEventArgs e)
+        {
+            ForecastGrid.Visibility = Visibility.Collapsed;
+            Widget.Sett.ShowForecast = false;
+        }
+
+        void showForecastItem_Checked(object sender, RoutedEventArgs e)
+        {
+            ForecastGrid.Visibility = Visibility.Visible;
+            Widget.Sett.ShowForecast = true;
         }
 
         private System.Drawing.Icon MakeIcon(int degrees, int skycode)
@@ -359,7 +378,7 @@ namespace WeatherClockWidget
                 {
                     var p = new WeatherProvider(f);
                     providers.Add(p);
-                    if (Widget.Sett.weatherProvider == p.Name)
+                    if (Widget.Sett.WeatherProvider == p.Name)
                     {
                         currentProvider = p;
                         p.Load();
@@ -370,16 +389,16 @@ namespace WeatherClockWidget
 
         public void UpdateSettings()
         {
-            Scale.ScaleX = Widget.Sett.scaleFactor;
+            Scale.ScaleX = Widget.Sett.ScaleFactor;
             Scale.ScaleY = Scale.ScaleX;
 
-            if (Convert.ToBoolean(Widget.Sett.timeMode) != Hours.ShowAmPm)
+            if (Convert.ToBoolean(Widget.Sett.TimeMode) != Hours.ShowAmPm)
                 FirstFlip();
-            ForecastGrid.Visibility = Widget.Sett.showForecast ? Visibility.Visible : Visibility.Collapsed;
+            ForecastGrid.Visibility = Widget.Sett.ShowForecast ? Visibility.Visible : Visibility.Collapsed;
             if (E.Locale != Widget.LocaleManager.LocaleCode)
                 Widget.LocaleManager.LoadLocale(E.Locale);
 
-            if (Skin.Source.AbsolutePath != Widget.Sett.skin)
+            if (Skin.Source.AbsolutePath != Widget.Sett.Skin)
             {
                 ReloadSkin();
             }
@@ -431,7 +450,7 @@ namespace WeatherClockWidget
         {
             if (DateTime.Now.Hour != lastHour || firstFlip)
             {
-                if (Widget.Sett.timeMode == 1)
+                if (Widget.Sett.TimeMode == 1)
                 {
                     int m;
                     if (DateTime.Now.Hour >= 12 && DateTime.Now.Hour <= 23)
@@ -463,8 +482,8 @@ namespace WeatherClockWidget
             lastHour = DateTime.Now.Hour;
             lastMinute = DateTime.Now.Minute;
 
-            if (Convert.ToBoolean(Widget.Sett.timeMode) != Hours.ShowAmPm)
-                Hours.ShowAmPm = Convert.ToBoolean(Widget.Sett.timeMode);
+            if (Convert.ToBoolean(Widget.Sett.TimeMode) != Hours.ShowAmPm)
+                Hours.ShowAmPm = Convert.ToBoolean(Widget.Sett.TimeMode);
         }
 
         public void weatherTimer_Tick(object sender, EventArgs e)
@@ -494,14 +513,14 @@ namespace WeatherClockWidget
 
         private void GetWeatherReport()
         {
-            WeatherReport temp = new WeatherReport();
-            if (Widget.Sett.locationcode != string.Empty)
+            WeatherReport temp;
+            if (Widget.Sett.Locationcode != string.Empty)
             {
-                temp = currentProvider.GetWeatherReport(E.Locale, Widget.Sett.locationcode, Widget.Sett.degreeType);
+                temp = currentProvider.GetWeatherReport(E.Locale, Widget.Sett.Locationcode, Widget.Sett.DegreeType);
             }
             else
             {
-                temp = currentProvider.GetWeatherReport(E.Locale, string.Empty, Widget.Sett.degreeType);
+                temp = currentProvider.GetWeatherReport(E.Locale, string.Empty, Widget.Sett.DegreeType);
             }
 
             if (temp != null)
@@ -520,7 +539,7 @@ namespace WeatherClockWidget
 
                 FlipWeatherIcon();
 
-                if (Widget.Sett.showIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
+                if (Widget.Sett.ShowIconOnTaskbar && Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.IsPlatformSupported)
                 {
                     System.Drawing.Icon oicon = DrawIcon(weatherReport.NowTemp);
                     Microsoft.WindowsAPICodePack.Taskbar.TaskbarManager.Instance.SetOverlayIcon(Widget.Parent, oicon, "");
@@ -553,7 +572,7 @@ namespace WeatherClockWidget
 
         private void RefreshWeatherFail()
         {
-
+            //MessageBox.Show("Fail");
         }
 
         private void FlipWeatherIcon()
@@ -563,7 +582,7 @@ namespace WeatherClockWidget
             WeatherIcon.Opacity = 0;
             WeatherIcon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.NowSkyCode))));
             ((Storyboard)WeatherIconGrid.Resources["Flip"]).Begin();
-            if (Widget.Sett.showIconOnTaskbar)
+            if (Widget.Sett.ShowIconOnTaskbar)
             {
                 if (!string.IsNullOrEmpty(weatherReport.NowSky))
                     Widget.Parent.Title = weatherReport.NowSky;
@@ -630,30 +649,38 @@ namespace WeatherClockWidget
             switch (weather)
             {
                 case 38:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartCloudAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Cloudy);
                     break;
                 case 6:
                 case 8:
                 case 3:
                 case 7:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartCloudAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Cloudy);
                     break;
                 case 11:
                     //StartFogAnimation();
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Misty);
                     break;
                 case 12:
                 case 13:
                 case 14:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartRainAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Rainy);
                     break;
 
                 case 19:
@@ -663,34 +690,45 @@ namespace WeatherClockWidget
                 case 23:
                 case 24:
                 case 25:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartSnowAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Snowy);
                     break;
 
                 case 32:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         //StartWindAnimation();
                     }
-
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Windy);
                     break;
                 case 18:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartRainAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Rainy);
                     break;
 
                 case 15:
                 case 16:
                 case 17:
-                    if (Widget.Sett.enableWeather && Widget.Sett.enableWeatherAnimation)
+                    if (Widget.Sett.EnableWeather && Widget.Sett.EnableWeatherAnimation)
                     {
                         StartLightningAnimation();
                         StartRainAnimation();
                     }
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Stormy);
+                    break;
+                default:
+                    if (Widget.Sett.EnableWallpaperChanging)
+                        _wallpaperManager.ChangeWallpaper(WallpaperManager.WeatherType.Sunny);
                     break;
             }
 
@@ -734,7 +772,7 @@ namespace WeatherClockWidget
                 }
             }*/
 
-            if (Widget.Sett.top < 10)
+            if (Widget.Sett.Top < 10)
             {
                 RainWiper wiper = new RainWiper();
                 wiper.Initialize();
@@ -748,7 +786,7 @@ namespace WeatherClockWidget
             WeatherAnimationCanvas.Children.Add(c1);
             WeatherAnimationCanvas.Children.Add(c2);
 
-            if (Widget.Sett.enableSounds)
+            if (Widget.Sett.EnableSounds)
                 c1.PlayRainSound();
         }
 
@@ -761,7 +799,7 @@ namespace WeatherClockWidget
             WeatherAnimationCanvas.Children.Add(l1);
             WeatherAnimationCanvas.Children.Add(l2);
 
-            if (Widget.Sett.enableSounds)
+            if (Widget.Sett.EnableSounds)
             {
                 l1.PlayLightningSound();
                 l2.PlayLightningSound();
@@ -785,7 +823,7 @@ namespace WeatherClockWidget
             WeatherAnimationCanvas.Children.Add(c1);
             WeatherAnimationCanvas.Children.Add(c2);
 
-            if (Widget.Sett.enableSounds)
+            if (Widget.Sett.EnableSounds)
                 c1.PlaySnowSound();
         }
 
@@ -811,11 +849,10 @@ namespace WeatherClockWidget
             Storyboard s = (Storyboard)FrostBg.Resources["FadeIn"];
             s.Begin();
 
-            if (Widget.Sett.enableSounds)
+            if (Widget.Sett.EnableSounds)
             {
-                MediaPlayer player = new MediaPlayer();
-                player.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Cold.wav")));
-                player.Play();
+                mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Cold.wav")));
+                mediaPlayer.Play();
             }
         }
 

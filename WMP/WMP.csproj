@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\HTC Home\bin\Debug\Widgets\Music\Controllers\WMP\</OutputPath>
+    <OutputPath>..\bin\Debug\Widgets\Music\Controllers\WMP\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\Widgets\Music\Controllers\WMP\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -47,7 +47,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
     <Reference Include="WmpWrapper">
-      <HintPath>..\HTC Home\bin\Debug\Widgets\Music\WmpWrapper.dll</HintPath>
+      <HintPath>..\bin\Debug\Widgets\Music\Controllers\WMP\WmpWrapper.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -55,9 +55,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPlayerWidget\MediaPlayerWidget.csproj">
+    <ProjectReference Include="..\MediaPlayerWidget\MusicWidget.csproj">
       <Project>{7234A395-82EE-4C70-BF75-0EBCBA12FB8D}</Project>
-      <Name>MediaPlayerWidget</Name>
+      <Name>MusicWidget</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

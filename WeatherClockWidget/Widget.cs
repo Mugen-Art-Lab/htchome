@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 
 using HTCHome.Core;
@@ -40,11 +41,15 @@ namespace WeatherClockWidget
 
         public UserControl Load()
         {
+            //var stopwatch = new Stopwatch();
+            //stopwatch.Start();
             Sett = Settings.Read(E.ConfigDirectory + "\\WeatherClockWidget.conf");
+            //stopwatch.Stop();
+            //MessageBox.Show(stopwatch.ElapsedMilliseconds.ToString());
 
             LocaleManager = new HTCHome.Core.LocaleManager(E.Path + "\\WeatherClock\\Localization");
             LocaleManager.LoadLocale(E.Locale);
-            ResourceManager = new HTCHome.Core.ResourceManager(E.Path + "\\WeatherClock", Sett.skin);
+            ResourceManager = new HTCHome.Core.ResourceManager(E.Path + "\\WeatherClock", Sett.Skin);
 
             if (!File.Exists(E.ConfigDirectory + "\\WeatherClockWidget.conf"))
             {
@@ -63,13 +68,13 @@ namespace WeatherClockWidget
 
         public Point GetWindowPosition()
         {
-            return new Point(Sett.left, Sett.top);
+            return new Point(Sett.Left, Sett.Top);
         }
 
         public void SetWindowPosition(double left, double top)
         {
-            Sett.left = left;
-            Sett.top = top;
+            Sett.Left = left;
+            Sett.Top = top;
         }
 
         public void Unload()
@@ -96,13 +101,13 @@ namespace WeatherClockWidget
             if (left == -1 || top == -1 || right == -1 || bottom == -1)
                 return IntPtr.Zero;
             else
-                return WinAPI.CreateRoundRectRgn((int)(left * Sett.scaleFactor), (int)(top * Sett.scaleFactor), (int)(right * Sett.scaleFactor), (int)(bottom * Sett.scaleFactor), radiusX, radiusY);
+                return WinAPI.CreateRoundRectRgn((int)(left * Sett.ScaleFactor), (int)(top * Sett.ScaleFactor), (int)(right * Sett.ScaleFactor), (int)(bottom * Sett.ScaleFactor), radiusX, radiusY);
         }
 
 
         public double GetScaleFactor()
         {
-            return Sett.scaleFactor;
+            return Sett.ScaleFactor;
         }
 
 
@@ -114,7 +119,7 @@ namespace WeatherClockWidget
 
         public void SetScalefactor(double scale)
         {
-            Sett.scaleFactor = scale;
+            Sett.ScaleFactor = scale;
             ((WeatherClock)_widgetControl).Scale.ScaleX = scale;
             ((WeatherClock)_widgetControl).Scale.ScaleY = scale;
         }
@@ -122,30 +127,30 @@ namespace WeatherClockWidget
 
         public double GetScalefactor()
         {
-            return Sett.scaleFactor;
+            return Sett.ScaleFactor;
         }
 
 
         public bool GetTopMost()
         {
-            return Sett.topmost;
+            return Sett.Topmost;
         }
 
 
         public void SetTopMost(bool value)
         {
-            Sett.topmost = value;
+            Sett.Topmost = value;
         }
 
 
         public bool GetPin()
         {
-            return Sett.pinned;
+            return Sett.Pinned;
         }
 
         public void SetPin(bool value)
         {
-            Sett.pinned = value;
+            Sett.Pinned = value;
         }
 
 

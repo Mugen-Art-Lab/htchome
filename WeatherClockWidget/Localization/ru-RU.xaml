@@ -30,7 +30,7 @@
     <s:String x:Key="CurrentLocationText">Текущее местоположение:</s:String>
     <s:String x:Key="TypeLocationText">Введите название города (на английском):</s:String>
     <s:String x:Key="Interval">Интервал (в минутах):</s:String>
-    <s:String x:Key="EnableWallpaperChanging">Включить смену обоев в соответствии с погодой</s:String>
+    <s:String x:Key="EnableWallpaperChanging">Менять обои рабочего стола в соответствии с погодой</s:String>
     <s:String x:Key="WallpapersFolder">Папка с обоями:</s:String>
     <s:String x:Key="EnableWeather">Отображать погоду</s:String>
     <s:String x:Key="EnableWeatherAnimation">Включить анимацию погоды</s:String>

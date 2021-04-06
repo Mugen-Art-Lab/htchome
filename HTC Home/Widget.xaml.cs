@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -87,7 +88,7 @@ namespace HTCHome
 
             CloseItem.Header = App.LocaleManager.GetString("Close");
             CloseHomeItem.Header = App.LocaleManager.GetString("CloseHome");
-            AddWidgetItem.Header = App.LocaleManager.GetString("Add");
+           
             HomeOptionsItem.Header = App.LocaleManager.GetString("HomeOptions");
             PinItem.Header = App.LocaleManager.GetString("Pin");
             TopMostItem.Header = App.LocaleManager.GetString("TopMost");
@@ -110,12 +111,16 @@ namespace HTCHome
             widget.SetParent(this);
             this.Width = w.Width;
             this.Height = w.Height;
+
+            Storyboard loadAnim = Resources["LoadAnim"] as Storyboard;
+            ((DoubleAnimation)loadAnim.Children[0]).To = widget.GetWindowPosition().Y;
+            ((DoubleAnimation)loadAnim.Children[0]).From = widget.GetWindowPosition().Y + 70;
+
             this.Left = widget.GetWindowPosition().X;
-            this.Top = widget.GetWindowPosition().Y;
             if (this.Left == -1 || this.Top == -1)
             {
-                this.Left = System.Windows.Forms.SystemInformation.WorkingArea.Width / 2 - w.Width / 2;
-                this.Top = System.Windows.Forms.SystemInformation.WorkingArea.Height / 2 - w.Height / 2 - 100;
+                this.Left = System.Windows.Forms.SystemInformation.WorkingArea.Width / 2 - w.ActualWidth / 2;
+                this.Top = System.Windows.Forms.SystemInformation.WorkingArea.Height / 2 - w.ActualHeight / 2 - 100;
             }
             this.Show();
 
@@ -126,24 +131,31 @@ namespace HTCHome
 
             PinItem.IsChecked = widget.GetPin();
 
-            if (App.sett.EnableGlass)
-                WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
-
-            foreach (Widget widget1 in App.widgets)
-            {
-                System.Windows.Controls.MenuItem item = new System.Windows.Controls.MenuItem();
-                item.Header = widget1.WidgetName;
-                System.Windows.Controls.Image icon = new System.Windows.Controls.Image();
-                icon.Source = new BitmapImage(new Uri(widget1.WidgetIcon));
-                icon.Width = 25;
-                icon.Height = 25;
-                item.Icon = icon;
-                item.Click += AddWidgetItem_Click;
-                AddWidgetItem.Items.Add(item);
-                //((System.Windows.Controls.MenuItem)trayMenu.Items[0]).Items.Add(item);
-            }
-
             WinAPI.SetProcessWorkingSetSize(System.Diagnostics.Process.GetCurrentProcess().Handle, -1, -1); //наверное так делать не стоит, но зато теперь те, кто говорит "ОМГ он жрет столько памяти!!!11" могут успокоиться
+            loadAnim.Begin(this);
+        }
+
+        void item_Unchecked(object sender, RoutedEventArgs e)
+        {
+            int index = AddWidgetPanel.Children.IndexOf((UIElement)sender);
+            if (App.widgets[index].IsWidgetLoaded)
+            {
+                App.widgets[index].IsWidgetLoaded = false;
+                App.widgets[index].Unload();
+                App.widgets[index].Close();
+            }
+        }
+
+        void item_Checked(object sender, RoutedEventArgs e)
+        {
+            int index = AddWidgetPanel.Children.IndexOf((UIElement)sender);
+            if (!App.widgets[index].IsWidgetLoaded || !App.widgets[index].IsVisible)
+            {
+                var w = new Widget();
+                w.Initalize(App.widgets[index].path);
+                App.widgets[index] = w;
+                App.widgets[index].Load();
+            }
         }
 
         void w_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -262,25 +274,14 @@ namespace HTCHome
 
         private void HomeOptionsItem_Click(object sender, RoutedEventArgs e)
         {
-            ((App)App.Current).ShowOptions();
+            ((App)Application.Current).ShowOptions();
         }
 
         private void CloseHomeItem_Click(object sender, RoutedEventArgs e)
         {
-            App.Current.Shutdown();
+            Application.Current.Shutdown();
         }
 
-        private void AddWidgetItem_Click(object sender, RoutedEventArgs e)
-        {
-            int index = AddWidgetItem.Items.IndexOf(sender);
-            if (!App.widgets[index].IsWidgetLoaded || !App.widgets[index].IsVisible)
-            {
-                Widget w = new Widget();
-                w.Initalize(App.widgets[index].path);
-                App.widgets[index] = w;
-                App.widgets[index].Load();
-            }
-        }
 
         private void Window_DragEnter(object sender, DragEventArgs e)
         {
@@ -291,7 +292,7 @@ namespace HTCHome
         private void Window_Drop(object sender, DragEventArgs e)
         {
             var files = from x in ((string[])e.Data.GetData(DataFormats.FileDrop, true))
-                        where x.EndsWith(".hhskin")
+                        where x.EndsWith(".hhskin") || x.EndsWith(".hhext")
                         select x;
             if (files != null)
             {
@@ -299,6 +300,33 @@ namespace HTCHome
                 {
                     App.Unpack(App.Path, f);
                 }
+            }
+        }
+
+        private void Storyboard_Completed(object sender, EventArgs e)
+        {
+            if (App.sett.EnableGlass)
+                WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
+        }
+
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            AddWidgetPanel.Children.Clear();
+            foreach (Widget widget1 in App.widgets)
+            {
+                var item = new ToggleButton();
+                item.ToolTip = widget1.WidgetName;
+                item.Margin = new Thickness(0,0,5,0);
+                Image icon = new Image();
+                icon.Source = new BitmapImage(new Uri(widget1.WidgetIcon));
+                icon.Width = 20;
+                icon.Height = 20;
+                item.Content = icon;
+                if (widget1.IsLoaded)
+                    item.IsChecked = true;
+                item.Checked += item_Checked;
+                item.Unchecked += item_Unchecked;
+                AddWidgetPanel.Children.Add(item);
             }
         }
     }

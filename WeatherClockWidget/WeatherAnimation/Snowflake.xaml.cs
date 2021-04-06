@@ -27,7 +27,7 @@ namespace WeatherClockWidget.WeatherAnimation
         private double cX = 0;
 
         private double wind = 0;
-        private double gravity = 2500;
+        //private double gravity = 2500;
 
         private double speedX = 1.0;
 
@@ -47,20 +47,20 @@ namespace WeatherClockWidget.WeatherAnimation
             this.seed = seed;
 
             rnd = new Random(Environment.TickCount * seed);
-            Image.Source = new BitmapImage(new Uri((Widget.ResourceManager.GetResourcePath("Weather\\snow3.png"))));
+            Image.Source = new BitmapImage(new Uri((Widget.ResourceManager.GetResourcePath(string.Format("Weather\\snowflake{0}.png", rnd.Next(1,6))/*"Weather\\snow3.png"*/))));
             Storyboard s = (Storyboard)Resources["MoveAnim"];
             ((DoubleAnimation)s.Children[0]).Duration = TimeSpan.FromMilliseconds(rnd.Next(3500, 4500));
             ((DoubleAnimation)s.Children[0]).BeginTime = TimeSpan.FromMilliseconds(begintime);
             //((DoubleAnimation)s.Children[1]).BeginTime = ((DoubleAnimation)s.Children[0]).Duration.TimeSpan - TimeSpan.FromMilliseconds(100);
             Canvas.SetLeft(this, rnd.Next(120, 380));
 
-            scale = (25 + rnd.NextDouble() * 75) / 100;
+            scale = (25 + rnd.NextDouble() * 75) / 70;
 
             Scale.ScaleX = scale;
             Scale.ScaleY = scale;
 
             speedX = rnd.NextDouble() - rnd.NextDouble();
-            gravity = 0.5 * scale;
+            //gravity = 0.5 * scale;
 
         }
 
@@ -79,7 +79,7 @@ namespace WeatherClockWidget.WeatherAnimation
             count++;
             if (count < 8)
             {
-                Initialize(seed, 0);
+                Initialize(seed++, 0);
                 Storyboard s = (Storyboard)Resources["MoveAnim"];
                 s.Begin();
             }

@@ -21,6 +21,8 @@ namespace HTCHome.Core
             {
                 webClient.Proxy = Proxy;
             }
+            webClient.Headers["User-Agent"] =
+                "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 8.0) (compatible; MSIE 8.0; Windows NT 5.1;)";
 
             //this doesn't work with encoding
             //return webClient.DownloadString(url);
@@ -43,6 +45,7 @@ namespace HTCHome.Core
             }
             catch (Exception ex)
             {
+                HTCHome.Core.Logger.Log(ex.ToString());
                 return String.Empty;
             }
         }

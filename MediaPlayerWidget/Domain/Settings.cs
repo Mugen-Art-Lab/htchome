@@ -11,9 +11,9 @@ namespace MediaPlayerWidget.Domain
     {
         public string controller = "WMP";
 
-        public double left;
+        public double left = -1;
 
-        public double top;
+        public double top = -1;
 
         public double opacity;
 

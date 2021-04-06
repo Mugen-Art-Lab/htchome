@@ -7,71 +7,51 @@ namespace WeatherClockWidget.Domain
     //maybe, but i will better spend time to add something new than to remove this class ;)
     public class Settings
     {
-        public int cloudsAnimCount = 3;
+        public bool Debug;
 
-        public int cloudsCount = 6;
+        public int DegreeType;
 
-        public bool debug;
+        public bool EnableSounds = true;
 
-        public int degreeType;
+        public bool EnableWallpaperChanging = false;
 
-        public bool enableSounds = true;
+        public bool EnableWeather = true;
 
-        public bool enableWallpaperChanging = false;
+        public bool EnableWeatherAnimation = true;
 
-        public bool enableWeather = true;
+        public double Interval = 20;
 
-        public bool enableWeatherAnimation = true;
+        public string Locationcode = "";
 
-        //public int forecastBeginTime;
+        public double Opacity = 1;
 
-        public double interval = 90;
+        public bool Pinned = false;
 
-        //public int leavesAnimCount = 5;
+        public double RefreshWeatherAnimInterval;
 
-        //public int leavesCount = 10;
+        public double ScaleFactor = 1;
 
-        public string locationcode = "";
+        public bool ShowIconOnTaskbar = true;
 
-        public double opacity = 1;
+        public bool ShowForecast = true;
 
-        public bool pinned = false;
+        public string Skin = "Modern Sense";
 
-       // public int raindropsAnimCount = 30;
+        public int Sunrise = 4;
 
-        //public int raindropsCount = 15;
+        public int Sunset = 22;
 
-        public double refreshWeatherAnimInterval;
+        public int TimeMode;
 
-        public double scaleFactor = 1;
+        public double Top = -1;
 
-        public bool showIconOnTaskbar = true;
+        public double Left = -1;
 
-        public bool showForecast = true;
+        public bool Topmost;
 
-        public string skin = "Sense";
+        public string WeatherProvider = "MSN";
 
-        //public int snowflakesAnimCount = 10;
-
-        //public int snowflakesCount = 35;
-
-        public int sunrise = 4;
-
-        public int sunset = 22;
-
-        public int timeMode;
-
-        public double top = -1;
-
-        public double left = -1;
-
-        public bool topmost;
-
-        public string weatherProvider = "MSN";
-
-        public string wallpapersFolder;
-
-        //public bool useFullscreenAnimation = true;
+        public string WallpapersFolder = HTCHome.Core.Environment.Path + "\\WeatherClock\\Wallpapers";
 
         public static Settings Read(string path)
         {
@@ -79,7 +59,7 @@ namespace WeatherClockWidget.Domain
             if (File.Exists(path))
             {
                 var f = new FileInfo(path);
-                if (f.Length > 162)
+                if (f.Length > 0)
                 {
                     using (TextReader textReader = new StreamReader(path))
                     {
@@ -89,7 +69,7 @@ namespace WeatherClockWidget.Domain
                 }
                 else
                 {
-                    //App.Log("Settings file is corrupted.");
+                    HTCHome.Core.Logger.Log("Settings file is corrupted.");
                 }
             }
             return result;

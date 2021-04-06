@@ -40,6 +40,8 @@ namespace HTCHome
 
         public static LocaleManager LocaleManager;
 
+        private HotKey hotkey;
+
         private void ApplicationDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
         {
             Log("Unhandled exception!");
@@ -68,26 +70,57 @@ namespace HTCHome
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
+            try
+            {
+                //check if we must run as administrator
+                if (!Directory.Exists(Path + "\\Temp"))
+                    Directory.CreateDirectory(Path + "\\Temp");
+                Directory.Delete(Path + "\\Temp");
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                var p = new ProcessStartInfo { Verb = "runas", FileName = Assembly.GetExecutingAssembly().Location };
+                Process.Start(p);
+                Shutdown();
+            }
+
             if (e.Args.Length != 0)
             {
                 var skins = from x in e.Args
                             where x.EndsWith(".hhskin") && File.Exists(x)
                             select x;
-                if (skins != null)
+                if (skins.Count() > 0)
                 {
                     foreach (var s in skins)
                     {
                         Unpack(Path, s);
-                        this.Shutdown();
+                        Shutdown();
                     }
                 }
+
+                var extensions = from x in e.Args
+                                 where x.EndsWith(".hhext") && File.Exists(x)
+                                 select x;
+                if (extensions.Count() > 0)
+                {
+                    foreach (var ext in extensions)
+                    {
+                        Unpack(Path, ext);
+                        Shutdown();
+                    }
+                }
+            }
+
+            if (!Directory.Exists(Path + "\\Config"))
+            {
+                Directory.CreateDirectory(Path + "\\Config");
             }
 
             sett = Settings.Read(Path + "\\Config\\Home.conf");
 
             if (sett.useProxy)
             {
-                WebProxy proxy = new WebProxy();
+                var proxy = new WebProxy();
                 proxy.Address = new Uri(sett.proxyAddress + ":" + sett.proxyPort.ToString());
                 proxy.Credentials = new NetworkCredential(sett.proxyUsername, sett.proxyPassword);
                 HTCHome.Core.GeneralHelper.Proxy = proxy;
@@ -104,7 +137,7 @@ namespace HTCHome
             {
                 if (IsRemoteFileExists("http://store.htchome.org/localization/home2/" + sett.Locale + ".zip"))
                 {
-                    LocaleDownloadWindow w = new LocaleDownloadWindow(sett.Locale);
+                    var w = new LocaleDownloadWindow(sett.Locale);
                     w.ShowDialog();
                 }
                 else
@@ -117,9 +150,8 @@ namespace HTCHome
             {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo(sett.Locale);
             }
-            catch (Exception)
+            catch
             {
-
             }
 
             HTCHome.Core.Environment.Path = Path + "\\Widgets";
@@ -134,11 +166,11 @@ namespace HTCHome
                 widgets = new List<Widget>();
                 foreach (string dir in Directory.GetDirectories(HTCHome.Core.Environment.Path))
                 {
-                    DirectoryInfo d = new DirectoryInfo(dir);
-                    string file = string.Format("{0}\\{1}\\{1}.dll", HTCHome.Core.Environment.Path, d.Name);
+                    var d = new DirectoryInfo(dir);
+                    var file = string.Format("{0}\\{1}\\{1}.dll", HTCHome.Core.Environment.Path, d.Name);
                     if (File.Exists(file))
                     {
-                        Widget w = new Widget();
+                        var w = new Widget();
                         w.Initalize(file);
                         //w.Closing += new System.ComponentModel.CancelEventHandler(w_Closing);
                         if (!w.HasErrors)
@@ -147,12 +179,13 @@ namespace HTCHome
 
                             if (e.Args.Contains("-addicon"))
                             {
-                                System.Windows.Controls.MenuItem item = new System.Windows.Controls.MenuItem();
-                                item.Header = w.WidgetName;
-                                System.Windows.Controls.Image icon = new System.Windows.Controls.Image();
-                                icon.Source = new BitmapImage(new Uri(w.WidgetIcon));
-                                icon.Width = 25;
-                                icon.Height = 25;
+                                var item = new System.Windows.Controls.MenuItem { Header = w.WidgetName };
+                                var icon = new System.Windows.Controls.Image
+                                               {
+                                                   Source = new BitmapImage(new Uri(w.WidgetIcon)),
+                                                   Width = 25,
+                                                   Height = 25
+                                               };
                                 item.Icon = icon;
                                 item.Click += WidgetItem_Click;
                                 ((System.Windows.Controls.MenuItem)trayMenu.Items[0]).Items.Add(item);
@@ -170,7 +203,7 @@ namespace HTCHome
 
             if (widgets != null && widgets.Count > 0)
             {
-                HotKey hotkey = new HotKey(System.Windows.Input.ModifierKeys.Control, Keys.D, IntPtr.Zero);
+                hotkey = new HotKey(System.Windows.Input.ModifierKeys.Windows, Keys.H, IntPtr.Zero);
                 hotkey.HotKeyPressed += (k) =>
                 {
                     foreach (Widget w in widgets)
@@ -184,6 +217,9 @@ namespace HTCHome
         {
             //RemoveTrayIcon();
 
+            if (hotkey != null)
+                hotkey.Dispose();
+
             sett.LoadedWidgets = new List<string>();
 
             foreach (Widget w in widgets)
@@ -192,7 +228,14 @@ namespace HTCHome
                     sett.LoadedWidgets.Add(w.WidgetName);
             }
 
-            sett.Write(Path + "\\Config\\Home.conf");
+            try
+            {
+                sett.Write(Path + "\\Config\\Home.conf");
+            }
+            catch (Exception)
+            {
+                
+            }
         }
 
 
@@ -369,6 +412,19 @@ namespace HTCHome
                 }
                 fileStreamIn.Close();
             }
+        }
+
+        private void Application_SessionEnding(object sender, SessionEndingCancelEventArgs e)
+        {
+            sett.LoadedWidgets = new List<string>();
+
+            foreach (Widget w in widgets)
+            {
+                if (w.IsWidgetLoaded)
+                    sett.LoadedWidgets.Add(w.WidgetName);
+            }
+
+            sett.Write(Path + "\\Config\\Home.conf");
         }
     }
 }

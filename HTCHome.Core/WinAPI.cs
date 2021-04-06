@@ -91,12 +91,12 @@ namespace HTCHome.Core
         public static extern int DwmExtendFrameIntoClientArea(IntPtr hwnd, ref MARGINS pMarInset);
 
         [DllImport("dwmapi.dll")]
-        private static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref BB_Struct BlurBehind);
+        private static extern int DwmEnableBlurBehindWindow(IntPtr hWnd, ref BB_Struct blurBehind);
 
         [DllImport("gdi32.dll")]
         public static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int xradius, int yradius);
 
-        [DllImport("dwmapi.dll", PreserveSig = false)]
+        [DllImport("dwmapi.dll")]
         public static extern int DwmSetWindowAttribute(IntPtr hwnd, int attr, ref int attrValue, int attrSize);
 
         [DllImport("dwmapi.dll")]
@@ -144,7 +144,7 @@ namespace HTCHome.Core
 
         public static void RemoveFromAltTab(IntPtr hwnd)
         {
-            uint windowStyle = (uint)GetWindowLong(hwnd, GWL_EXSTYLE);
+            var windowStyle = (uint)GetWindowLong(hwnd, GWL_EXSTYLE);
             SetWindowLong(hwnd, GWL_EXSTYLE, windowStyle | WS_EX_TOOLWINDOW);
         }
 

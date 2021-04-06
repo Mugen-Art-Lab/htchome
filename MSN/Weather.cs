@@ -87,8 +87,9 @@ namespace MSN
             {
                 result.NowTemp = Convert.ToInt32(currentWeather.temp);
                 result.NowSky = currentWeather.text;
-                result.NowSkyCode = GetWeatherPic(Convert.ToInt32(currentWeather.skycode), WeatherClockWidget.Widget.Sett.sunrise, WeatherClockWidget.Widget.Sett.sunset);
+                result.NowSkyCode = GetWeatherPic(Convert.ToInt32(currentWeather.skycode), WeatherClockWidget.Widget.Sett.Sunrise, WeatherClockWidget.Widget.Sett.Sunset);
             }
+
 
             result.Location = doc.Descendants("weather").FirstOrDefault().Attribute("weatherlocationname").Value;
 
@@ -109,7 +110,7 @@ namespace MSN
                 f[f.Count - 1].HighTemperature = Convert.ToInt32(d.h);
                 f[f.Count - 1].LowTemperature = Convert.ToInt32(d.l);
                 f[f.Count - 1].Text = d.text;
-                f[f.Count - 1].SkyCode = GetWeatherPic(Convert.ToInt32(d.skycode), WeatherClockWidget.Widget.Sett.sunrise, WeatherClockWidget.Widget.Sett.sunset);
+                f[f.Count - 1].SkyCode = GetWeatherPic(Convert.ToInt32(d.skycode), WeatherClockWidget.Widget.Sett.Sunrise, WeatherClockWidget.Widget.Sett.Sunset);
             }
 
             result.Forecast = f;

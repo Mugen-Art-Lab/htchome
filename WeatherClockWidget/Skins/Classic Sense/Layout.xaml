@@ -13,10 +13,9 @@
         <Setter Property="Margin" Value="0,-50,0,0"/>
     </Style>
     <Style x:Key="BaseStyle" TargetType="Image">
-        <Setter Property="Width" Value="330"/>
-        <Setter Property="Height" Value="200"/>
+        <Setter Property="Width" Value="300"/>
+        <Setter Property="Height" Value="170"/>
         <Setter Property="Stretch" Value="Fill"/>
-        <Setter Property="Opacity" Value="0.7"/>
     </Style>
     <Style x:Key="LightningBg1Style" TargetType="Rectangle">
         <Setter Property="Fill" Value="White"/>
@@ -57,7 +56,7 @@
     <Style x:Key="WeatherPanelStyle" TargetType="Grid">
         <Setter Property="VerticalAlignment" Value="Bottom"/>
         <Setter Property="Height" Value="80"/>
-        <Setter Property="Margin" Value="15,0,15,0"/>
+        <Setter Property="Margin" Value="0,0,0,-15"/>
     </Style>
     <Style x:Key="Icicle1Style" TargetType="UserControl">
         <Setter Property="Canvas.Left" Value="102"/>

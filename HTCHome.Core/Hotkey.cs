@@ -59,8 +59,8 @@ namespace HTCHome.Core
             if (_isKeyRegistered)
                 UnregisterHotKey();
             _isKeyRegistered = WinAPI.RegisterHotKey(_handle, _id, KeyModifier, Key);
-            if (!_isKeyRegistered)
-                throw new ApplicationException("Hotkey already in use");
+            /*if (!_isKeyRegistered)
+                throw new ApplicationException("Hotkey already in use");*/
         }
 
         public void UnregisterHotKey()

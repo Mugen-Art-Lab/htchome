@@ -14,7 +14,7 @@
             <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
         </Grid.RenderTransform>
         <Grid Style="{DynamicResource BasePanelStyle}">
-            <Image Name="Bg"  Source="Skins\Sense\base_default.png" Style="{DynamicResource BaseStyle}"/>
+            <Image Name="Bg"  Source="Skins\Sense\bg.png" Style="{DynamicResource BaseStyle}"/>
             <Rectangle Name="LightningBg1" Style="{DynamicResource LightningBg1Style}"/>
             <Rectangle Name="LightningBg2" Style="{DynamicResource LightningBg2Style}"/>
             <Rectangle Name="FrostBg" Style="{DynamicResource FrostBgStyle}">
@@ -79,7 +79,7 @@
             </StackPanel>
         </Grid>
         <Grid Name="ForecastGrid" Style="{DynamicResource ForecastGridStyle}">
-            <Image Name="ForecastBg" Source="Skins\Sense\forecast_base_default.png" Style="{DynamicResource ForecastBaseStyle}"/>
+            <Image Name="ForecastBg" Style="{DynamicResource ForecastBaseStyle}"/>
             <Rectangle Name="ForecastFrostBg" Style="{DynamicResource ForecastFrostBgStyle}"/>
             <StackPanel Name="ForecastPanel" Style="{DynamicResource ForecastPanelStyle}">
                 <this:ForecastItem x:Name="FItem1" Style="{DynamicResource ForecastDay1Style}" Order="1"/>

@@ -2,9 +2,9 @@
 <Skin>
   <Author>Stealth</Author>
   <Version>1.0</Version>
-  <Name>Sense</Name>
+  <Name>Classic Sense</Name>
   <Contacts>stealth2008@live.ru</Contacts>
-  <Description>Default skin</Description>
+  <Description>Classic Sense skin from previous versions</Description>
   <UseClockAnimation>True</UseClockAnimation>
   <!-- Widget region. Used for Aero Glass. -1 disables aero -->
   <Region>

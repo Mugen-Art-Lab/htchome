@@ -28,8 +28,6 @@ namespace WeatherClockWidget.WeatherAnimation
             InitializeComponent();
         }
 
-        MediaPlayer player;
-
         public void Initialize(int direction)
         {
             Canvas.SetTop(this, -40);
@@ -70,20 +68,18 @@ namespace WeatherClockWidget.WeatherAnimation
                 fadeOut.Begin();
             }
 
-            if (player != null && player.Source != null)
-                player.Play();
+            if (WeatherClock.mediaPlayer != null && WeatherClock.mediaPlayer.Source != null)
+                WeatherClock.mediaPlayer.Play();
         }
 
         public void PlayRainSound()
         {
-            player = new MediaPlayer();
-            player.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Showers.wav")));
+            WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Showers.wav")));
         }
 
         public void PlaySnowSound()
         {
-            player = new MediaPlayer();
-            player.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Snow.wav")));
+            WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Snow.wav")));
         }
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)

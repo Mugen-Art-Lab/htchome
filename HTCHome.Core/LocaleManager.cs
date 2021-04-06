@@ -32,7 +32,10 @@ namespace HTCHome.Core
         public void LoadLocale(string localeCode)
         {
             LocaleCode = localeCode;
+            if (File.Exists(LocaleBasePath + "\\" + LocaleCode + ".xaml"))
             locale.Source = new Uri(LocaleBasePath + "\\" + LocaleCode + ".xaml");
+            else
+                locale.Source = new Uri(LocaleBasePath + "\\en-US.xaml");
         }
 
         public static string GetLocaleName(string path)

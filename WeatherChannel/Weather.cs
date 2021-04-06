@@ -98,7 +98,7 @@ namespace WeatherChannel
                 else
                     result.NowTemp = 0;
                 result.NowSky = GetWeatherString(currentCondition.text);
-                result.NowSkyCode = GetWeatherPic(Convert.ToInt32(currentCondition.weathericon), WeatherClockWidget.Widget.Sett.sunrise, WeatherClockWidget.Widget.Sett.sunset);
+                result.NowSkyCode = GetWeatherPic(Convert.ToInt32(currentCondition.weathericon), WeatherClockWidget.Widget.Sett.Sunrise, WeatherClockWidget.Widget.Sett.Sunset);
                 //result.Url = currentCondition.url;
             }
 

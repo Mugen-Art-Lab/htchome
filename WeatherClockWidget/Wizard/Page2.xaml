@@ -10,7 +10,7 @@
         <StackPanel Margin="0,0,0,40">
             <TextBlock Name="Title" Text="Location &amp; Provider" HorizontalAlignment="Center" Margin="0,15,0,0" FontSize="22" Foreground="Gray"/>
             <TextBlock Name="String1" Text="Please select a preferred weather provider: "  Margin="10,10,0,0" FontSize="14" TextWrapping="Wrap"/>
-            <ComboBox Name="ProviderBox" HorizontalAlignment="Left" Margin="10,5,0,0" Width="100" SelectionChanged="ProviderBox_SelectionChanged"/>
+            <ComboBox Name="ProviderBox" HorizontalAlignment="Left" Margin="10,5,0,0" Width="150" SelectionChanged="ProviderBox_SelectionChanged"/>
             <TextBlock Name="String2" Text="Please type the name of your location (in English):"  Margin="10,10,0,0" FontSize="14" TextWrapping="Wrap"/>
             <Grid Height="22" Margin="12,4,12,12">
                 <TextBox Name="LocationBox" KeyDown="LocationBox_KeyDown"/>

@@ -3,28 +3,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" AllowDrop="True"
         MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing"
-        DragEnter="Window_DragEnter" Drop="Window_Drop">
+        DragEnter="Window_DragEnter" Drop="Window_Drop" Opacity="0">
     <Window.Resources>
-        <Storyboard x:Key="ActivateAnim">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
+        <Storyboard x:Key="LoadAnim" Completed="Storyboard_Completed">
+                    <DoubleAnimation Storyboard.TargetProperty="Top" Duration="0:0:0.5" DecelerationRatio="0.3" FillBehavior="Stop"/>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.5"/>
         </Storyboard>
     </Window.Resources>
     <Window.ContextMenu>
-        <ContextMenu HasDropShadow="True">
+        <ContextMenu HasDropShadow="True" Opened="ContextMenu_Opened">
             <MenuItem Name="PinItem" Header="Pin" IsCheckable="True" Checked="PinItem_Checked" Unchecked="PinItem_Unchecked"/>
-            <MenuItem Name="SizeItem" Header="Size">
+            <MenuItem Name="SizeItem" Header="Size" IsEnabled="False">
                 <!--<Slider Name="SizeSlider" Orientation="Vertical" Height="150" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />-->
             </MenuItem>
             <Slider Name="SizeSlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />
-
             <MenuItem Name="TopMostItem" Header="Top most" Checked="TopMostItem_Checked" Unchecked="TopMostItem_Unchecked" IsCheckable="True"/>
             <MenuItem Name="CloseItem" Header="Close widget" Click="CloseItem_Click"/>
             <Separator/>
-            <MenuItem Name="AddWidgetItem" Header="Add widget">
-                <MenuItem.Icon>
-                    <Image Source="Resources/icon.png" Width="16" Height="16"/>
-                </MenuItem.Icon>
-            </MenuItem>
+            <StackPanel Name="AddWidgetPanel" Orientation="Horizontal"/>
             <MenuItem Name="HomeOptionsItem" Header="HTC Home settings" Click="HomeOptionsItem_Click">
                 <MenuItem.Icon>
                     <Image Source="Resources/icon.png" Width="16" Height="16"/>

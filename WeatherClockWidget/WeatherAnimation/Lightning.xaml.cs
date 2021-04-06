@@ -32,8 +32,6 @@ namespace WeatherClockWidget.WeatherAnimation
 
         Random r;
 
-        MediaPlayer player;
-
         Rectangle lightningBg;
 
         public void Initialize(int seed, int direction, ref Rectangle bg)
@@ -93,17 +91,17 @@ namespace WeatherClockWidget.WeatherAnimation
 
         public void PlayLightningSound()
         {
-            player = new MediaPlayer();
-            player.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Thunder.wav")));
+            WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Thunder.wav")));
         }
 
         private void DoubleAnimationUsingKeyFrames_CurrentStateInvalidated(object sender, EventArgs e)
         {
             if (((Clock)sender).CurrentState == ClockState.Active)
-                if (player != null && player.Source != null)
+                if (WeatherClock.mediaPlayer != null && WeatherClock.mediaPlayer.Source != null)
                 {
-                    player.Position = TimeSpan.FromMilliseconds(0);
-                    player.Play();
+                    WeatherClock.mediaPlayer.Open(new Uri(Widget.ResourceManager.GetResourcePath("Sounds\\Thunder.wav")));
+                    WeatherClock.mediaPlayer.Position = TimeSpan.FromMilliseconds(0);
+                    WeatherClock.mediaPlayer.Play();
                 }
         }
     }

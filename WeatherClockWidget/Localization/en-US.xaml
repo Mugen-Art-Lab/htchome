@@ -28,7 +28,7 @@
     <s:String x:Key="CurrentLocationText">Current location:</s:String>
     <s:String x:Key="TypeLocationText">Type the name of your city:</s:String>
     <s:String x:Key="Interval">Interval (minutes):</s:String>
-    <s:String x:Key="EnableWallpaperChanging">Enable wallpaper changing</s:String>
+    <s:String x:Key="EnableWallpaperChanging">Change desktop wallpaper with weather</s:String>
     <s:String x:Key="WallpapersFolder">Wallpapers folder:</s:String>
     <s:String x:Key="EnableWeather">Show weather</s:String>
     <s:String x:Key="EnableWeatherAnimation">Enable weather animation</s:String>

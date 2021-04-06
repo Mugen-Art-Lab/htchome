@@ -42,7 +42,7 @@ namespace WeatherClockWidget.Wizard
                 if (value > -1)
                 {
                     ((LocationItem)SearchResults.Children[value]).Selected = true;
-                    Widget.Sett.locationcode = results[value].Code;
+                    Widget.Sett.Locationcode = results[value].Code;
                     NextButton.IsEnabled = true;
                 }
                 else
@@ -107,7 +107,7 @@ namespace WeatherClockWidget.Wizard
                 {
                     var p = new WeatherProvider(f);
                     providers.Add(p);
-                    if (Widget.Sett.weatherProvider == p.Name)
+                    if (Widget.Sett.WeatherProvider == p.Name)
                     {
                         currentProvider = p;
                         p.Load();
@@ -125,7 +125,7 @@ namespace WeatherClockWidget.Wizard
                     if (!p.IsLoaded)
                         p.Load();
                     currentProvider = p;
-                    Widget.Sett.weatherProvider = p.Name;
+                    Widget.Sett.WeatherProvider = p.Name;
                 }
             }
         }

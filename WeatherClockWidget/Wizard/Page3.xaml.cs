@@ -37,12 +37,12 @@ namespace WeatherClockWidget.Wizard
 
         private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            TaskbarIconCheckBox.IsChecked = Widget.Sett.showIconOnTaskbar;
+            TaskbarIconCheckBox.IsChecked = Widget.Sett.ShowIconOnTaskbar;
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
-            Widget.Sett.showIconOnTaskbar = (bool)TaskbarIconCheckBox.IsChecked;
+            Widget.Sett.ShowIconOnTaskbar = (bool)TaskbarIconCheckBox.IsChecked;
         }
 
         private void NextButton_Click(object sender, RoutedEventArgs e)

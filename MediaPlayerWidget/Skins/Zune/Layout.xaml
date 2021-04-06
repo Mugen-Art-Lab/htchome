@@ -179,14 +179,14 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid>
-                        <Image Name="Image" Source="./Resources/play.png"/>
+                        <Image Name="Image" Source="./Resources/prev.png"/>
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Image" Property="Source" Value="./Resources/play_over.png"/>
+                            <Setter TargetName="Image" Property="Source" Value="./Resources/prev_over.png"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Image" Property="Source" Value="./Resources/play.png"/>
+                            <Setter TargetName="Image" Property="Source" Value="./Resources/prev.png"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

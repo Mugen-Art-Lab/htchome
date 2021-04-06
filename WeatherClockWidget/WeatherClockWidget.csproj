@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\HTC Home\bin\Debug\Widgets\WeatherClock\</OutputPath>
+    <OutputPath>..\bin\Debug\Widgets\WeatherClock\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,7 +30,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Release\Widgets\WeatherClock\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -66,12 +66,6 @@
     <Compile Include="ForecastItem.xaml.cs">
       <DependentUpon>ForecastItem.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FullscreenAnimation\Raindrop.xaml.cs">
-      <DependentUpon>Raindrop.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="FullscreenAnimation\Snowflake.xaml.cs">
-      <DependentUpon>Snowflake.xaml</DependentUpon>
-    </Compile>
     <Compile Include="IWeatherProvider.cs" />
     <Compile Include="LocationItem.xaml.cs">
       <DependentUpon>LocationItem.xaml</DependentUpon>
@@ -80,7 +74,8 @@
       <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WallpaperChanging.cs" />
+    <Compile Include="Wallpaper.cs" />
+    <Compile Include="WallpaperManager.cs" />
     <Compile Include="WeatherAnimation\Cloud.xaml.cs">
       <DependentUpon>Cloud.xaml</DependentUpon>
     </Compile>
@@ -158,14 +153,6 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Page Include="FullscreenAnimation\Raindrop.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="FullscreenAnimation\Snowflake.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="LocationItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -176,6 +163,9 @@
     </Page>
     <Resource Include="Resources\taskbar_preview.png" />
     <Content Include="Resources\bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\forecast_bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Weather\overlay_icon.png">
@@ -196,18 +186,39 @@
     <Content Include="Resources\Weather\raindrop_05.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Wide\Preview.png">
+    <Content Include="Resources\Weather\snowflake1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Wide\Skin.xml">
+    <Content Include="Resources\Weather\snowflake2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense\Layout.xaml">
+    <Content Include="Resources\Weather\snowflake3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Weather\snowflake4.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Weather\snowflake5.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skins\Classic Sense\bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skins\Classic Sense\forecast_bg.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skins\Classic Sense\Preview.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skins\Classic Sense\Skin.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skins\Modern Sense\Layout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Wide\Layout.xaml">
+    <Content Include="Skins\Classic Sense\Layout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -274,9 +285,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\base_default.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\forecast_base_default.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -325,10 +333,10 @@
     <Content Include="Resources\icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense\Skin.xml">
+    <Content Include="Skins\Modern Sense\Preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense\Preview.png">
+    <Content Include="Skins\Modern Sense\Skin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Sounds\Cold.wav">
@@ -377,9 +385,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Weather\cloud_9.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Resources\Weather\drop_path1.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Resources\Weather\fall_ice.png">
