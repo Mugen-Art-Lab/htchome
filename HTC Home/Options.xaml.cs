@@ -36,13 +36,9 @@ namespace HTCHome
 
             WinAPI.ExtendGlassFrame(handle, ref margins);
 
-            System.Reflection.Assembly _AsmObj = System.Reflection.Assembly.GetExecutingAssembly();
-            System.Reflection.AssemblyName _CurrAsmName = _AsmObj.GetName();
-            string _Major = _CurrAsmName.Version.Major.ToString();
-            string _Minor = _CurrAsmName.Version.Minor.ToString();
-            string _Build = _CurrAsmName.Version.Build.ToString();
+            Version ver = Assembly.GetExecutingAssembly().GetName().Version;
+            VersionString.Text = string.Format("Version {0}.{1} Build {2} R{3}", ver.Major, ver.Minor, ver.Build, ver.Revision);
 
-            VersionString.Text = string.Format("Version {0}.{1} Build {2}", _Major, _Minor, _Build);
             TranslatedBy.Text = App.LocaleManager.GetString("LocaleAuthor");
 
             OkButton.Content = App.LocaleManager.GetString("OK");
@@ -56,9 +52,9 @@ namespace HTCHome
             LangTextBlock.Text = App.LocaleManager.GetString("Language");
             RestartText.Text = App.LocaleManager.GetString("RestartText");
 
-            EnableGlassCheckBox.IsChecked = App.sett.EnableGlass;
-            AutostartCheckBox.IsChecked = App.sett.Autostart;
-            CheckForUpdatesCheckBox.IsChecked = App.sett.EnableUpdates;
+            EnableGlassCheckBox.IsChecked = HTCHome.Properties.Settings.Default.EnableGlass;
+            AutostartCheckBox.IsChecked = HTCHome.Properties.Settings.Default.Autostart;
+            CheckForUpdatesCheckBox.IsChecked = HTCHome.Properties.Settings.Default.EnableUpdates;
 
             if (Directory.Exists(App.Path + "\\Localization"))
             {
@@ -114,11 +110,11 @@ namespace HTCHome
 
         private void ApplySettings()
         {
-            
-            App.sett.EnableGlass = (bool)EnableGlassCheckBox.IsChecked;
-            App.sett.Autostart = (bool)AutostartCheckBox.IsChecked;
-            App.sett.Locale = localeCodes[LangComboBox.SelectedIndex];
-            App.sett.EnableUpdates = (bool)CheckForUpdatesCheckBox.IsChecked;
+
+            HTCHome.Properties.Settings.Default.EnableGlass = (bool)EnableGlassCheckBox.IsChecked;
+            HTCHome.Properties.Settings.Default.Autostart = (bool)AutostartCheckBox.IsChecked;
+            HTCHome.Properties.Settings.Default.Locale = localeCodes[LangComboBox.SelectedIndex];
+            HTCHome.Properties.Settings.Default.EnableUpdates = (bool)CheckForUpdatesCheckBox.IsChecked;
             HTCHome.Core.Environment.Locale = localeCodes[LangComboBox.SelectedIndex];
             App.LocaleManager.LoadLocale(localeCodes[LangComboBox.SelectedIndex]);
 
@@ -153,15 +149,15 @@ namespace HTCHome
                 }
             }
 
-            App.sett.LoadedWidgets = new List<string>();
+            HTCHome.Properties.Settings.Default.LoadedWidgets.Clear();
 
             foreach (Widget w in App.widgets)
             {
                 if (w.IsWidgetLoaded)
-                    App.sett.LoadedWidgets.Add(w.WidgetName);
+                    HTCHome.Properties.Settings.Default.LoadedWidgets.Add(w.WidgetName);
             }
 
-            App.sett.Write(App.Path + "\\Config\\Home.conf");
+            HTCHome.Properties.Settings.Default.Save();
         }
     }
 }

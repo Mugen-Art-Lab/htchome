@@ -94,11 +94,12 @@ namespace HTCHome
             PinItem.Header = App.LocaleManager.GetString("Pin");
             TopMostItem.Header = App.LocaleManager.GetString("TopMost");
             SizeItem.Header = App.LocaleManager.GetString("Size");
+            OpacityItem.Header = App.LocaleManager.GetString("Opacity");
         }
 
         void widget_UpdateAero(object sender, EventArgs e)
         {
-            if (App.sett.EnableGlass)
+            if (HTCHome.Properties.Settings.Default.EnableGlass)
             {
                 WinAPI.RemoveGlassRegion(ref handle);
                 WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
@@ -114,18 +115,20 @@ namespace HTCHome
             this.Height = w.Height;
 
             Storyboard loadAnim = Resources["LoadAnim"] as Storyboard;
-            ((DoubleAnimation)loadAnim.Children[0]).To = widget.GetWindowPosition().Y;
-            ((DoubleAnimation)loadAnim.Children[0]).From = widget.GetWindowPosition().Y + 70;
+            //((DoubleAnimation)loadAnim.Children[0]).To = widget.GetWindowPosition().Y;
+            //((DoubleAnimation)loadAnim.Children[0]).From = widget.GetWindowPosition().Y + 70;
 
             this.Left = widget.GetWindowPosition().X;
-            if (this.Left == -1 || this.Top == -1)
+            this.Top = widget.GetWindowPosition().Y;
+            if (this.Left == -100 || this.Top == -100)
             {
                 this.Left = System.Windows.Forms.SystemInformation.WorkingArea.Width / 2 - w.ActualWidth / 2;
-                this.Top = System.Windows.Forms.SystemInformation.WorkingArea.Height / 2 - w.ActualHeight / 2 - 100;
+                this.Top = System.Windows.Forms.SystemInformation.WorkingArea.Height / 2 - w.ActualHeight / 2 - 30;
             }
             this.Show();
 
             SizeSlider.Value = widget.GetScalefactor() * 100;
+            OpacitySlider.Value = widget.GetOpacity() * 100;
 
             this.Topmost = widget.GetTopMost();
             TopMostItem.IsChecked = this.Topmost;
@@ -241,7 +244,7 @@ namespace HTCHome
                     item.IsChecked = true;
             }
 
-            if (App.sett.EnableGlass)
+            if (HTCHome.Properties.Settings.Default.EnableGlass)
             {
                 WinAPI.RemoveGlassRegion(ref handle);
                 WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
@@ -265,7 +268,7 @@ namespace HTCHome
             if (widget != null)
             {
                 widget.SetScalefactor(SizeSlider.Value / 100);
-                if (App.sett.EnableGlass)
+                if (HTCHome.Properties.Settings.Default.EnableGlass)
                 {
                     WinAPI.RemoveGlassRegion(ref handle);
                     WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
@@ -307,6 +310,14 @@ namespace HTCHome
                         else
                             MessageBox.Show(App.LocaleManager.GetString("ExtensionInstalled"), "", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        if (f.EndsWith(".hhskin"))
+                            MessageBox.Show(App.LocaleManager.GetString("SkinNotInstalledNoAccess"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                        else
+                            MessageBox.Show(App.LocaleManager.GetString("ExtensionNotInstalledNoAccess"), "", MessageBoxButton.OK, MessageBoxImage.Error);
+                        App.Log("Can't install exntension " + f + "\n" + ex.ToString());
+                    }
                     catch (Exception ex)
                     {
                         if (f.EndsWith(".hhskin"))
@@ -321,7 +332,7 @@ namespace HTCHome
 
         private void Storyboard_Completed(object sender, EventArgs e)
         {
-            if (App.sett.EnableGlass)
+            if (HTCHome.Properties.Settings.Default.EnableGlass)
                 WinAPI.MakeGlassRegion(ref handle, widget.GetRegion());
         }
 
@@ -361,6 +372,39 @@ namespace HTCHome
                                   Height = SystemParameters.PrimaryScreenHeight
                               };
             App.Gallery.ShowDialog();
+        }
+
+        private void OpacitySliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (widget != null)
+            {
+                widget.SetOpacity(OpacitySlider.Value / 100);
+                MainGrid.Opacity = OpacitySlider.Value / 100;
+            }
+        }
+
+        private void Window_MouseEnter(object sender, MouseEventArgs e)
+        {
+            var mouseEnterAnim = Resources["MouseEnter"] as Storyboard;
+            mouseEnterAnim.Begin(MainGrid);
+        }
+
+        private void Window_MouseLeave(object sender, MouseEventArgs e)
+        {
+            var mouseLeaveAnim = Resources["MouseLeave"] as Storyboard;
+            ((DoubleAnimation)mouseLeaveAnim.Children[0]).To = OpacitySlider.Value / 100;
+            mouseLeaveAnim.Begin(MainGrid);
+        }
+
+        private void MouseEnter_Completed(object sender, EventArgs e)
+        {
+            MainGrid.Opacity = 1;
+        }
+
+        private void MouseLeave_Completed(object sender, EventArgs e)
+        {
+            var mouseLeaveAnim = Resources["MouseLeave"] as Storyboard;
+            MainGrid.Opacity = (double)((DoubleAnimation)mouseLeaveAnim.Children[0]).To;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
@@ -30,7 +31,7 @@ namespace HTCHome.Gallery
                                        //VerticalAlignment = VerticalAlignment,
                                        Margin = new Thickness(0, 0, 0, 40)
                                    };
-                    item.VisualBrush.Visual = (Visual) widget.Content;
+                    item.VisualBrush.Visual = (Visual)widget.Content;
                     item.CloseButtonClick += ItemCloseButtonClick;
                     item.MouseLeftButtonDown += ItemMouseLeftButtonDown;
                     item.MaxWidth = 300;
@@ -55,7 +56,7 @@ namespace HTCHome.Gallery
                     item.MouseLeftButtonDown += ItemMouseLeftButtonDown1;
                     item.MinHeight = 80;
                     item.CloseButton.Visibility = Visibility.Collapsed;
- 
+
                     WidgetsGrid.ColumnDefinitions.Add(new ColumnDefinition());
                     Grid.SetColumn(item, WidgetsGrid.ColumnDefinitions.Count - 1);
                     WidgetsGrid.Children.Add(item);
@@ -65,7 +66,7 @@ namespace HTCHome.Gallery
 
         void ItemMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            ((GalleryItem) sender).Widget.Activate();
+            ((GalleryItem)sender).Widget.Activate();
             CloseGallery();
         }
 
@@ -88,7 +89,7 @@ namespace HTCHome.Gallery
             item.VerticalAlignment = VerticalAlignment.Stretch;
             item.HorizontalAlignment = HorizontalAlignment.Stretch;
             item.Margin = new Thickness(0, 0, 0, 40);
-            item.VisualBrush.Visual = (Visual) item.Widget.Content;
+            item.VisualBrush.Visual = (Visual)item.Widget.Content;
             item.MaxWidth = 300;
             item.CloseButton.Visibility = Visibility.Visible;
             item.CloseButton.ToolTip = App.LocaleManager.GetString("Close");
@@ -107,7 +108,7 @@ namespace HTCHome.Gallery
                 Grid.SetColumn(WidgetsGrid.Children[i], i);
             }
 
-             e.Handled = true;
+            e.Handled = true;
         }
 
         void ItemCloseButtonClick(object sender, System.Windows.Input.MouseEventArgs e)
@@ -179,6 +180,17 @@ namespace HTCHome.Gallery
             foreach (GalleryItem item in WidgetsGrid.Children)
             {
                 item.Unload();
+            }
+        }
+
+        private void this_SourceInitialized(object sender, EventArgs e)
+        {
+            if (HTCHome.Properties.Settings.Default.EnableGlass)
+            {
+                IntPtr handle = new WindowInteropHelper(this).Handle;
+                HTCHome.Core.WinAPI.MakeGlassRegion(ref handle,
+                                                    Core.WinAPI.CreateRoundRectRgn(0, 0, (int) this.Width,
+                                                                                   (int) this.Height, 0, 0));
             }
         }
     }

@@ -10,11 +10,11 @@ namespace HTCHome.Core
     {
         public static void Log(string s)
         {
-            if (!File.Exists(Environment.ConfigDirectory + "\\log.txt"))
-                File.WriteAllText(Environment.ConfigDirectory + "\\log.txt", "");
+            if (!File.Exists(Environment.LogsPath + "\\log.txt"))
+                File.WriteAllText(Environment.LogsPath + "\\log.txt", "");
             try
             {
-                File.AppendAllText(Environment.ConfigDirectory + "\\log.txt", DateTime.Now.ToString() + " -------------- " + s + (char)(13) + (char)(10));
+                File.AppendAllText(Environment.LogsPath + "\\log.txt",  DateTime.Now + " -------------- " + (char)(13) + (char)(10) + "OS: " + System.Environment.OSVersion.VersionString + (char)(13) + (char)(10) + s + (char)(13) + (char)(10));
             }
             catch { }
         }

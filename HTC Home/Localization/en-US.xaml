@@ -7,12 +7,15 @@
     <!-- General strings -->
     <s:String x:Key="SkinInstalled">Skin installed!</s:String>
     <s:String x:Key="SkinNotInstalled">Skin installation failed!</s:String>
+    <s:String x:Key="SkinNotInstalledNoAccess">Skin installation failed! Can't access to files. Close HTC Home and try again.</s:String>
     <s:String x:Key="ExtensionInstalled">Extension installed!</s:String>
-    <s:String x:Key="ExtensionNotInstalled">Extension installation failed!</s:String>
+    <s:String x:Key="ExtensionNotInstalled">Extension installation failed! Can't access to files. Close HTC Home and try again.</s:String>
     <!-- Menu strings -->
     <s:String x:Key="Pin">Pin</s:String>
     <s:String x:Key="Refresh">Refresh</s:String>
     <s:String x:Key="Options">Settings</s:String>
+    <s:String x:Key="Size">Size:</s:String>
+    <s:String x:Key="Opacity">Opacity:</s:String>
     <s:String x:Key="HomeOptions">HTC Home settings</s:String>
     <s:String x:Key="Close">Close widget</s:String>
     <s:String x:Key="CloseHome">Close HTC Home</s:String>
@@ -27,7 +30,6 @@
     <s:String x:Key="Autostart">Autostart with Windows</s:String>
     <s:String x:Key="TopMost">Top most</s:String>
     <s:String x:Key="Language">Language:</s:String>
-    <s:String x:Key="Size">Size</s:String>
     <s:String x:Key="EnableGlass">Enable Aero Glass</s:String>
     <s:String x:Key="EnableTrayIcon">Show icon in taskbar notification area</s:String>
     <s:String x:Key="RestartText">Some options will be applied after restart</s:String>

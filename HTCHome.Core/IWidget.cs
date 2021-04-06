@@ -20,6 +20,8 @@ namespace HTCHome.Core
         string GetIcon();
         double GetScalefactor();
         void SetScalefactor(double scale);
+        double GetOpacity();
+        void SetOpacity(double opacity);
         bool GetTopMost();
         void SetTopMost(bool value);
         bool GetPin();

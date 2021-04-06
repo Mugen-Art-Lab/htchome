@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Name="this"
         WindowStyle="None" AllowsTransparency="True" Width="800" Height="600" Topmost="True"
-        Loaded="WindowLoaded" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+        Loaded="WindowLoaded" MouseLeftButtonDown="Window_MouseLeftButtonDown" SourceInitialized="this_SourceInitialized">
     <Window.Background>
         <RadialGradientBrush x:Name="BgBrush">
             <GradientStop Color="#44000000" Offset="0"/>

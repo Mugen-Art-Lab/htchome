@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Specialized;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -18,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Diagnostics;
 using System.Net;
 using ICSharpCode.SharpZipLib.Zip;
+using Environment = System.Environment;
 
 namespace HTCHome
 {
@@ -29,8 +31,6 @@ namespace HTCHome
         private static NotifyIcon trayIcon;
 
         public static readonly string Path = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-        public static Settings sett;
 
         public static List<Widget> widgets;
 
@@ -55,15 +55,17 @@ namespace HTCHome
 
         public static void Log(string message)
         {
-            if (!File.Exists(App.Path + "\\log.txt"))
+            if (!Directory.Exists(App.Path + "\\Logs"))
+                Directory.CreateDirectory(App.Path + "\\Logs");
+            if (!File.Exists(App.Path + "\\Logs\\log.txt"))
             {
-                File.WriteAllText(App.Path + "\\log.txt", string.Empty);
+                File.WriteAllText(App.Path + "\\Logs\\log.txt", string.Empty);
             }
 
             try
             {
-                File.AppendAllText(App.Path + "\\log.txt",
-                   DateTime.Now + " -------------- " + message + (char)(13) + (char)(10));
+                File.AppendAllText(App.Path + "\\Logs\\log.txt",
+                   DateTime.Now + " -------------- " + (char)(13) + (char)(10) + "OS: " + Environment.OSVersion.VersionString + (char)(13) + (char)(10) + message + (char)(13) + (char)(10));
             }
             catch (Exception ex)
             {
@@ -87,45 +89,39 @@ namespace HTCHome
                 Shutdown();
             }
 
-            if (!Directory.Exists(Path + "\\Config"))
-            {
-                Directory.CreateDirectory(Path + "\\Config");
-            }
-
-            sett = Settings.Read(Path + "\\Config\\Home.conf");
-
-            if (sett.useProxy)
+            if (HTCHome.Properties.Settings.Default.UseProxy)
             {
                 var proxy = new WebProxy();
-                proxy.Address = new Uri(sett.proxyAddress + ":" + sett.proxyPort.ToString());
-                proxy.Credentials = new NetworkCredential(sett.proxyUsername, sett.proxyPassword);
+                proxy.Address = new Uri(HTCHome.Properties.Settings.Default.ProxyAddress + ":" + HTCHome.Properties.Settings.Default.ProxyPort.ToString());
+                proxy.Credentials = new NetworkCredential(HTCHome.Properties.Settings.Default.ProxyUsername, HTCHome.Properties.Settings.Default.ProxyPassword);
                 HTCHome.Core.GeneralHelper.Proxy = proxy;
             }
 
             LocaleManager = new LocaleManager(Path + "\\Localization");
 
-            if (string.IsNullOrEmpty(sett.Locale))
-                sett.Locale = CultureInfo.CurrentUICulture.Name;
-            if (!File.Exists(Path + "\\Localization\\" + sett.Locale + ".xaml"))
+            if (string.IsNullOrEmpty(HTCHome.Properties.Settings.Default.Locale))
+                HTCHome.Properties.Settings.Default.Locale = CultureInfo.CurrentUICulture.Name;
+            if (!File.Exists(Path + "\\Localization\\" + HTCHome.Properties.Settings.Default.Locale + ".xaml"))
             {
-                if (IsRemoteFileExists("http://store.htchome.org/localization/home2/" + sett.Locale + ".zip"))
+                if (HTCHome.Properties.Settings.Default.Locale != "en-US" && HTCHome.Properties.Settings.Default.Locale != "ru-RU" &&
+                    IsRemoteFileExists("http://store.htchome.org/localization/home2/" + HTCHome.Properties.Settings.Default.Locale + ".zip"))
                 {
-                    var w = new LocaleDownloadWindow(sett.Locale);
+                    var w = new LocaleDownloadWindow(HTCHome.Properties.Settings.Default.Locale);
                     w.ShowDialog();
                 }
                 else
-                    sett.Locale = "en-US";
+                    HTCHome.Properties.Settings.Default.Locale = "en-US";
             }
 
-            LocaleManager.LoadLocale(sett.Locale);
+            LocaleManager.LoadLocale(HTCHome.Properties.Settings.Default.Locale);
 
             try
             {
-                Thread.CurrentThread.CurrentCulture = new CultureInfo(sett.Locale);
+                Thread.CurrentThread.CurrentCulture = new CultureInfo(HTCHome.Properties.Settings.Default.Locale);
             }
             catch { }
 
-            if (sett.EnableUpdates)
+            if (HTCHome.Properties.Settings.Default.EnableUpdates)
             {
                 int build = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileBuildPart;
                 string link = "http://store.htchome.org/dl/stable/updates/" + build + ".xml";
@@ -136,9 +132,15 @@ namespace HTCHome
                 }
             }
 
+            HTCHome.Core.Environment.Root = Path;
             HTCHome.Core.Environment.Path = Path + "\\Widgets";
             HTCHome.Core.Environment.ConfigDirectory = Path + "\\Config";
-            HTCHome.Core.Environment.Locale = sett.Locale;
+            HTCHome.Core.Environment.Locale = HTCHome.Properties.Settings.Default.Locale;
+            HTCHome.Core.Environment.ExtensionsPath = Path + "\\Extensions";
+            HTCHome.Core.Environment.LogsPath = Path + "\\Logs";
+
+            if (!Directory.Exists(HTCHome.Core.Environment.LogsPath))
+                Directory.CreateDirectory(HTCHome.Core.Environment.LogsPath);
 
             if (e.Args.Length != 0)
             {
@@ -190,6 +192,12 @@ namespace HTCHome
             if (e.Args.Contains("-addicon"))
                 AddTrayIcon();
 
+            if (HTCHome.Properties.Settings.Default.LoadedWidgets == null || HTCHome.Properties.Settings.Default.LoadedWidgets.Count == 0)
+            {
+                HTCHome.Properties.Settings.Default.LoadedWidgets = new StringCollection();
+                HTCHome.Properties.Settings.Default.LoadedWidgets.Add("Weather/Clock widget");
+            }
+
             if (Directory.Exists(HTCHome.Core.Environment.Path) && Directory.GetDirectories(HTCHome.Core.Environment.Path).Length > 0)
             {
                 widgets = new List<Widget>();
@@ -219,7 +227,11 @@ namespace HTCHome
                                 item.Click += WidgetItem_Click;
                                 ((System.Windows.Controls.MenuItem)trayMenu.Items[0]).Items.Add(item);
                             }
-                            if (sett.LoadedWidgets != null && sett.LoadedWidgets.Contains(w.WidgetName))
+                            //if (sett.LoadedWidgets != null && sett.LoadedWidgets.Contains(w.WidgetName))
+                            //{
+                            //    w.Load();
+                            //}
+                            if (HTCHome.Properties.Settings.Default.LoadedWidgets.Contains(w.WidgetName))
                             {
                                 w.Load();
                             }
@@ -227,6 +239,8 @@ namespace HTCHome
                     }
                 }
             }
+
+
 
             options = new Options();
 
@@ -284,7 +298,6 @@ namespace HTCHome
 
         private void ApplicationExit(object sender, ExitEventArgs e)
         {
-            //RemoveTrayIcon();
 
             if (moveForegroundHotkey != null)
                 moveForegroundHotkey.Dispose();
@@ -292,22 +305,18 @@ namespace HTCHome
             if (galleryHotkey != null)
                 galleryHotkey.Dispose();
 
-            sett.LoadedWidgets = new List<string>();
+            HTCHome.Properties.Settings.Default.LoadedWidgets.Clear();
 
             foreach (Widget w in widgets)
             {
                 if (w.IsWidgetLoaded)
-                    sett.LoadedWidgets.Add(w.WidgetName);
+                {
+                    HTCHome.Properties.Settings.Default.LoadedWidgets.Add(w.WidgetName);
+                    //w.Unload();
+                }
             }
 
-            try
-            {
-                sett.Write(Path + "\\Config\\Home.conf");
-            }
-            catch (Exception)
-            {
-
-            }
+            HTCHome.Properties.Settings.Default.Save();
         }
 
 
@@ -488,15 +497,24 @@ namespace HTCHome
 
         private void Application_SessionEnding(object sender, SessionEndingCancelEventArgs e)
         {
-            sett.LoadedWidgets = new List<string>();
+            //if (moveForegroundHotkey != null)
+            //    moveForegroundHotkey.Dispose();
 
-            foreach (Widget w in widgets)
-            {
-                if (w.IsWidgetLoaded)
-                    sett.LoadedWidgets.Add(w.WidgetName);
-            }
+            //if (galleryHotkey != null)
+            //    galleryHotkey.Dispose();
 
-            sett.Write(Path + "\\Config\\Home.conf");
+            //HTCHome.Properties.Settings.Default.LoadedWidgets.Clear();
+
+            //foreach (Widget w in widgets)
+            //{
+            //    if (w.IsWidgetLoaded)
+            //    {
+            //        HTCHome.Properties.Settings.Default.LoadedWidgets.Add(w.WidgetName);
+            //        w.Unload();
+            //    }
+            //}
+
+            //HTCHome.Properties.Settings.Default.Save();
         }
     }
 }

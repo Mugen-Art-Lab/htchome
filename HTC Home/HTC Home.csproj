@@ -92,7 +92,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib">
-      <HintPath>..\..\..\..\..\..\HTC Home\HTC Home 2.0 Build 182\ICSharpCode.SharpZipLib.dll</HintPath>
+      <HintPath>..\..\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -124,7 +124,6 @@
     <Compile Include="Options.xaml.cs">
       <DependentUpon>Options.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
     <Compile Include="Widget.xaml.cs">
       <DependentUpon>Widget.xaml</DependentUpon>
     </Compile>

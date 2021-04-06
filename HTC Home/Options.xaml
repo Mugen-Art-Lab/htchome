@@ -123,7 +123,14 @@
             <Setter Property="Padding" Value="0"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="BorderBrush" Value="#b6babf"/>
-            <Setter Property="Background" Value="#e3e7ec"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#e8f0f9" Offset="0"/>
+                        <GradientStop Color="White" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Template">
@@ -232,11 +239,11 @@
             <DockPanel.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="Transparent" Offset="0"/>
-                    <GradientStop Color="#e3e7ec" Offset="0.5"/>
-                    <GradientStop Color="#e3e7ec" Offset="1"/>
+                    <GradientStop Color="White" Offset="0.5"/>
+                    <GradientStop Color="White" Offset="1"/>
                 </LinearGradientBrush>
             </DockPanel.Background>
-            <StackPanel DockPanel.Dock="Bottom" Background="#e3e7ec" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
+            <StackPanel DockPanel.Dock="Bottom" Background="White" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
                 <Button Name="OkButton" Content="OK" Width="75" Height="23" Margin="0,0,7,0" Click="OkButton_Click"/>
                 <Button Name="CancelButton" Content="Cancel" Width="75" Height="23" Margin="0,0,7,0" Click="CancelButton_Click"/>
                 <Button Name="ApplyButton" Content="Apply" Width="75" Height="23" Margin="0,0,7,0" IsEnabled="False" Click="ApplyButton_Click"/>
@@ -249,7 +256,7 @@
                             <StackPanel Margin="10,10,10,20">
                                 <CheckBox Name="AutostartCheckBox" Click="CheckBox_Click" Content="Autostart with Windows"/>
                                 <CheckBox Name="EnableGlassCheckBox" Click="CheckBox_Click" Content="Enable Aero Glass"/>
-                                <CheckBox Name="CheckForUpdatesCheckBox" Click="CheckBox_Click" Content="Check for updates" Visibility="Collapsed"/>
+                                <CheckBox Name="CheckForUpdatesCheckBox" Click="CheckBox_Click" Content="Check for updates"/>
                                 <TextBlock Name="LangTextBlock" Margin="0,3,0,3" Text="Language:"/>
                                 <ComboBox Name="LangComboBox" SelectedIndex="2" SelectionChanged="ComboBox_SelectionChanged_1"/>
                             </StackPanel>

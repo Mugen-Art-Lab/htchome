@@ -7,12 +7,16 @@
     <!-- General strings -->
     <s:String x:Key="SkinInstalled">Скин установлен!</s:String>
     <s:String x:Key="SkinNotInstalled">Невозможно установить скин!</s:String>
+    <s:String x:Key="SkinNotInstalledNoAccess">Невозможно установить скин! Отсутствует доступ к файлам. Закройте HTC Home и попробуйте снова.</s:String>
     <s:String x:Key="ExtensionInstalled">Расширение установлено!</s:String>
     <s:String x:Key="ExtensionNotInstalled">Невозможно установить расширение!</s:String>
+    <s:String x:Key="ExtensionNotInstalledNoAccess">Невозможно установить расширение! Отсутствует доступ к файлам. Закройте HTC Home и попробуйте снова.</s:String>
     <!-- Menu strings -->
     <s:String x:Key="Pin">Закрепить</s:String>
     <s:String x:Key="Refresh">Обновить</s:String>
     <s:String x:Key="Options">Настройки</s:String>
+    <s:String x:Key="Size">Размер:</s:String>
+    <s:String x:Key="Opacity">Непрозрачность:</s:String>
     <s:String x:Key="HomeOptions">Настройки HTC Home</s:String>
     <s:String x:Key="Close">Закрыть виджет</s:String>
     <s:String x:Key="CloseHome">Закрыть HTC Home</s:String>
@@ -27,7 +31,6 @@
     <s:String x:Key="Autostart">Запускать при запуске Windows</s:String>
     <s:String x:Key="TopMost">Поверх всех окон</s:String>
     <s:String x:Key="Language">Язык:</s:String>
-    <s:String x:Key="Size">Размер</s:String>
     <s:String x:Key="EnableGlass">Включить Aero Glass</s:String>
     <s:String x:Key="EnableTrayIcon">Отображать иконку в области уведомлений</s:String>
     <s:String x:Key="RestartText">Некоторые настройки вступят в силу после перезапуска программы</s:String>

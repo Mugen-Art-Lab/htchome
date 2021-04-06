@@ -39,7 +39,7 @@ namespace HTCHome
             DownloadProgress.Visibility = System.Windows.Visibility.Visible;
 
             downloader = new WebClient();
-            if (App.sett.useProxy)
+            if (HTCHome.Properties.Settings.Default.UseProxy)
             {
                 downloader.Proxy = HTCHome.Core.GeneralHelper.Proxy;
             }
