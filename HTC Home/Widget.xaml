@@ -1,0 +1,43 @@
+﻿<Window x:Class="HTCHome.Widget"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" AllowDrop="True"
+        MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing"
+        DragEnter="Window_DragEnter" Drop="Window_Drop">
+    <Window.Resources>
+        <Storyboard x:Key="ActivateAnim">
+            <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
+        </Storyboard>
+    </Window.Resources>
+    <Window.ContextMenu>
+        <ContextMenu HasDropShadow="True">
+            <MenuItem Name="PinItem" Header="Pin" IsCheckable="True" Checked="PinItem_Checked" Unchecked="PinItem_Unchecked"/>
+            <MenuItem Name="SizeItem" Header="Size">
+                <!--<Slider Name="SizeSlider" Orientation="Vertical" Height="150" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />-->
+            </MenuItem>
+            <Slider Name="SizeSlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />
+
+            <MenuItem Name="TopMostItem" Header="Top most" Checked="TopMostItem_Checked" Unchecked="TopMostItem_Unchecked" IsCheckable="True"/>
+            <MenuItem Name="CloseItem" Header="Close widget" Click="CloseItem_Click"/>
+            <Separator/>
+            <MenuItem Name="AddWidgetItem" Header="Add widget">
+                <MenuItem.Icon>
+                    <Image Source="Resources/icon.png" Width="16" Height="16"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Name="HomeOptionsItem" Header="HTC Home settings" Click="HomeOptionsItem_Click">
+                <MenuItem.Icon>
+                    <Image Source="Resources/icon.png" Width="16" Height="16"/>
+                </MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Name="CloseHomeItem" Header="Close HTC Home" Click="CloseHomeItem_Click">
+                <MenuItem.Icon>
+                    <Image Source="Resources/icon.png" Width="16" Height="16"/>
+                </MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Grid Name="MainGrid">
+
+    </Grid>
+</Window>

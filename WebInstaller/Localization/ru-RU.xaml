@@ -1,0 +1,27 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:s="clr-namespace:System;assembly=mscorlib">
+    <s:String x:Key="Title">Установщик HTC Home</s:String>
+    <s:String x:Key="InstallPath">Установить в:</s:String>
+    <s:String x:Key="Change">Изменить...</s:String>
+    <s:String x:Key="Connecting">Подключение к серверу...</s:String>
+    <s:String x:Key="Downloading">Выполняется загрузка</s:String>
+    <s:String x:Key="DownloadCompleted">Загрузка завершена!</s:String>
+    <s:String x:Key="Launch">Запустить HTC Home</s:String>
+    <s:String x:Key="Close">Закрыть</s:String>
+    <s:String x:Key="Install">Установить</s:String>
+    <s:String x:Key="Options">Параметры</s:String>
+    <s:String x:Key="IsRunning">Приложение уже запущено. Пожалуйста, закройте приложение и перезапустите установку.</s:String>
+    <s:String x:Key="UninstallTitle">Удаление HTC Home</s:String>
+    <s:String x:Key="Uninstall">Вы действительно хотите удалить HTC Home с вашего компьютера?</s:String>
+    <s:String x:Key="UninstallFinished">HTC Home удален с вашего компьютера.</s:String>
+    <s:String x:Key="OK">ОК</s:String>
+    <s:String x:Key="Cancel">Отмена</s:String>
+    <s:String x:Key="Back">Назад</s:String>
+    <s:String x:Key="Shortcuts">Создать ярлыки:</s:String>
+    <s:String x:Key="Desktop">на Рабочем столе</s:String>
+    <s:String x:Key="StartMenu">в меню Пуск</s:String>
+    <s:String x:Key="ConfirmCancel">Вы уверены, что хотите отменить установку?</s:String>
+    <s:String x:Key="InstallationCancelled">Установка отменена.</s:String>
+    <s:String x:Key="InstallationFinished">Установка завершена!</s:String>
+</ResourceDictionary>
