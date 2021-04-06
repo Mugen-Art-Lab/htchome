@@ -20,9 +20,7 @@ namespace WeatherClockWidget.Domain
             if (File.Exists(path))
             {
                 var f = new FileInfo(path);
-                //note what does this magic number mean?
-                //this magic mean that if WeatherClockWidget.weather contains <179 bytes, file is corrupted (contains wrong data)
-                if (f.Length > 179)
+                if (f.Length > 0)
                 {
                     using (TextReader textReader = new StreamReader(path))
                     {

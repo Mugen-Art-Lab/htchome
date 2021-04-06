@@ -33,7 +33,7 @@ namespace NewsWidget
         public string TextShort;
         public string TextFull;
 
-        public Feed feed;
+        //public Feed feed;
 
         public string Text
         {
@@ -42,11 +42,16 @@ namespace NewsWidget
             {
                 TextFull = value;
 
-                // с этим потом что-нибудь сделаю
-                ContentDocument.Blocks.Clear();
-                ContentDocument.Blocks.Add((Block)XamlReader.Parse(HTXConverter2.HtmlToXamlConverter.ConvertHtmlToXaml(value, false)));
-
+                //ContentDocument.Blocks.Clear();
+                //ContentDocument.Blocks.Add((Block)XamlReader.Parse(HTXConverter2.HtmlToXamlConverter.ConvertHtmlToXaml(value, false)));
+                ContentTextBlock.Text = value;
             }
+        }
+
+        public string Title
+        {
+            get { return TitleTextBlock.Text; }
+            set { TitleTextBlock.Text = value; }
         }
 
         public static void HyperlinkMouseDown(object sender, MouseButtonEventArgs e)
@@ -61,8 +66,11 @@ namespace NewsWidget
             set
             {
                 if (!string.IsNullOrEmpty(value) && value.StartsWith("http://"))
-                    HeaderIcon.Source = new BitmapImage(new Uri(value));
-                
+                {
+                    IconImage.Source = new BitmapImage(new Uri(value));
+                    IconImage.Visibility = System.Windows.Visibility.Visible;
+                }
+
                 img = value;
             }
         }
@@ -84,8 +92,8 @@ namespace NewsWidget
 
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (ContentPanel.Visibility == System.Windows.Visibility.Visible)
-                WinAPI.ShellExecute(IntPtr.Zero, "open", Link, "", "", 1);
+            /*if (ContentPanel.Visibility == System.Windows.Visibility.Visible)
+                WinAPI.ShellExecute(IntPtr.Zero, "open", Link, "", "", 1);*/
         }
 
     }

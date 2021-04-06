@@ -34,7 +34,7 @@
     <s:String x:Key="CheckForUpdates">Проверять наличие обновлений при запуске</s:String>
     <!-- Updater strings -->
     <s:String x:Key="UpdaterTitle">Служба обновлений HTC Home</s:String>
-    <s:String x:Key="UpdateAvailable">Доступно обновление "{0}". Хотите применить обновление?</s:String>
+    <s:String x:Key="UpdateAvailable">Доступна новая версия. Подробности на http://htchome.org</s:String>
     <s:String x:Key="Yes">Да</s:String>
     <s:String x:Key="No">Нет</s:String>
     <s:String x:Key="Downloading">Загружается</s:String>

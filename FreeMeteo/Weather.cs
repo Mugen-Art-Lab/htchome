@@ -192,6 +192,8 @@ namespace FreeMeteo
                 #region Текущая погода
                 String SearchUrl = String.Format(degreeType == 0 ? RequestForCelsiusCurent : RequestForFahrenheitCurent, locationcode, language);
                 String sData = HTCHome.Core.GeneralHelper.GetXml(SearchUrl);
+                if (string.IsNullOrEmpty(sData))
+                    return null;
 
                 Regex name = new Regex("<DIV class=report_img_new_city>(.+?)</div>", RegexOptions.IgnoreCase);
                 Regex re_tags = new Regex("</?[^>]+>", RegexOptions.IgnoreCase);
@@ -267,6 +269,7 @@ namespace FreeMeteo
             catch (Exception er)
             {
                 HTCHome.Core.Logger.Log("Ошибка получения прогноза\r\n" + er.ToString());
+                return null;
             }
             return report;
         }

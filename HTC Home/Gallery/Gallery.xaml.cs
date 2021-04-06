@@ -19,7 +19,7 @@ namespace HTCHome.Gallery
 
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
-            this.Topmost = false;
+            //this.Topmost = false;
             foreach (var widget in App.widgets)
             {
                 if (widget.IsLoaded)
@@ -149,7 +149,7 @@ namespace HTCHome.Gallery
 
         private void CloseAnimCompleted(object sender, System.EventArgs e)
         {
-            this.Close();
+            base.Close();
         }
 
         private void Window_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -158,6 +158,11 @@ namespace HTCHome.Gallery
             {
                 CloseGallery();
             }
+        }
+
+        public void Close()
+        {
+            CloseGallery();
         }
 
         private void CloseGallery()

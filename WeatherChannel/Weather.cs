@@ -71,6 +71,8 @@ namespace WeatherChannel
 
             string s = GeneralHelper.GetXml(url);
 
+            if (string.IsNullOrEmpty(s))
+                return null;
             //parse current weather
             XDocument doc = XDocument.Parse(s);
             string location = doc.Descendants("loc").FirstOrDefault().Element("dnam").Value;

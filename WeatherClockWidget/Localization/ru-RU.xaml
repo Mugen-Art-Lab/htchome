@@ -13,6 +13,7 @@
     <s:String x:Key="Refresh">Обновить</s:String>
     <s:String x:Key="Options">Настройки виджета</s:String>
     <s:String x:Key="LastResults">Последние запросы</s:String>
+    <s:String x:Key="Close">Закрыть</s:String>
     <!-- Options strings -->
     <s:String x:Key="Title">Настройки</s:String>
     <s:String x:Key="General">Общие</s:String>
@@ -29,7 +30,7 @@
     <s:String x:Key="EnableSounds">Включить звуки погоды</s:String>
     <s:String x:Key="CurrentLocationText">Текущее местоположение:</s:String>
     <s:String x:Key="TypeLocationText">Введите название города (на английском):</s:String>
-    <s:String x:Key="NoResults">К сожалению не удалось найти город. Попробуйте другой провайдер погоды.</s:String>
+    <s:String x:Key="NoResults">Не удалось найти город. Попробуйте другой провайдер погоды.</s:String>
     <s:String x:Key="Interval">Интервал (в минутах):</s:String>
     <s:String x:Key="EnableWallpaperChanging">Менять обои рабочего стола в соответствии с погодой</s:String>
     <s:String x:Key="WallpapersFolder">Папка с обоями:</s:String>

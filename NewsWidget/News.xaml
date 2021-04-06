@@ -2,15 +2,15 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:this="clr-namespace:NewsWidget"
-             Height="410" Width="320" Loaded="UserControl_Loaded">
+             Height="410" Width="320">
     <UserControl.Resources>
-        <Storyboard x:Key="Swap1" Completed="Swap1_Completed">
+        <Storyboard x:Key="Swap1">
             <DoubleAnimation Storyboard.TargetName="TranslateNews" Storyboard.TargetProperty="X" From="0" To="-300" Duration="0:0:0.3"/>
             <DoubleAnimation Storyboard.TargetName="ScrollViewer" Storyboard.TargetProperty="Opacity" From="1" To="0" Duration="0:0:0.3"/>
             <DoubleAnimation Storyboard.TargetName="TranslatePreview" Storyboard.TargetProperty="X" From="300" To="0" Duration="0:0:0.3"/>
             <DoubleAnimation Storyboard.TargetName="ScrollViewer2" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
         </Storyboard>
-        <Storyboard x:Key="Swap2" Completed="Swap2_Completed">
+        <Storyboard x:Key="Swap2">
             <DoubleAnimation Storyboard.TargetName="TranslateNews" Storyboard.TargetProperty="X" From="-300" To="0" Duration="0:0:0.3"/>
             <DoubleAnimation Storyboard.TargetName="ScrollViewer" Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
             <DoubleAnimation Storyboard.TargetName="TranslatePreview" Storyboard.TargetProperty="X" From="0" To="300" Duration="0:0:0.3"/>
@@ -21,12 +21,11 @@
         <Grid.RenderTransform>
             <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
         </Grid.RenderTransform>
-        <Rectangle Name="BgRect" Fill="White"  Margin="0,25,0,8" Opacity="1"/>
         <Image Name="Body" Source="Resources\body.png" Stretch="Fill" Margin="0,25,0,8"/>
         <Image Name="Header" Source="Resources\header.png" VerticalAlignment="Top" Height="68" Stretch="Uniform" />
         <Image Name="Footer" Source="Resources\footer.png" VerticalAlignment="Bottom" Height="22"/>
         <Image Name="NewsPaperIcon" Source="Resources\newspaper.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="102" Height="67" Margin="0,-15,10,0"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,2" MouseLeftButtonDown="StackPanel_MouseLeftButtonDown">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,2">
             <Image Name="RefreshIcon" Source="Resources\refresh.png" Height="14" RenderTransformOrigin="0.5,0.5">
                 <Image.Resources>
                     <Storyboard x:Key="RefreshAnim">
@@ -56,15 +55,13 @@
             <Grid Name="PreviewPanel" Width="320"/>
         </this:DragScrollViewer>
         <this:DragScrollViewer x:Name="ScrollViewer" Margin="0,48,0,22" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
-            <Grid>
-                <StackPanel Name="NewsPanel" Width="320">
-                    <StackPanel.RenderTransform>
-                        <TranslateTransform x:Name="TranslateNews" />
-                    </StackPanel.RenderTransform>
-                </StackPanel>
-            </Grid>
+            <StackPanel Name="NewsPanel" Width="320">
+                <StackPanel.RenderTransform>
+                    <TranslateTransform x:Name="TranslateNews" />
+                </StackPanel.RenderTransform>
+            </StackPanel>
         </this:DragScrollViewer>
-            <TextBlock Name="NewsTextShadow" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ElementName=NewsText, Path=Text}" Foreground="Black" FontSize="20" Margin="9,7,0,0"/>
+        <TextBlock Name="NewsTextShadow" VerticalAlignment="Top" HorizontalAlignment="Left" Text="{Binding ElementName=NewsText, Path=Text}" Foreground="Black" FontSize="20" Margin="11,9,0,0"/>
         <TextBlock Name="NewsText" VerticalAlignment="Top" HorizontalAlignment="Left" Text="News" Foreground="White" FontSize="20" Margin="10,8,0,0"/>
     </Grid>
 </UserControl>

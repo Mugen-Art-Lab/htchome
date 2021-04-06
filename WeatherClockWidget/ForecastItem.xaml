@@ -29,7 +29,7 @@
             </Grid>
             <Grid Style="{DynamicResource ForecastItemTemperatureLGridStyle}">
                 <TextBlock Name="TemperatureLShadow" Style="{DynamicResource ForecastItemTemperatureLShadowStyle}" Text="{Binding ElementName=TemperatureL, Path=Text}"/>
-                <TextBlock Name="TemperatureL" Style="{DynamicResource ForecastItemTemperatureLStyle}" Text="/0⁰"/>
+                <TextBlock Name="TemperatureL" Style="{DynamicResource ForecastItemTemperatureLStyle}" Text="0⁰"/>
             </Grid>
         </StackPanel>
     </Grid>

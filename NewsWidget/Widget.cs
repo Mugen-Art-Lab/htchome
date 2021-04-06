@@ -9,11 +9,16 @@ namespace NewsWidget
 {
     public class Widget : IWidget
     {
-        public static Window Parent;
-        public static Settings Sett;
-        private UserControl _widgetControl;
+        public Window Parent;
+        public Settings Sett;
+        private News _widgetControl;
+        public static Widget Instance;
+        public LocaleManager LocaleManager;
 
-        public static LocaleManager LocaleManager;
+        public Widget()
+        {
+            Instance = this;
+        }
 
         public UserControl GetWidgetControl()
         {
@@ -31,6 +36,7 @@ namespace NewsWidget
             LocaleManager = new HTCHome.Core.LocaleManager(E.Path + "\\News\\Localization");
             LocaleManager.LoadLocale(E.Locale);
             _widgetControl = new News();
+            _widgetControl.Load();
             return _widgetControl;
         }
 
@@ -41,30 +47,30 @@ namespace NewsWidget
 
         public Point GetWindowPosition()
         {
-            return new Point(Sett.left, Sett.top);
+            return new Point(Sett.Left, Sett.Top);
         }
 
         public void SetWindowPosition(double left, double top)
         {
-            Sett.left = left;
-            Sett.top = top;
+            Sett.Left = left;
+            Sett.Top = top;
         }
 
         public void Unload()
         {
-            ((News)_widgetControl).Unload();
+            //((News)_widgetControl).Unload();
             Sett.Write(E.ConfigDirectory + "\\NewsWidget.conf");
         }
 
 
         public IntPtr GetRegion()
         {
-            return WinAPI.CreateRoundRectRgn(0, 20, (int)(320 * Sett.scaleFactor), (int)(410 * Sett.scaleFactor), 5, 5);
+            return WinAPI.CreateRoundRectRgn(0, 20, (int)(320 * Sett.ScaleFactor), (int)(410 * Sett.ScaleFactor), 5, 5);
         }
 
         public double GetScalefactor()
         {
-            return Sett.scaleFactor;
+            return Sett.ScaleFactor;
         }
 
 
@@ -76,30 +82,32 @@ namespace NewsWidget
 
         public void SetScalefactor(double scale)
         {
-            Sett.scaleFactor = scale;
+            Sett.ScaleFactor = scale;
             ((News)_widgetControl).Scale.ScaleX = scale;
         }
 
         public bool GetTopMost()
         {
-            return Sett.topMost;
+            return Sett.TopMost;
         }
 
         public void SetTopMost(bool value)
         {
-            Sett.topMost = value;
+            Sett.TopMost = value;
         }
 
 
         public bool GetPin()
         {
-            return Sett.pinned;
+            return Sett.Pinned;
         }
 
         public void SetPin(bool value)
         {
-            Sett.pinned = value;
+            Sett.Pinned = value;
         }
+
+        public event EventHandler UpdateAeroEvent;
 
 
         public event EventHandler UpdateAero;

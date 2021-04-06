@@ -255,9 +255,9 @@
                             </StackPanel>
                         </Grid>
 
-                        <Grid>
+
                             <TextBlock Name="RestartText" Text="Some options requires restart" Margin="10,0,10,10" TextWrapping="Wrap" FontStyle="Italic" Foreground="Gray"/>
-                        </Grid>
+
                     </StackPanel>
                 </TabItem>
                 <TabItem Name="AboutTab" Header="About" Style="{StaticResource TabItemStyle1}">

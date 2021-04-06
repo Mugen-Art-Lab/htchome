@@ -9,27 +9,21 @@ namespace NewsWidget.Domain
 {
     public class Settings
     {
-        public List<string> source;
+        public List<string> Sources;
 
-        public double interval = 15;
+        public double Interval = 15;
 
-        public double left;
+        public double Left;
 
-        public double top;
+        public double Top;
 
-        public double opacity = 0;
+        public int NewsCount = 10;
 
-        public int newsCount = 10;
+        public double ScaleFactor = 1.0f;
 
-        public int maxItemsCount = 20;
+        public bool TopMost;
 
-        public int previewFontSize = 12;
-
-        public double scaleFactor = 1.0f;
-
-        public bool topMost;
-
-        public bool pinned;
+        public bool Pinned;
 
         public static Settings Read(string path)
         {
@@ -37,7 +31,7 @@ namespace NewsWidget.Domain
             if (File.Exists(path))
             {
                 var f = new FileInfo(path);
-                if (f.Length > 162)
+                if (f.Length > 0)
                 {
                     using (TextReader textReader = new StreamReader(path))
                     {
@@ -47,7 +41,7 @@ namespace NewsWidget.Domain
                 }
                 else
                 {
-                    //App.Log("Settings file is corrupted.");
+                    HTCHome.Core.Logger.Log("Settings file is corrupted.");
                 }
             }
             return result;

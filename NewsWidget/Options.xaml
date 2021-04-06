@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Background="Transparent" ResizeMode="NoResize" Height="560" Width="430"
-        SourceInitialized="Window_SourceInitialized">
+        SourceInitialized="WindowSourceInitialized">
  <Window.Resources>
         <Style x:Key="TabItemFocusVisual">
             <Setter Property="Control.Template">
@@ -236,9 +236,9 @@
             </LinearGradientBrush>
         </DockPanel.Background>
         <StackPanel DockPanel.Dock="Bottom" Background="#e3e7ec" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,10">
-            <Button Name="OkButton" Content="OK" Width="75" Height="23" Margin="0,0,7,0" Click="OkButton_Click"/>
-            <Button Name="CancelButton" Content="Cancel" Width="75" Height="23" Margin="0,0,7,0" Click="CancelButton_Click"/>
-            <Button Name="ApplyButton" Content="Apply" Width="75" Height="23" Margin="0,0,7,0" IsEnabled="False" Click="ApplyButton_Click"/>
+            <Button Name="OkButton" Content="OK" Width="75" Height="23" Margin="0,0,7,0" Click="OkButtonClick"/>
+            <Button Name="CancelButton" Content="Cancel" Width="75" Height="23" Margin="0,0,7,0" Click="CancelButtonClick"/>
+            <Button Name="ApplyButton" Content="Apply" Width="75" Height="23" Margin="0,0,7,0" IsEnabled="False" Click="ApplyButtonClick"/>
         </StackPanel>
         <TabControl Style="{StaticResource TabControlStyle1}">
             <TabItem Name="GeneralTab" Header="General" Style="{StaticResource TabItemStyle1}">
@@ -246,46 +246,60 @@
                     <Grid>
                         <UserControl Style="{StaticResource Block}"/>
                         <StackPanel Margin="10,10,10,20">
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <StackPanel Margin="0,5,0,0">
                                 <TextBlock Name="NewsCountTextBlock" VerticalAlignment="Center" Text="News count:"/>
-                                <TextBox Name="NewsCountTextBox" VerticalAlignment="Center" Margin="5,0,5,0" Width="30" TextChanged="TextBox_TextChanged"/>
+                                <ComboBox Name="NewsCountComboBox">
+                                    <ComboBoxItem Content="5"/>
+                                    <ComboBoxItem Content="10"/>
+                                    <ComboBoxItem Content="15"/>
+                                    <ComboBoxItem Content="20"/>
+                                    <ComboBoxItem Content="30"/>
+                                    <ComboBoxItem Content="40"/>
+                                </ComboBox>
                             </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <TextBlock Name="OpacityTextBlock" VerticalAlignment="Center" Text="Opacity:"/>
-                                <TextBox Name="OpacityTextBox" VerticalAlignment="Center" Margin="5,0,5,0" Width="30" TextChanged="TextBox_TextChanged"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <StackPanel Margin="0,5,0,0">
                                 <TextBlock Name="IntervalTextBlock" VerticalAlignment="Center" Text="Interval (in minutes):"/>
-                                <TextBox Name="IntervalTextBox" VerticalAlignment="Center" Margin="5,0,5,0" Width="30" TextChanged="TextBox_TextChanged"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                <TextBlock Name="PreviewFontSizeTextBlock" VerticalAlignment="Center" Text="Feed preview font size:"/>
-                                <TextBox Name="PreviewFontSizeTextBox" VerticalAlignment="Center" Margin="5,0,5,0" Width="30" TextChanged="TextBox_TextChanged"/>
+                                <ComboBox Name="IntervalComboBox">
+                                    <ComboBoxItem Content="5"/>
+                                    <ComboBoxItem Content="10"/>
+                                    <ComboBoxItem Content="15"/>
+                                    <ComboBoxItem Content="20"/>
+                                    <ComboBoxItem Content="30"/>
+                                    <ComboBoxItem Content="40"/>
+                                    <ComboBoxItem Content="50"/>
+                                    <ComboBoxItem Content="60"/>
+                                    <ComboBoxItem Content="80"/>
+                                    <ComboBoxItem Content="100"/>
+                                </ComboBox>
                             </StackPanel>
                         </StackPanel>
+                    </Grid>
+                    <Grid>
+                        <UserControl Style="{StaticResource Block}"/>
+                        <DockPanel Margin="12,4,12,12">
+                            <StackPanel DockPanel.Dock="Top">
+                                <TextBlock Name="AddSourceTextBlock" Text="Add new source:"/>
+                                <Grid Height="22">
+                                    <TextBox Name="AddSourceBox" KeyDown="AddSourceBoxKeyDown"/>
+                                    <Button Width="28" HorizontalAlignment="Right" Click="ButtonClick">
+                                        <Image Source="/News;component/Resources/common_icon_add.png" />
+                                    </Button>
+                                </Grid>
+                            </StackPanel>
+
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
+                                <StackPanel Name="SourcesPanel">
+
+                                </StackPanel>
+                            </ScrollViewer>
+                        </DockPanel>
                     </Grid>
                 </StackPanel>
             </TabItem>
             <TabItem Name="SourcesTab" Header="Sources" Style="{StaticResource TabItemStyle1}">
                 <Grid>
                     <UserControl Style="{StaticResource Block}"/>
-                    <DockPanel Margin="12,4,12,12">
-                        <StackPanel   DockPanel.Dock="Top">
-                            <TextBlock Name="AddSourceTextBlock" Text="Add new source:"/>
-                            <Grid Height="22">
-                                <TextBox Name="AddSourceBox" KeyDown="AddSourceBox_KeyDown"/>
-                                <Button Width="28" HorizontalAlignment="Right" Click="Button_Click">
-                                    <Image Source="/News;component/Resources/common_icon_add.png" />
-                                </Button>
-                            </Grid>
-                        </StackPanel>
-
-                        <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,5,0,0">
-                            <StackPanel Name="SourcesPanel">
-
-                            </StackPanel>
-                        </ScrollViewer>
-                    </DockPanel>
+                    
                 </Grid>
             </TabItem>
         </TabControl>

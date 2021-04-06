@@ -84,7 +84,7 @@ namespace HTCHome
             WidgetName = widget.GetWidgetName();
             WidgetIcon = widget.GetIcon();
 
-            widget.UpdateAeroEvent += new EventHandler(widget_UpdateAero);
+            widget.UpdateAeroEvent += widget_UpdateAero;
 
             CloseItem.Header = App.LocaleManager.GetString("Close");
             CloseHomeItem.Header = App.LocaleManager.GetString("CloseHome");
@@ -348,6 +348,11 @@ namespace HTCHome
 
         private void GalleryItemClick(object sender, RoutedEventArgs e)
         {
+            if (App.Gallery != null && App.Gallery.IsVisible)
+            {
+                App.Gallery.Close();
+                return;
+            }
             App.Gallery = new Gallery.Gallery()
                               {
                                   Left = 0,

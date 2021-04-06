@@ -35,6 +35,10 @@
             </Rectangle>
             <Image Name="FrostLeft" Source="Skins\Sense\Weather\frost_left.png" Style="{DynamicResource FrostLeftStyle}"/>
             <Image Name="FrostRight" Source="Skins\Sense\Weather\frost_right.png" Style="{DynamicResource FrostRightStyle}"/>
+            <StackPanel Name="ClockPanel" Style="{DynamicResource ClockPanelStyle}">
+                <this:FlipClockControl x:Name="Hours" Style="{DynamicResource HoursTabStyle}" />
+                <this:FlipClockControl x:Name="Minutes" ShowAmPm="False" Style="{DynamicResource MinutesTabStyle}" />
+            </StackPanel>
             <Grid Name="WeatherPanel" Style="{DynamicResource WeatherPanelStyle}">
                 <Grid Style="{DynamicResource CityGridStyle}">
                     <TextBlock Name="CityShadow" Text="{Binding ElementName=City, Path=Text}" Style="{DynamicResource CityTextShadowStyle}"/>
@@ -73,10 +77,6 @@
                     <TextBlock Name="Temperature" Text="0°" Style="{DynamicResource TemperatureTextStyle}"/>
                 </Grid>
             </Grid>
-            <StackPanel Name="ClockPanel" Style="{DynamicResource ClockPanelStyle}">
-                <this:FlipClockControl x:Name="Hours" Style="{DynamicResource HoursTabStyle}" />
-                <this:FlipClockControl x:Name="Minutes" ShowAmPm="False" Style="{DynamicResource MinutesTabStyle}" />
-            </StackPanel>
         </Grid>
         <Grid Name="ForecastGrid" Style="{DynamicResource ForecastGridStyle}">
             <Image Name="ForecastBg" Style="{DynamicResource ForecastBaseStyle}"/>

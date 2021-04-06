@@ -256,10 +256,12 @@ namespace WeatherClockWidget
         void item_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             this.SelectedIndex = SearchResults.Children.IndexOf((LocationItem)sender);
+            if (Widget.Sett.LastCities == null)
+                Widget.Sett.LastCities = new List<CityLocation>();
             if (!Widget.Sett.LastCities.Contains(results[SelectedIndex]))
             {
                 Widget.Sett.LastCities.Insert(0, results[SelectedIndex]);
-                if (Widget.Sett.LastCities.Count > 5)
+                if (Widget.Sett.LastCities.Count > 10)
                     Widget.Sett.LastCities.RemoveAt(Widget.Sett.LastCities.Count - 1);
             }
         }
@@ -365,7 +367,8 @@ namespace WeatherClockWidget
             ContactsTextBlock.Text = Widget.LocaleManager.GetString("Contacts") + " " + doc.Root.Element("Contacts").Value;
             DescriptionTextBlock.Text = doc.Root.Element("Description").Value;
 
-            SkinPreview.Source = new BitmapImage(new Uri(E.Path + "\\WeatherClock\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Preview.png"));
+            if (File.Exists(E.Path + "\\WeatherClock\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Preview.png"))
+                SkinPreview.Source = new BitmapImage(new Uri(E.Path + "\\WeatherClock\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Preview.png"));
             WeatherClock.UseClockAnimation = Convert.ToBoolean(doc.Root.Element("UseClockAnimation").Value);
 
             ApplyButton.IsEnabled = true;

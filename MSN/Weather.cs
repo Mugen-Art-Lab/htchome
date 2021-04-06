@@ -110,7 +110,7 @@ namespace MSN
                 f[f.Count - 1].HighTemperature = Convert.ToInt32(d.h);
                 f[f.Count - 1].LowTemperature = Convert.ToInt32(d.l);
                 f[f.Count - 1].Text = d.text;
-                f[f.Count - 1].SkyCode = GetWeatherPic(Convert.ToInt32(d.skycode), WeatherClockWidget.Widget.Sett.Sunrise, WeatherClockWidget.Widget.Sett.Sunset);
+                f[f.Count - 1].SkyCode = GetWeatherPic(Convert.ToInt32(d.skycode), -1, 25);
             }
 
             result.Forecast = f;

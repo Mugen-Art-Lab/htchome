@@ -148,7 +148,7 @@ namespace WeatherClockWidget
                 {
                     item.Icon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.Forecast[i].SkyCode))));
                     item.TemperatureH.Text = weatherReport.Forecast[i].HighTemperature.ToString() + "°";
-                    item.TemperatureL.Text = "/" + weatherReport.Forecast[i].LowTemperature.ToString() + "°";
+                    item.TemperatureL.Text = weatherReport.Forecast[i].LowTemperature.ToString() + "°";
                     item.Url = weatherReport.Forecast[i].Url;
                 }
             }
@@ -430,7 +430,7 @@ namespace WeatherClockWidget
             if (E.Locale != Widget.LocaleManager.LocaleCode)
                 Widget.LocaleManager.LoadLocale(E.Locale);
 
-            if (Skin.Source.AbsolutePath != Widget.Sett.Skin)
+            if (System.IO.Path.GetFileNameWithoutExtension(System.IO.Path.GetDirectoryName(Skin.Source.AbsolutePath)) != Widget.Sett.Skin)
             {
                 ReloadSkin();
             }
@@ -460,7 +460,7 @@ namespace WeatherClockWidget
                     {
                         item.Icon.Source = new BitmapImage(new Uri(Widget.ResourceManager.GetResourcePath(string.Format("Weather\\weather_{0}.png", weatherReport.Forecast[i].SkyCode))));
                         item.TemperatureH.Text = weatherReport.Forecast[i].HighTemperature.ToString() + "°";
-                        item.TemperatureL.Text = "/" + weatherReport.Forecast[i].LowTemperature.ToString() + "°";
+                        item.TemperatureL.Text = weatherReport.Forecast[i].LowTemperature.ToString() + "°";
                         item.Url = weatherReport.Forecast[i].Url;
                     }
                 }
@@ -595,7 +595,7 @@ namespace WeatherClockWidget
                 {
                     item.FlipWeather(weatherReport.Forecast[i].SkyCode);
                     item.TemperatureH.Text = weatherReport.Forecast[i].HighTemperature.ToString() + "°";
-                    item.TemperatureL.Text = "/" + weatherReport.Forecast[i].LowTemperature.ToString() + "°";
+                    item.TemperatureL.Text = weatherReport.Forecast[i].LowTemperature.ToString() + "°";
                     item.Url = weatherReport.Forecast[i].Url;
                     item.ToolTip = weatherReport.Forecast[i].Text;
                 }

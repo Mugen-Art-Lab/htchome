@@ -140,6 +140,9 @@ namespace Foreca
                 #region Текущая температура
                 String CurentDataUrl = hostUrl.ToString() + "?" + (isMetric ? "quick_units=metric" : "quick_units=us") + (url.Query != String.Empty ? "&" + url.Query.Substring(1) : String.Empty);
                 String CurentData = Helper.HtmlDecode(HTCHome.Core.GeneralHelper.GetXml(CurentDataUrl));
+                if (string.IsNullOrEmpty(CurentData))
+                    return null;
+
                 #region Название населенного пункта
                 Regex CityNameRe = new Regex("<h1 class=\"entry-title\">([^<]+)</h1>", RegexOptions.IgnoreCase);
                 if (CityNameRe.IsMatch(CurentData))
@@ -219,6 +222,7 @@ namespace Foreca
             catch (Exception er)
             {
                 HTCHome.Core.Logger.Log("Ошибка получения прогноза\r\n" + er.ToString());
+                return null;
             }
             return report;
         }

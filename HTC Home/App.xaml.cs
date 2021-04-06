@@ -102,9 +102,6 @@ namespace HTCHome
                 HTCHome.Core.GeneralHelper.Proxy = proxy;
             }
 
-            if (sett.EnableUpdates && File.Exists(Path + "\\Updater.exe"))
-                Process.Start(Path + "\\Updater.exe");
-
             LocaleManager = new LocaleManager(Path + "\\Localization");
 
             if (string.IsNullOrEmpty(sett.Locale))
@@ -127,6 +124,17 @@ namespace HTCHome
                 Thread.CurrentThread.CurrentCulture = new CultureInfo(sett.Locale);
             }
             catch { }
+
+            if (sett.EnableUpdates)
+            {
+                int build = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileBuildPart;
+                string link = "http://store.htchome.org/dl/stable/updates/" + build + ".xml";
+                if (IsRemoteFileExists(link))
+                {
+                    MessageBox.Show(LocaleManager.GetString("UpdateAvailable"), LocaleManager.GetString("UpdaterTitle"),
+                                    MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
 
             HTCHome.Core.Environment.Path = Path + "\\Widgets";
             HTCHome.Core.Environment.ConfigDirectory = Path + "\\Config";
@@ -234,15 +242,43 @@ namespace HTCHome
                 galleryHotkey = new HotKey(System.Windows.Input.ModifierKeys.Windows, Keys.J, IntPtr.Zero);
                 galleryHotkey.HotKeyPressed += (k) =>
                 {
-                    var gallery = new Gallery.Gallery()
+                    if (Gallery != null && Gallery.IsVisible)
+                    {
+                        Gallery.Close();
+                        return;
+                    }
+                    Gallery = new Gallery.Gallery()
                     {
                         Left = 0,
                         Top = 0,
                         Width = SystemParameters.PrimaryScreenWidth,
                         Height = SystemParameters.PrimaryScreenHeight
                     };
-                    gallery.ShowDialog();
+                    Gallery.ShowDialog();
                 };
+
+                /*Window window = new Window();
+                window.Width = 1;
+                window.Height = 1;
+                window.WindowStyle = WindowStyle.None;
+                window.ResizeMode = ResizeMode.NoResize;
+                window.AllowsTransparency = true;
+                window.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#01000000"));
+                window.Left = SystemParameters.PrimaryScreenWidth - 1;
+                window.Top = 0;
+                window.Topmost = true;
+                window.Show();
+                window.MouseEnter += (s, e1) =>
+                                         {
+                                             var gallery = new Gallery.Gallery()
+                                             {
+                                                 Left = 0,
+                                                 Top = 0,
+                                                 Width = SystemParameters.PrimaryScreenWidth,
+                                                 Height = SystemParameters.PrimaryScreenHeight
+                                             };
+                                             gallery.ShowDialog();
+                                         };*/
             }
         }
 

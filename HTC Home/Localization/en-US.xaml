@@ -34,7 +34,7 @@
     <s:String x:Key="CheckForUpdates">Check for updates at startup</s:String>
     <!-- Updater strings -->
     <s:String x:Key="UpdaterTitle">HTC Home updates service</s:String>
-    <s:String x:Key="UpdateAvailable">There is "{0}" available. Would you like to update?</s:String>
+    <s:String x:Key="UpdateAvailable">There is new version available. Go to the http://www.htchome.org to get more information.</s:String>
     <s:String x:Key="Yes">Yes</s:String>
     <s:String x:Key="No">No</s:String>
     <s:String x:Key="Downloading">Downloading</s:String>
