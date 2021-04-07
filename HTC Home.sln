@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22512.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31129.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Home.Base", "Home.Core\Home.Base.csproj", "{38C417F8-F075-4DEE-B523-EC4215A45ABD}"
 EndProject
@@ -52,13 +52,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeMeteo", "Extensions\Weather\FreeMeteo\FreeMeteo.csproj", "{22D1BD08-7D79-48D0-9DE2-8530F470285D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gismeteo", "Extensions\Weather\Gismeteo\Gismeteo.csproj", "{A5053DDD-7E7F-4615-82CA-928740A77364}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B671F232-151D-42A7-BD94-11E217857C8D}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWeatherMap", "Extensions\Weather\OpenWeatherMap\OpenWeatherMap.csproj", "{9F674980-8284-401C-B751-40F2EE8E2F3E}"
 EndProject
@@ -313,88 +306,7 @@ Global
 		{A5053DDD-7E7F-4615-82CA-928740A77364} = {81A6730A-2F86-478C-81B3-09B78D2F42BE}
 		{9F674980-8284-401C-B751-40F2EE8E2F3E} = {81A6730A-2F86-478C-81B3-09B78D2F42BE}
 	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 22
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://tfs.codeplex.com/tfs/tfs12
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = Extensions\\Weather\\FreeMeteo\\FreeMeteo.csproj
-		SccProjectTopLevelParentUniqueName1 = HTCHome.sln
-		SccProjectName1 = Extensions/Weather/FreeMeteo
-		SccLocalPath1 = Extensions\\Weather\\FreeMeteo
-		SccProjectUniqueName2 = Home.Core\\Home.Base.csproj
-		SccProjectName2 = Home.Core
-		SccLocalPath2 = Home.Core
-		SccProjectUniqueName3 = Widgets\\Clock\\Clock.csproj
-		SccProjectTopLevelParentUniqueName3 = HTCHome.sln
-		SccProjectName3 = Widgets/Clock
-		SccLocalPath3 = Widgets\\Clock
-		SccProjectUniqueName4 = Extensions\\Weather\\MSN\\MSN.csproj
-		SccProjectTopLevelParentUniqueName4 = HTCHome.sln
-		SccProjectName4 = Extensions/Weather/MSN
-		SccLocalPath4 = Extensions\\Weather\\MSN
-		SccProjectUniqueName5 = Weather.Base\\Weather.Base.csproj
-		SccProjectName5 = Weather.Base
-		SccLocalPath5 = Weather.Base
-		SccProjectUniqueName6 = Widgets\\Weather\\Weather.csproj
-		SccProjectTopLevelParentUniqueName6 = HTCHome.sln
-		SccProjectName6 = Widgets/Weather
-		SccLocalPath6 = Widgets\\Weather
-		SccProjectUniqueName7 = UIFramework\\Weather.Resources\\UIFramework.Weather.csproj
-		SccProjectTopLevelParentUniqueName7 = HTCHome.sln
-		SccProjectName7 = UIFramework/Weather.Resources
-		SccLocalPath7 = UIFramework\\Weather.Resources
-		SccProjectUniqueName8 = Home.Packaging\\Home.Packaging.csproj
-		SccProjectName8 = Home.Packaging
-		SccLocalPath8 = Home.Packaging
-		SccProjectUniqueName9 = Update\\Update.csproj
-		SccProjectName9 = Update
-		SccLocalPath9 = Update
-		SccProjectUniqueName10 = Home.Updates\\Home.Updates.csproj
-		SccProjectName10 = Home.Updates
-		SccLocalPath10 = Home.Updates
-		SccProjectUniqueName11 = Extensions\\WeatherChannel\\WeatherChannel.csproj
-		SccProjectTopLevelParentUniqueName11 = HTCHome.sln
-		SccProjectName11 = Extensions/WeatherChannel
-		SccLocalPath11 = Extensions\\WeatherChannel
-		SccProjectUniqueName12 = Widgets\\Photos\\Photos.csproj
-		SccProjectTopLevelParentUniqueName12 = HTCHome.sln
-		SccProjectName12 = Widgets/Photos
-		SccLocalPath12 = Widgets\\Photos
-		SccProjectUniqueName13 = Widgets\\FriendStream\\FriendStream.csproj
-		SccProjectTopLevelParentUniqueName13 = HTCHome.sln
-		SccProjectName13 = Widgets/FriendStream
-		SccLocalPath13 = Widgets\\FriendStream
-		SccProjectUniqueName14 = Social.Base\\Social.Base.csproj
-		SccProjectName14 = Social.Base
-		SccLocalPath14 = Social.Base
-		SccProjectUniqueName15 = Extensions\\Social\\Facebook\\Facebook.csproj
-		SccProjectTopLevelParentUniqueName15 = HTCHome.sln
-		SccProjectName15 = Extensions/Social/Facebook
-		SccLocalPath15 = Extensions\\Social\\Facebook
-		SccProjectUniqueName16 = Widgets\\News\\News.csproj
-		SccProjectTopLevelParentUniqueName16 = HTCHome.sln
-		SccProjectName16 = Widgets/News
-		SccLocalPath16 = Widgets\\News
-		SccProjectUniqueName17 = Extensions\\Social\\Vkontakte\\Vkontakte\\Vkontakte.csproj
-		SccProjectTopLevelParentUniqueName17 = HTCHome.sln
-		SccProjectName17 = Extensions/Social/Vkontakte/Vkontakte
-		SccLocalPath17 = Extensions\\Social\\Vkontakte\\Vkontakte
-		SccProjectUniqueName18 = Extensions\\Weather\\AccuWeather\\AccuWeather.csproj
-		SccProjectTopLevelParentUniqueName18 = HTCHome.sln
-		SccProjectName18 = Extensions/Weather/AccuWeather
-		SccLocalPath18 = Extensions\\Weather\\AccuWeather
-		SccProjectUniqueName19 = Extensions\\Weather\\Foreca\\Foreca.csproj
-		SccProjectTopLevelParentUniqueName19 = HTCHome.sln
-		SccProjectName19 = Extensions/Weather/Foreca
-		SccLocalPath19 = Extensions\\Weather\\Foreca
-		SccProjectUniqueName20 = Extensions\\Weather\\Gismeteo\\Gismeteo.csproj
-		SccProjectTopLevelParentUniqueName20 = HTCHome.sln
-		SccProjectName20 = Extensions/Weather/Gismeteo
-		SccLocalPath20 = Extensions\\Weather\\Gismeteo
-		SccProjectUniqueName21 = Extensions\\Weather\\OpenWeatherMap\\OpenWeatherMap.csproj
-		SccProjectTopLevelParentUniqueName21 = HTCHome.sln
-		SccProjectName21 = Extensions/Weather/OpenWeatherMap
-		SccLocalPath21 = Extensions\\Weather\\OpenWeatherMap
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {196E89F2-CBD3-4CDA-AF0D-6BDFF22C623F}
 	EndGlobalSection
 EndGlobal

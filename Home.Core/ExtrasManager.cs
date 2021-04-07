@@ -11,7 +11,7 @@ namespace Home.Base
     {
         public static List<ExtrasInfo> GetInstalledExtrasInfo()
         {
-            var extFiles = from x in Directory.GetFiles(E.ExtPath, "*.xml", SearchOption.AllDirectories)
+            var extFiles = from x in Directory.GetFiles(E.ExtPath, "*.ext.xml", SearchOption.AllDirectories)
                            select x;
             if (extFiles.Count() > 0)
             {
