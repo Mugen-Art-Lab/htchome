@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="Weather.Controls.ForecastItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Margin="0,15,0,15"
+             MouseLeftButtonDown="UserControlMouseLeftButtonDown" MouseLeftButtonUp="UserControlMouseLeftButtonUp">
+    <DockPanel>
+        <TextBlock DockPanel.Dock="Top" Name="DayName" Text="mon" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,0">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="0.5" BlurRadius="2" Opacity="0.7"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <TextBlock DockPanel.Dock="Bottom" Name="Temperature" Text="0°/0°" Foreground="White" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,0">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="0.5" BlurRadius="2" Opacity="0.7"/>
+            </TextBlock.Effect>
+        </TextBlock>
+        <Image Name="Icon" Source="/UIFramework.Weather;Component/Images/weather_1.png" RenderOptions.BitmapScalingMode="HighQuality" Height="60" Margin="0,-50,0,-50"/>
+    </DockPanel>
+</UserControl>

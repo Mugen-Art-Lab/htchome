@@ -3,16 +3,53 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Net;
 using System.IO;
 using System.Globalization;
 
-namespace FreeMeteo
+namespace WeatherProviders
 {
     public class Helper
     {
+        public static IWebProxy GetProxy()
+        {
+            return Home.Base.GeneralHelper.Proxy != null ? Home.Base.GeneralHelper.Proxy : WebRequest.GetSystemWebProxy();
+        }
+
+        //public static Uri GetRedirectedUrl(Uri path, Int32 Timeout)
+        //{
+        //    try
+        //    {
+        //        HttpWebResponse response = null;
+        //        HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(path);
+        //        request.Timeout = Timeout;
+        //        request.Proxy = GetProxy();
+        //        request.UserAgent = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 8.0) (compatible; MSIE 8.0; Windows NT 5.1;)";
+        //        request.AllowAutoRedirect = true;
+        //        request.CookieContainer = new CookieContainer();
+        //        response = (HttpWebResponse)request.GetResponse();
+        //        //response.Cookies
+        //        return response.ResponseUri;
+        //    }
+        //    catch { return null; }
+        //}
+
+        public static String GetRequest(Uri path, Encoding encoding, Int32 Timeout)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(path);
+                request.Timeout = Timeout;
+                request.AllowAutoRedirect = true;
+                request.Proxy = GetProxy();
+                request.UserAgent = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 8.0) (compatible; MSIE 8.0; Windows NT 5.1;)";
+                return new StreamReader(((HttpWebResponse)request.GetResponse()).GetResponseStream(), encoding).ReadToEnd();
+            }
+            catch { return String.Empty; }
+        }
+
         private static char[] s_entityEndingChars = new char[] { ';', '&' };
-
-
+        #region UrlEncode
         public static string UrlEncode(byte[] bytes)
         {
             if (bytes == null)
@@ -21,6 +58,8 @@ namespace FreeMeteo
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes));
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(string str)
         {
             if (str == null)
@@ -29,6 +68,8 @@ namespace FreeMeteo
             }
             return UrlEncode(str, Encoding.UTF8);
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(string str, Encoding e)
         {
             if (str == null)
@@ -37,6 +78,8 @@ namespace FreeMeteo
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(str, e));
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(byte[] bytes, int offset, int count)
         {
             if (bytes == null)
@@ -45,6 +88,8 @@ namespace FreeMeteo
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes, offset, count));
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(string str, Encoding e)
         {
             if (str == null)
@@ -54,6 +99,8 @@ namespace FreeMeteo
             byte[] bytes = e.GetBytes(str);
             return UrlEncodeBytesToBytesInternal(bytes, 0, bytes.Length, false);
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(byte[] bytes)
         {
             if (bytes == null)
@@ -62,6 +109,8 @@ namespace FreeMeteo
             }
             return UrlEncodeToBytes(bytes, 0, bytes.Length);
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
         {
             if ((bytes == null) && (count == 0))
@@ -82,6 +131,8 @@ namespace FreeMeteo
             }
             return UrlEncodeBytesToBytesInternal(bytes, offset, count, true);
         }
+        #endregion
+        #region UrlEncodeBytesToBytesInternal
         private static byte[] UrlEncodeBytesToBytesInternal(byte[] bytes, int offset, int count, bool alwaysCreateReturnValue)
         {
             int num = 0;
@@ -125,6 +176,8 @@ namespace FreeMeteo
             }
             return buffer;
         }
+        #endregion
+        #region IsSafe
         internal static bool IsSafe(char ch)
         {
             if ((((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'))) || ((ch >= '0') && (ch <= '9')))
@@ -145,6 +198,8 @@ namespace FreeMeteo
             }
             return false;
         }
+        #endregion
+        #region IntToHex
         internal static char IntToHex(int n)
         {
             if (n <= 9)
@@ -153,6 +208,8 @@ namespace FreeMeteo
             }
             return (char)((n - 10) + 0x61);
         }
+        #endregion
+        #region HtmlDecode
         public static string HtmlDecode(string s)
         {
             if (s == null)
@@ -168,6 +225,8 @@ namespace FreeMeteo
             HtmlDecode(s, output);
             return sb.ToString();
         }
+        #endregion
+        #region HtmlDecode
         public static void HtmlDecode(string s, TextWriter output)
         {
             if (s != null)
@@ -235,6 +294,7 @@ namespace FreeMeteo
                 }
             }
         }
+        #endregion
         private static string[] _entitiesList = new string[] { 
         "\"-quot", "&-amp", "<-lt", ">-gt", "\x00a0-nbsp", "\x00a1-iexcl", "\x00a2-cent", "\x00a3-pound", "\x00a4-curren", "\x00a5-yen", "\x00a6-brvbar", "\x00a7-sect", "\x00a8-uml", "\x00a9-copy", "\x00aa-ordf", "\x00ab-laquo", 
         "\x00ac-not", "\x00ad-shy", "\x00ae-reg", "\x00af-macr", "\x00b0-deg", "\x00b1-plusmn", "\x00b2-sup2", "\x00b3-sup3", "\x00b4-acute", "\x00b5-micro", "\x00b6-para", "\x00b7-middot", "\x00b8-cedil", "\x00b9-sup1", "\x00ba-ordm", "\x00bb-raquo", 
@@ -256,7 +316,7 @@ namespace FreeMeteo
         private static Hashtable _entitiesLookupTable;
         private static object _lookupLockObject = new object();
 
-
+        #region Lookup
         internal static char Lookup(string entity)
         {
             if (_entitiesLookupTable == null)
@@ -281,5 +341,6 @@ namespace FreeMeteo
             }
             return '\0';
         }
+        #endregion
     }
 }

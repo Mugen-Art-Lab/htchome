@@ -1,0 +1,16 @@
+<Extras>
+  <Cid>0330643d-af0f-4c43-9ec1-174b98974fbf</Cid>
+  <Title>FriendStream widget</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.0.36</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Widgets\fstream.ext.xml</File>
+    <File>Extras\Social\Facebook.dll</File>
+    <File>Extras\Social\FacebookApi.dll</File>
+    <File>Extras\Social\Vkontakte.dll</File>
+    <File>Social.Base.dll</File>
+    <File>FriendStream.exe</File> 
+    <File>ru-RU\FriendStream.resources.dll</File>
+  </Files>
+</Extras>

@@ -1,0 +1,28 @@
+<Extras>
+  <Cid>1ff6f554-617d-475a-b060-fa057a0e2369</Cid>
+  <Title>Weather Animation pack for Weather widget</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.1</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\WeatherAnimation\wa.ext.xml</File>
+    <File>Extras\WeatherAnimation\weather_clear.mp4</File>
+    <File>Extras\WeatherAnimation\weather_cloudy_day.mp4</File>
+    <File>Extras\WeatherAnimation\weather_cloudy_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_fog_day.mp4</File>
+    <File>Extras\WeatherAnimation\weather_fog_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_hot.mp4</File>
+    <File>Extras\WeatherAnimation\weather_partly_cloud.mp4</File>
+    <File>Extras\WeatherAnimation\weather_partly_cloud_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_partly_sunny.mp4</File>
+    <File>Extras\WeatherAnimation\weather_rain.mp4</File>
+    <File>Extras\WeatherAnimation\weather_rain_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_snow_day.mp4</File>
+    <File>Extras\WeatherAnimation\weather_snow_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_sunny.mp4</File>
+    <File>Extras\WeatherAnimation\weather_thunderstorm_day.mp4</File>
+    <File>Extras\WeatherAnimation\weather_thunderstorm_night.mp4</File>
+    <File>Extras\WeatherAnimation\weather_windy_day.mp4</File>
+    <File>Extras\WeatherAnimation\weather_windy_night.mp4</File>
+  </Files>
+</Extras>

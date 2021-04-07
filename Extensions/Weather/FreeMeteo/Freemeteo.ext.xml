@@ -1,0 +1,11 @@
+<Extras>
+  <Cid>ee5c6bca-16d5-4077-bbc1-e64ae7b9b851</Cid>
+  <Title>Freemeteo Weather provider</Title>
+  <Developer>swups</Developer>
+  <Version>1.2.1</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\Freemeteo.dll</File>
+    <File>Extras\Weather\Freemeteo.ext.xml</File>
+  </Files>
+</Extras>

@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{27D8FC66-5905-42CC-A673-30ADF51BE464}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>UIFramework.Weather</RootNamespace>
+    <AssemblyName>UIFramework.Weather</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <DebugType>none</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\weather_1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\weather_11.png" />
+    <Resource Include="Images\weather_12.png" />
+    <Resource Include="Images\weather_13.png" />
+    <Resource Include="Images\weather_14.png" />
+    <Resource Include="Images\weather_15.png" />
+    <Resource Include="Images\weather_16.png" />
+    <Resource Include="Images\weather_17.png" />
+    <Resource Include="Images\weather_18.png" />
+    <Resource Include="Images\weather_19.png" />
+    <Resource Include="Images\weather_2.png" />
+    <Resource Include="Images\weather_20.png" />
+    <Resource Include="Images\weather_21.png" />
+    <Resource Include="Images\weather_22.png" />
+    <Resource Include="Images\weather_23.png" />
+    <Resource Include="Images\weather_24.png" />
+    <Resource Include="Images\weather_25.png" />
+    <Resource Include="Images\weather_26.png" />
+    <Resource Include="Images\weather_29.png" />
+    <Resource Include="Images\weather_3.png" />
+    <Resource Include="Images\weather_30.png" />
+    <Resource Include="Images\weather_31.png" />
+    <Resource Include="Images\weather_32.png" />
+    <Resource Include="Images\weather_33.png" />
+    <Resource Include="Images\weather_34.png" />
+    <Resource Include="Images\weather_35.png" />
+    <Resource Include="Images\weather_36.png" />
+    <Resource Include="Images\weather_37.png" />
+    <Resource Include="Images\weather_38.png" />
+    <Resource Include="Images\weather_39.png" />
+    <Resource Include="Images\weather_4.png" />
+    <Resource Include="Images\weather_40.png" />
+    <Resource Include="Images\weather_41.png" />
+    <Resource Include="Images\weather_42.png" />
+    <Resource Include="Images\weather_43.png" />
+    <Resource Include="Images\weather_44.png" />
+    <Resource Include="Images\weather_5.png" />
+    <Resource Include="Images\weather_51.png" />
+    <Resource Include="Images\weather_52.png" />
+    <Resource Include="Images\weather_53.png" />
+    <Resource Include="Images\weather_54.png" />
+    <Resource Include="Images\weather_6.png" />
+    <Resource Include="Images\weather_7.png" />
+    <Resource Include="Images\weather_8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\sun.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\flare.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\cloud_1.png" />
+    <Resource Include="Images\cloud_2.png" />
+    <Resource Include="Images\cloud_3.png" />
+    <Resource Include="Images\cloud_4.png" />
+    <Resource Include="Images\cloud_5.png" />
+    <Resource Include="Images\cloud_6.png" />
+    <Resource Include="Images\cloud_7.png" />
+    <Resource Include="Images\cloud_8.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\rain_fall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\raindrop_streaks.png" />
+    <Resource Include="Images\rain_wiper.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\snowflake1.png" />
+    <Resource Include="Images\snowflake2.png" />
+    <Resource Include="Images\snowflake3.png" />
+    <Resource Include="Images\snowflake4.png" />
+    <Resource Include="Images\snowflake5.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\layer_drop1.png" />
+    <Resource Include="Images\layer_drop2.png" />
+    <Resource Include="Images\layer_drop3.png" />
+    <Resource Include="Images\layer_drop4.png" />
+    <Resource Include="Images\layer_drop5.png" />
+    <Resource Include="Images\layer_drop6.png" />
+    <Resource Include="Images\layer_drop7.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\lightning_01.png" />
+    <Resource Include="Images\lightning_02.png" />
+    <Resource Include="Images\lightning_03.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\humidity_lvl1.png" />
+    <Resource Include="Images\humidity_lvl2.png" />
+    <Resource Include="Images\humidity_lvl3.png" />
+    <Resource Include="Images\humidity_lvl4.png" />
+    <Resource Include="Images\wind_lvl1.png" />
+    <Resource Include="Images\wind_lvl2.png" />
+    <Resource Include="Images\wind_lvl3.png" />
+    <Resource Include="Images\wind_lvl4.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,19 @@
+﻿<UserControl x:Class="Clock.Controls.OptionsLocationItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <!--<Rectangle Name="BgRect">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#68f55d" Offset="0"/>
+                    <GradientStop Color="#2fd02a" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle Name="BgBorderRect" Height="1" VerticalAlignment="Bottom" Fill="#21aa21"/>-->
+        <StackPanel Margin="0,5,5,0">
+            <TextBlock Name="CityName" FontSize="16" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Name="CountryName" FontSize="14" Foreground="Gray" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

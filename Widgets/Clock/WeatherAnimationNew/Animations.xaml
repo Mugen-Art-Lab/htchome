@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Storyboard x:Key="RainSnowCloudFadeInL">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="0.95" Duration="0:0:0.3"/>
+        <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" From="0" To="60" Duration="0:0:3.5"/>
+    </Storyboard>
+    <Storyboard x:Key="RainSnowCloudFadeInR">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="0.95" Duration="0:0:0.3"/>
+        <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" From="250" To="180" Duration="0:0:3.5"/>
+    </Storyboard>
+    <Storyboard x:Key="RainSnowCloudFadeOutL">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5" BeginTime="0:0:33"/>
+        <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" From="60" To="120" Duration="0:0:3.5" BeginTime="0:0:32"/>
+    </Storyboard>
+    <Storyboard x:Key="RainSnowCloudFadeOutR">
+        <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.5" BeginTime="0:0:33"/>
+        <DoubleAnimation Storyboard.TargetProperty="(Canvas.Left)" From="180" To="110" Duration="0:0:3.5" BeginTime="0:0:32"/>
+    </Storyboard>
+</ResourceDictionary>

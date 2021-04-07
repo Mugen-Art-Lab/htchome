@@ -1,0 +1,11 @@
+<Extras>
+  <Cid>3d89d647-e2e3-48e4-b8c1-ccda75ffdfbe</Cid>
+  <Title>AccuWeather Weather provider</Title>
+  <Developer>swups</Developer>
+  <Version>1.2.0</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\AccuWeather.dll</File>
+    <File>Extras\Weather\AccuWeather.ext.xml</File>
+  </Files>
+</Extras>

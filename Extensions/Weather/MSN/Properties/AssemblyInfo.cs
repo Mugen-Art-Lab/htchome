@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MSN Weather provider")]
+[assembly: AssemblyTitle("MSN weather provider for HTC Home")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Stealth Software")]
-[assembly: AssemblyProduct("MSN Weather provider for HTC Home 2")]
-[assembly: AssemblyCopyright("Copyright © Stealth 2011")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("MSN weather provider")]
+[assembly: AssemblyCopyright("Copyright © Stealth 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3fb1c0ed-5f90-4b7c-a6a9-d2e3907522c9")]
+[assembly: Guid("ecc127d6-8989-4f9c-bd3e-0f7883e21f90")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.0.4.0")]
-[assembly: AssemblyFileVersion("2.0.4.0")]
+[assembly: AssemblyVersion("2.1.13.0")]
+[assembly: AssemblyFileVersion("2.1.13.0")]

@@ -1,0 +1,432 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DEBC1DA5-20D0-4578-8596-448E4F073C76}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Clock</RootNamespace>
+    <AssemblyName>Clock</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Clock.App</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>clock_icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>..\..\bin\Release\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>false</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="NLog, Version=2.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files\NLog\.NET Framework 4.0\NLog.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Controls\WideForecastItem.xaml.cs">
+      <DependentUpon>WideForecastItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ModernForecastItem.xaml.cs">
+      <DependentUpon>ModernForecastItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Styles.cs" />
+    <Compile Include="Controls\CircularProgressBar.xaml.cs">
+      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\ForecastItem.xaml.cs">
+      <DependentUpon>ForecastItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OptionsLocationItem.xaml.cs">
+      <DependentUpon>OptionsLocationItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Domain\TimeMode.cs" />
+    <Compile Include="Domain\WeatherProviderManager.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="WeatherAnimationNew\RainDrop.cs" />
+    <Compile Include="WeatherAnimationNew\RainSnowCloud.cs" />
+    <Compile Include="WeatherAnimationNew\Snowflake.cs" />
+    <Compile Include="WeatherAnimation\Cloud.xaml.cs">
+      <DependentUpon>Cloud.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\Lightning.xaml.cs">
+      <DependentUpon>Lightning.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\RainCloud.xaml.cs">
+      <DependentUpon>RainCloud.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\Raindrop.xaml.cs">
+      <DependentUpon>Raindrop.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\Raindrop2.xaml.cs">
+      <DependentUpon>Raindrop2.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\RainWiper.xaml.cs">
+      <DependentUpon>RainWiper.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherAnimation\Snowflake.xaml.cs">
+      <DependentUpon>Snowflake.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WeatherFx\Emitter.cs" />
+    <Compile Include="WeatherFx\Particle.cs" />
+    <Compile Include="WeatherFx\SnowEmitter.cs" />
+    <Compile Include="Windows\AnalogClockBig.xaml.cs">
+      <DependentUpon>AnalogClockBig.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\AnalogClockOptions.xaml.cs">
+      <DependentUpon>AnalogClockOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\AnalogClockSmall.xaml.cs">
+      <DependentUpon>AnalogClockSmall.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FlipClockNoWeather.xaml.cs">
+      <DependentUpon>FlipClockNoWeather.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\WideFlipClock.xaml.cs">
+      <DependentUpon>WideFlipClock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\ModernFlipClock.xaml.cs">
+      <DependentUpon>ModernFlipClock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\DualClockOptions.xaml.cs">
+      <DependentUpon>DualClockOptions.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\DualClock.xaml.cs">
+      <DependentUpon>DualClock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FlipClock.xaml.cs">
+      <DependentUpon>FlipClock.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Windows\FlipClockOptions.xaml.cs">
+      <DependentUpon>FlipClockOptions.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Controls\CircularProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\WideForecastItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\ModernForecastItem.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Controls\FlipTab.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Controls\FlipTab.xaml.cs">
+      <DependentUpon>FlipTab.xaml</DependentUpon>
+    </Compile>
+    <Page Include="Controls\ForecastItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\OptionsLocationItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WeatherAnimationNew\Animations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WeatherAnimation\Cloud.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\Lightning.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\RainCloud.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\Raindrop.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\Raindrop2.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\RainWiper.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="WeatherAnimation\Snowflake.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\AnalogClockBig.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\AnalogClockOptions.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\AnalogClockSmall.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FlipClockNoWeather.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\WideFlipClock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\ModernFlipClock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\DualClockOptions.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\DualClock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Windows\FlipClock.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Windows\FlipClockOptions.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.ru-RU.resx" />
+    <Resource Include="Fonts\DroidSans.ttf" />
+    <Resource Include="Fonts\DroidSansMono.ttf" />
+    <None Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <AppDesigner Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\Background\flip_bg.png" />
+    <Resource Include="Resources\FlipClock\Background\flip_clock_tab_down.png" />
+    <Resource Include="Resources\FlipClock\Background\flip_clock_tab_shadow.png" />
+    <Resource Include="Resources\FlipClock\Background\flip_clock_tab_up.png" />
+    <Resource Include="Resources\FlipClock\Digits\0.png" />
+    <Resource Include="Resources\FlipClock\Digits\1.png" />
+    <Resource Include="Resources\FlipClock\Digits\2.png" />
+    <Resource Include="Resources\FlipClock\Digits\3.png" />
+    <Resource Include="Resources\FlipClock\Digits\4.png" />
+    <Resource Include="Resources\FlipClock\Digits\5.png" />
+    <Resource Include="Resources\FlipClock\Digits\6.png" />
+    <Resource Include="Resources\FlipClock\Digits\7.png" />
+    <Resource Include="Resources\FlipClock\Digits\8.png" />
+    <Resource Include="Resources\FlipClock\Digits\9.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\am.png" />
+    <Resource Include="Resources\FlipClock\pm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\Background\flip_clock_divider.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\base_default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Home.Core\Home.Base.csproj">
+      <Project>{38C417F8-F075-4DEE-B523-EC4215A45ABD}</Project>
+      <Name>Home.Base</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj">
+      <Project>{3D79E2D7-7252-41CB-81C0-585D96F29173}</Project>
+      <Name>Home.Packaging</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Home.Updates\Home.Updates.csproj">
+      <Project>{ACF55CA5-A3E4-4313-B81F-64C66A66A083}</Project>
+      <Name>Home.Updates</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Weather.Base\Weather.Base.csproj">
+      <Project>{332D8853-F7F1-41D4-A4B1-28B99CE1F8B8}</Project>
+      <Name>Weather.Base</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="clock_icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\SearchIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\SearchCancelIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\analogclockbig_preview.png" />
+    <Resource Include="Resources\flipclock_preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AnalogClockBig\clock_base_day.png" />
+    <Resource Include="Resources\AnalogClockBig\clock_center_dot.png" />
+    <Resource Include="Resources\AnalogClockBig\clock_hour.png" />
+    <Resource Include="Resources\AnalogClockBig\clock_minute.png" />
+    <Resource Include="Resources\AnalogClockBig\clock_second.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AnalogClockBig\clock_base_night.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\analogclocksmall_preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AnalogClockSmall\clock_base_night.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\AnalogClockSmall\clock_center_dot.png" />
+    <Resource Include="Resources\AnalogClockSmall\clock_base_day.png" />
+    <Resource Include="Resources\AnalogClockSmall\clock_hour.png" />
+    <Resource Include="Resources\AnalogClockSmall\clock_minute.png" />
+    <Resource Include="Resources\AnalogClockSmall\clock_second.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\dualclock_preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\DualClock\clock_center_dot.png" />
+    <Resource Include="Resources\DualClock\clock_base_day.png" />
+    <Resource Include="Resources\DualClock\clock_hour.png" />
+    <Resource Include="Resources\DualClock\clock_minute.png" />
+    <Resource Include="Resources\DualClock\clock_base_night.png" />
+    <Resource Include="Resources\DualClock\clock_second.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\DualClock\clock_bg.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\modern_base_default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\modern_forecast_base.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\modernsense_preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\wide_base_default.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\FlipClock\wide_forecast_base.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\wideflipclock_preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\flipclocknoweather_preview.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

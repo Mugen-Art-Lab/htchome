@@ -1,0 +1,274 @@
+﻿<Window x:Class="Weather.Windows.Options"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:Properties="clr-namespace:Weather.Properties"
+        xmlns:Controls="clr-namespace:Weather.Controls"
+        Title="{x:Static Properties:Resources.OptionsWindowTitle}" Height="480" Width="520" WindowStartupLocation="CenterScreen" Background="Transparent" MinWidth="480" MinHeight="350"
+        SourceInitialized="WindowSourceInitialized" Closed="WindowClosed">
+    <DockPanel Background="{StaticResource TabControlBgBrush}" Margin="0,34,0,0" TextOptions.TextFormattingMode="Display">
+        <Grid DockPanel.Dock="Bottom">
+            <Rectangle Fill="#c1c2c3" VerticalAlignment="Top" Height="1" Margin="0,0,0,0"/>
+            <Rectangle VerticalAlignment="Top" Height="4" Margin="0,1,0,0">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#AAc6c9cd" Offset="0"/>
+                        <GradientStop Color="#e3e7ec" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,10">
+                <Button Name="OkButton" Content="{x:Static Properties:Resources.OptionsOkButton}" MinWidth="75" Height="23" Margin="0,0,7,0" Click="OkButtonClick"/>
+                <Button Name="CancelButton" Content="{x:Static Properties:Resources.OptionsCancelButton}" MinWidth="75" Height="23" Margin="0,0,7,0" Click="CancelButtonClick"/>
+                <Button Name="ApplyButton" Content="{x:Static Properties:Resources.OptionsApplyButton}" MinWidth="75" Height="23" Margin="0,0,7,0" IsEnabled="False" Click="ApplyButtonClick"/>
+            </StackPanel>
+        </Grid>
+        <TabControl Style="{StaticResource TabControlStyle}" Margin="0,-34,0,0">
+            <TabItem Header="{x:Static Properties:Resources.OptionsGeneralTabHeader}" Style="{StaticResource TabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsUI}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <CheckBox Name="ShowTaskbarIconCheckBox" Content="{x:Static Properties:Resources.OptionsShowTaskbarIcon}" Click="CheckBoxClick"/>
+                        <CheckBox Name="UseAeroCheckBox" Content="{x:Static Properties:Resources.OptionsUseAero}" Click="CheckBoxClick"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="{x:Static Properties:Resources.OptionsSize}"/>
+                            <TextBlock Name="SizeValueTextBlock" Text="100%" Margin="5,0,3,0" FontWeight="DemiBold"/>
+                        </StackPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsSizeSmaller}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsSizeLarger}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <Slider Name="SizeSlider" Margin="0,3,0,0" Value="100" TickPlacement="Both" Minimum="20" Maximum="100" TickFrequency="5" SmallChange="10" LargeChange="10"
+                                        IsSnapToTickEnabled="True" ValueChanged="SizeSliderValueChanged"/>
+                        </DockPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="{x:Static Properties:Resources.OptionsTransparency}"/>
+                            <TextBlock Name="TransparencyValueTextBlock" Text="100%" Margin="5,0,3,0" FontWeight="DemiBold"/>
+                        </StackPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsLess}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsMore}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <Slider Name="TransparencySlider" Margin="0,3,0,0" Value="100" TickPlacement="Both" Minimum="0" Maximum="100" TickFrequency="5" SmallChange="10" LargeChange="10"
+                                        IsSnapToTickEnabled="True" ValueChanged="TransparencySliderValueChanged"/>
+                        </DockPanel>
+
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsStartup}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <CheckBox Name="AutostartCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsAutostart}" Click="CheckBoxClick"/>
+
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsUpdates}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsUpdatesInfo}" Foreground="Gray" TextWrapping="Wrap"/>
+                        <CheckBox Name="UpdatesCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckForUpdates}" Click="CheckBoxClick"/>
+                        <CheckBox Name="SilentUpdateCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsSilentUpdate}" Click="CheckBoxClick"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="{x:Static Properties:Resources.OptionsUpdateInterval}"/>
+                            <TextBlock Name="UpdateFreqValueTextBlock" Text="100%" Margin="5,0,3,0" FontWeight="DemiBold"/>
+                        </StackPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsLessChecks}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsMoreChecks}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <Slider Name="UpdateFreqSlider" IsEnabled="{Binding ElementName=UpdatesCheckBox, Path=IsChecked}" Margin="0,3,0,0" Value="100" TickPlacement="Both" Minimum="30" Maximum="300" TickFrequency="5" SmallChange="10" LargeChange="10"
+                                        IsSnapToTickEnabled="True" ValueChanged="UpdateFreqSliderValueChanged" IsDirectionReversed="True"/>
+                        </DockPanel>
+
+                        <Button Name="CheckUpdatesButton" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckNow}" Click="CheckUpdatesButtonClick" HorizontalAlignment="Left" Padding="15,0,15,0"/>
+
+
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsLanguage}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <ComboBox Name="LanguageComboBox" SelectionChanged="ComboBoxSelectionChanged"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsRestart}" Margin="0,3,0,0" Foreground="Gray"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static Properties:Resources.OptionsWeatherTabHeader}" Style="{StaticResource TabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsLocation}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <Grid>
+                            <TextBox Name="SearchBox" Text="{x:Static Properties:Resources.OptionsSearchBox}" FontStyle="Italic" Foreground="Gray"
+                                 IsKeyboardFocusedChanged="SearchBoxIsKeyboardFocusedChanged" KeyDown="SearchBoxKeyDown"/>
+                            <Image Name="SearchButton" Source="/Resources/SearchIcon.png" Width="16" Height="16" HorizontalAlignment="Right" Margin="0,0,7,0" PreviewMouseLeftButtonDown="SearchButtonPreviewMouseLeftButtonDown"/>
+                        </Grid>
+                        <Popup Name="SearchPopup"  MaxHeight="300" PlacementTarget="{Binding ElementName=SearchBox}" PopupAnimation="Slide" AllowsTransparency="True"
+                               StaysOpen="False" HorizontalOffset="-10">
+                            <Grid>
+                                <Border Margin="10,0,10,10" CornerRadius="0,0,5,5" BorderBrush="#b6babf" BorderThickness="1" Background="White">
+                                    <Border.Effect>
+                                        <DropShadowEffect BlurRadius="5" ShadowDepth="0" Direction="-90" Opacity="0.7"/>
+                                    </Border.Effect>
+                                    <Grid>
+                                        <ListBox Name="SearchResultBox" MinWidth="250" Margin="0,0,0,5" BorderThickness="0" HorizontalContentAlignment="Stretch" SelectionChanged="SearchResultBoxSelectionChanged">
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <DockPanel Margin="5,0,0,0">
+                                                        <Image DockPanel.Dock="Right" Width="36" Height="36" Source="{Binding Icon}" VerticalAlignment="Center"/>
+                                                        <TextBlock DockPanel.Dock="Right" Text="{Binding TemperatureText}" TextTrimming="CharacterEllipsis" FontFamily="Segoe UI" FontSize="16" Margin="5,0,0,0" VerticalAlignment="Center" Foreground="#c1c1c1"/>
+                                                        <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+                                                            <TextBlock Text="{Binding CountryText, Mode=OneTime}" TextTrimming="CharacterEllipsis" FontFamily="Segoe UI" FontSize="16" Foreground="#c1c1c1"/>
+                                                            <TextBlock Text="{Binding CityText}" TextTrimming="CharacterEllipsis" FontFamily="Segoe UI" FontSize="16" Margin="10,0,0,0"/>
+                                                        </StackPanel>
+                                                    </DockPanel>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                        <Viewbox Width="20" Height="20" Margin="-5,0,0,0">
+                                            <Controls:CircularProgressBar x:Name="SearchProgress"/>
+                                        </Viewbox>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </Popup>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsCantFindCity}" TextWrapping="Wrap" Foreground="Gray" Margin="0,3,0,0"/>
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsUI}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <CheckBox Name="PlaySoundsAnimCheckBox" Content="{x:Static Properties:Resources.OptionsPlaySounds}" Click="CheckBoxClick"/>
+                        <CheckBox Name="ShowFeelsLikeCheckBox" Content="{x:Static Properties:Resources.OptionsShowFeelsLike}" Click="CheckBoxClick"/>
+                        <CheckBox Name="ShowHWCheckBox" Content="{x:Static Properties:Resources.OptionsShowHW}" Click="CheckBoxClick"/>
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsWeatherData}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsSelectProvider}"/>
+                        <ComboBox Name="WeatherProvidersBox" MinWidth="120" Margin="0,3,0,3" SelectionChanged="ComboBoxSelectionChanged"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsProvidersInfo}" TextWrapping="Wrap" Foreground="Gray"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,7,0,0" >
+                            <TextBlock Text="{x:Static Properties:Resources.OptionsWeatherInterval}"/>
+                            <TextBlock Name="WeatherIntervalValueTextBlock" Text="20 min." Margin="5,0,3,0" FontWeight="DemiBold"/>
+                        </StackPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsLessUpdates}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsMoreUpdates}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                            <Slider Name="WeatherIntervalSlider" Margin="0,3,0,0" Value="20" TickPlacement="Both" Minimum="20" Maximum="90" TickFrequency="5" SmallChange="10" LargeChange="10"
+                                        IsSnapToTickEnabled="True" IsDirectionReversed="True" ValueChanged="WeatherIntervalSliderValueChanged"/>
+                        </DockPanel>
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsWeatherScale}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsShowTempIn}"/>
+                        <StackPanel Orientation="Horizontal" Margin="17,3,10,0">
+                            <RadioButton Name="FahrenheitRadioButton" Content="{x:Static Properties:Resources.OptionsFahrenheit}" IsChecked="True" Click="CheckBoxClick"/>
+                            <RadioButton Name="CelsiusRadioButton" Content="{x:Static Properties:Resources.OptionsCelsius}" Margin="20,0,0,0" Click="CheckBoxClick"/>
+                        </StackPanel>
+                        <TextBlock Margin="0,7,0,0" Text="{x:Static Properties:Resources.OptionsShowWindSpeedIn}"/>
+                        <WrapPanel Orientation="Horizontal" Margin="17,3,10,0">
+                            <RadioButton Name="MphRadioButton" Content="{x:Static Properties:Resources.OptionsMph}" Margin="0,0,10,0" IsChecked="True" Click="CheckBoxClick"/>
+                            <RadioButton Name="KmhRadioButton" Content="{x:Static Properties:Resources.OptionsKmh}" Margin="0,0,10,0" Click="CheckBoxClick"/>
+                            <RadioButton Name="MsRadioButton" Content="{x:Static Properties:Resources.OptionsMs}" Margin="0,0,10,0" Click="CheckBoxClick"/>
+                        </WrapPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static Properties:Resources.OptionsStyleTabHeader}" Style="{StaticResource TabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsChooseStyle}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <RadioButton Name="MetroStyle" Height="185" Style="{StaticResource StyleItemRadioButton}" Padding="0,0,0,5" Click="CheckBoxClick">
+                                <Image Source="/Resources/preview_metro.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </RadioButton>
+                            <RadioButton Name="LargeStyle" Height="185" Style="{StaticResource StyleItemRadioButton}" Padding="0,0,0,5" Click="CheckBoxClick">
+                                <Image Source="/Resources/preview_large.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </RadioButton>
+                            <RadioButton Name="MediumStyle" Height="125" Style="{StaticResource StyleItemRadioButton}" Margin="15,0,15,0" Padding="0,0,0,5" VerticalAlignment="Bottom" Click="CheckBoxClick">
+                                <Image Source="/Resources/preview_medium.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </RadioButton>
+                            <RadioButton Name="SmallStyle" Height="80" Style="{StaticResource StyleItemRadioButton}"  Margin="5,0,5,0" Padding="0,0,0,5" VerticalAlignment="Bottom" Click="CheckBoxClick">
+                                <Image Source="/Resources/preview_small.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </RadioButton>
+                        </WrapPanel>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsAutoRestart}" Margin="0,5,0,0" Foreground="Gray" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Extras" Style="{StaticResource TabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <TextBlock FontSize="24" FontWeight="Light" Text="HTC Home Extras" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsExtrasInfo}" TextWrapping="Wrap" Foreground="Gray"/>
+                        <TextBlock Text="{x:Static Properties:Resources.OptionsInstalledExtras}" Margin="0,3,0,0"/>
+                        <ListView Name="ExtrasList" Margin="0,5,0,0" BorderThickness="0" SelectionChanged="ExtrasListSelectionChanged">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="{x:Static Properties:Resources.OptionsExtrasTitle}" DisplayMemberBinding="{Binding Title}"/>
+                                    <GridViewColumn Header="{x:Static Properties:Resources.OptionsExtrasDeveloper}" DisplayMemberBinding="{Binding Developer}"/>
+                                    <GridViewColumn Header="{x:Static Properties:Resources.OptionsExtrasVersion}" DisplayMemberBinding="{Binding Version}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,5,7,0">
+                            <Button Name="InstallExtButton" Content="{x:Static Properties:Resources.OptionsExtrasInstall}" Height="23" HorizontalAlignment="Right" Margin="0,0,7,0" Click="InstallExtButtonClick" Padding="10,0,10,0"/>
+                            <Button Name="DeleteExtButton" Content="{x:Static Properties:Resources.OptionsExtrasDelete}" IsEnabled="False" Height="23" Click="DeleteExtButtonClick" Padding="10,0,10,0"/>
+                        </StackPanel>
+
+                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsInstalledUpdates}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                        <Separator Margin="0,0,0,10"/>
+                        <ListView Name="UpdatesList" Margin="0,5,0,0" BorderThickness="0">
+                            <ListView.View>
+                                <GridView>
+                                    <GridViewColumn Header="Id" DisplayMemberBinding="{Binding Id}"/>
+                                    <GridViewColumn Header="{x:Static Properties:Resources.OptionsTitle}" DisplayMemberBinding="{Binding Title}"/>
+                                </GridView>
+                            </ListView.View>
+                        </ListView>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="{x:Static Properties:Resources.OptionsAboutTabHeader}" Style="{StaticResource TabItemStyle}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Background="White">
+                    <StackPanel Orientation="Vertical" Margin="10">
+                        <Grid>
+                            <Image Width="64" Source="/Resources/logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,33,10,0" Opacity="1"/>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsAboutWidget}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                                <Separator/>
+                                <TextBlock Text="Weather Widget for HTC Home 3" Margin="0,7,0,0"/>
+                                <TextBlock>
+                                    <Run Text="{x:Static Properties:Resources.OptionsVersion}"/> 
+                                    <Run Name="WidgetBuildTag" Text="3.0.0.0"/>
+                                </TextBlock>
+                                <TextBlock Text="Copyright © Stealth 2011"/>
+                                <TextBlock Text="{x:Static Properties:Resources.OptionsCopyright}" TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Grid>
+                        <Grid>
+                            <Image Width="54" Source="/Home.Base;component/Resources/logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,48,10,0" Opacity="1"/>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsAboutHome}" Margin="0,10,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                                <Separator/>
+                                <TextBlock Text="HTC Home Apis"  Margin="0,7,0,0"/>
+                                <TextBlock>
+                                    <Run Text="{x:Static Properties:Resources.OptionsVersion}"/> 
+                                    <Run Name="HomeBuildTag" Text="3.0.0.0"/>
+                                </TextBlock>
+                                <TextBlock Text="Copyright © Stealth 2011"/>
+                                <TextBlock Text="{x:Static Properties:Resources.OptionsCopyright}" TextWrapping="Wrap"/>
+                                <!--<StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                    <TextBlock Text="{x:Static Properties:Resources.OptionsExpiration}"/>
+                                    <TextBlock Name="ExpirationDateTextBlock" Margin="5,0,5,0"/>
+                                </StackPanel>-->
+                                <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="{x:Static Properties:Resources.OptionsLegalInfo}"/>
+                                <TextBlock Name="SiteLink" TextWrapping="Wrap" Text="http://htchome.org" HorizontalAlignment="Right" MouseLeftButtonUp="SiteLinkMouseLeftButtonUp">
+                                    <TextBlock.Style>
+                                        <Style TargetType="{x:Type TextBlock}">
+                                           <Setter Property="Cursor" Value="Hand"/>
+                                           <Setter Property="Foreground" Value="#0066CC"/>
+                                           <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="TextDecorations" Value="Underline"/>
+                                                    <Setter Property="Foreground" Value="#3399ff"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

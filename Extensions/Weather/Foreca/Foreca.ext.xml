@@ -1,0 +1,11 @@
+<Extras>
+  <Cid>68f4be70-43d5-41fa-888b-c3a448207195</Cid>
+  <Title>Foreca Weather provider</Title>
+  <Developer>swups</Developer>
+  <Version>1.2.0</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\Foreca.dll</File>
+    <File>Extras\Weather\foreca.ext.xml</File>
+  </Files>
+</Extras>

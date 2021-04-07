@@ -1,0 +1,11 @@
+<Extras>
+  <Cid>51f2e05e-8302-4a77-87e6-6ac65465ad0e</Cid>
+  <Title>The Weather Channel Weather provider</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.0.4</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\WeatherChannel.dll</File>
+    <File>Extras\Weather\wc.ext.xml</File>
+  </Files>
+</Extras>

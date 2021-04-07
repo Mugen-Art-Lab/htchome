@@ -1,0 +1,10 @@
+<Extras>
+  <Title>MSN Weather provider</Title>
+  <Developer>Stealth</Developer>
+  <Version>2.1.13</Version>
+  <Removable>False</Removable>
+  <Files>
+    <File>Extras\Weather\MSN.dll</File>
+    <File>Extras\Weather\msn.ext.xml</File>
+  </Files>
+</Extras>

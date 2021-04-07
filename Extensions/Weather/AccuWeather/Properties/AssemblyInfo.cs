@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AccuWeather Weather Provider")]
+[assembly: AssemblyTitle("AccuWeather Weather Provider for HTCHome 3.x")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Home")]
-[assembly: AssemblyProduct("AccuWeather Weather Provider")]
+[assembly: AssemblyCompany("swups")]
+[assembly: AssemblyProduct("AccuWeather Weather Provider for HTCHome 3.x")]
 [assembly: AssemblyCopyright("Copyright © swups 2011")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("760d389d-bbaf-4630-b3c6-d050c2fd2376")]
+[assembly: Guid("9be29955-074a-46a2-9261-6dd0f7b43a36")]
 
 // Version information for an assembly consists of the following four values:
 //

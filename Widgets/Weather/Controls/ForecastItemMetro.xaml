@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="Weather.Controls.ForecastItemMetro"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Margin="3,15,3,15"
+             MouseLeftButtonDown="UserControlMouseLeftButtonDown" MouseLeftButtonUp="UserControlMouseLeftButtonUp">
+    <Grid>
+        <Border BorderBrush="#55FFFFFF" BorderThickness="1" Opacity="0.7" CornerRadius="7">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1" Opacity="0.5">
+                    <GradientStop Color="#bdbdbd" Offset="0"/>
+                    <GradientStop Color="#6f6f6f" Offset="0.35"/>
+                    <GradientStop Color="#525252" Offset="0.35"/>
+                    <GradientStop Color="#4c4c4c" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Border Margin="2" BorderBrush="#33394d" BorderThickness="1" CornerRadius="7" Opacity="0.5">
+                <Rectangle Margin="0" RadiusX="7" RadiusY="7">
+                    <Rectangle.Stroke>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                            <GradientStop Color="#c3c3c3" Offset="0"/>
+                            <GradientStop Color="#636363" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Rectangle.Stroke>
+                </Rectangle>
+            </Border>
+            <!--<Rectangle RadiusX="7" RadiusY="7" Margin="2">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#88FFFFFF" Offset="0"/>
+                        <GradientStop Color="#44FFFFFF" Offset="0.35"/>
+                        <GradientStop Color="#33000000" Offset="0.35"/>
+                        <GradientStop Color="#33000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>-->
+        </Border>
+        <DockPanel>
+            <TextBlock DockPanel.Dock="Top" Name="DayName" Text="mon" Foreground="White" FontSize="16" HorizontalAlignment="Center" Margin="0,5,0,0">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="0.5" BlurRadius="2" Opacity="0.7" Direction="135"/>
+            </TextBlock.Effect>
+            </TextBlock>
+            <TextBlock DockPanel.Dock="Bottom" Name="Temperature" Text="0°/0°" Foreground="White" FontSize="14" HorizontalAlignment="Center" Margin="0,0,0,5" FontWeight="Regular" TextOptions.TextFormattingMode="Display">
+            <TextBlock.Effect>
+                <DropShadowEffect ShadowDepth="0.5" BlurRadius="2" Opacity="0.7" Direction="135" />
+            </TextBlock.Effect>
+            </TextBlock>
+            <Image Name="Icon" Source="/UIFramework.Weather;Component/Images/weather_1.png" RenderOptions.BitmapScalingMode="HighQuality" Height="50" Margin="0,-50,0,-50"/>
+        </DockPanel>
+    </Grid>
+</UserControl>

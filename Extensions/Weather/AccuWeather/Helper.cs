@@ -3,27 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Net;
 using System.IO;
 using System.Globalization;
-using System.Net;
 
-namespace AccuWeather
+namespace WeatherProviders
 {
     public class Helper
     {
-        public static String GetRequest(Uri path, Encoding encoding)
+        public static IWebProxy GetProxy()
         {
-            HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(path);
-            request.Timeout = 60000;
-            request.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;";
-            request.Headers[HttpRequestHeader.AcceptLanguage] = "en-US,en;q=0.8,en-us;q=0.5,en;q=0.3";
-            request.Headers[HttpRequestHeader.AcceptCharset] = "utf-8;q=0.7,*;q=0.7";
-            request.UserAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; en; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12";
-            return new StreamReader(((HttpWebResponse)request.GetResponse()).GetResponseStream(), encoding).ReadToEnd();
+            return Home.Base.GeneralHelper.Proxy != null ? Home.Base.GeneralHelper.Proxy : WebRequest.GetSystemWebProxy();
+        }
+
+        public static String GetRequest(Uri path, Encoding encoding, Int32 Timeout)
+        {
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)HttpWebRequest.Create(path);
+                request.Timeout = Timeout;
+                request.Proxy = GetProxy();
+                request.UserAgent = "Mozilla/4.0 (Compatible; Windows NT 5.1; MSIE 8.0) (compatible; MSIE 8.0; Windows NT 5.1;)";
+                return new StreamReader(((HttpWebResponse)request.GetResponse()).GetResponseStream(), encoding).ReadToEnd();
+            }
+            catch { return String.Empty; }
         }
 
         private static char[] s_entityEndingChars = new char[] { ';', '&' };
-
+        #region UrlEncode
         public static string UrlEncode(byte[] bytes)
         {
             if (bytes == null)
@@ -32,6 +39,8 @@ namespace AccuWeather
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes));
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(string str)
         {
             if (str == null)
@@ -40,6 +49,8 @@ namespace AccuWeather
             }
             return UrlEncode(str, Encoding.UTF8);
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(string str, Encoding e)
         {
             if (str == null)
@@ -48,6 +59,8 @@ namespace AccuWeather
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(str, e));
         }
+        #endregion
+        #region UrlEncode
         public static string UrlEncode(byte[] bytes, int offset, int count)
         {
             if (bytes == null)
@@ -56,6 +69,8 @@ namespace AccuWeather
             }
             return Encoding.ASCII.GetString(UrlEncodeToBytes(bytes, offset, count));
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(string str, Encoding e)
         {
             if (str == null)
@@ -65,6 +80,8 @@ namespace AccuWeather
             byte[] bytes = e.GetBytes(str);
             return UrlEncodeBytesToBytesInternal(bytes, 0, bytes.Length, false);
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(byte[] bytes)
         {
             if (bytes == null)
@@ -73,6 +90,8 @@ namespace AccuWeather
             }
             return UrlEncodeToBytes(bytes, 0, bytes.Length);
         }
+        #endregion
+        #region UrlEncodeToBytes
         public static byte[] UrlEncodeToBytes(byte[] bytes, int offset, int count)
         {
             if ((bytes == null) && (count == 0))
@@ -93,6 +112,8 @@ namespace AccuWeather
             }
             return UrlEncodeBytesToBytesInternal(bytes, offset, count, true);
         }
+        #endregion
+        #region UrlEncodeBytesToBytesInternal
         private static byte[] UrlEncodeBytesToBytesInternal(byte[] bytes, int offset, int count, bool alwaysCreateReturnValue)
         {
             int num = 0;
@@ -136,6 +157,98 @@ namespace AccuWeather
             }
             return buffer;
         }
+        #endregion
+        #region UrlDecode
+        public static string UrlDecode(string str)
+        {
+            if (str == null)
+            {
+                return null;
+            }
+            return UrlDecode(str, Encoding.UTF8);
+        }
+        #endregion
+        #region UrlDecode
+        public static string UrlDecode(string str, Encoding e)
+        {
+            if (str == null)
+            {
+                return null;
+            }
+            return UrlDecodeStringFromStringInternal(str, e);
+        }
+        #endregion
+        #region UrlDecodeStringFromStringInternal
+        private static string UrlDecodeStringFromStringInternal(string s, Encoding e)
+        {
+            int length = s.Length;
+            UrlDecoder decoder = new UrlDecoder(length, e);
+            for (int i = 0; i < length; i++)
+            {
+                char ch = s[i];
+                if (ch == '+')
+                {
+                    ch = ' ';
+                }
+                else if ((ch == '%') && (i < (length - 2)))
+                {
+                    if ((s[i + 1] == 'u') && (i < (length - 5)))
+                    {
+                        int num3 = HexToInt(s[i + 2]);
+                        int num4 = HexToInt(s[i + 3]);
+                        int num5 = HexToInt(s[i + 4]);
+                        int num6 = HexToInt(s[i + 5]);
+                        if (((num3 < 0) || (num4 < 0)) || ((num5 < 0) || (num6 < 0)))
+                        {
+                            goto Label_0106;
+                        }
+                        ch = (char)((((num3 << 12) | (num4 << 8)) | (num5 << 4)) | num6);
+                        i += 5;
+                        decoder.AddChar(ch);
+                        continue;
+                    }
+                    int num7 = HexToInt(s[i + 1]);
+                    int num8 = HexToInt(s[i + 2]);
+                    if ((num7 >= 0) && (num8 >= 0))
+                    {
+                        byte b = (byte)((num7 << 4) | num8);
+                        i += 2;
+                        decoder.AddByte(b);
+                        continue;
+                    }
+                }
+            Label_0106:
+                if ((ch & 0xff80) == 0)
+                {
+                    decoder.AddByte((byte)ch);
+                }
+                else
+                {
+                    decoder.AddChar(ch);
+                }
+            }
+            return decoder.GetString();
+        }
+        #endregion
+        #region HexToInt
+        private static int HexToInt(char h)
+        {
+            if ((h >= '0') && (h <= '9'))
+            {
+                return (h - '0');
+            }
+            if ((h >= 'a') && (h <= 'f'))
+            {
+                return ((h - 'a') + 10);
+            }
+            if ((h >= 'A') && (h <= 'F'))
+            {
+                return ((h - 'A') + 10);
+            }
+            return -1;
+        }
+        #endregion
+        #region IsSafe
         internal static bool IsSafe(char ch)
         {
             if ((((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z'))) || ((ch >= '0') && (ch <= '9')))
@@ -156,6 +269,8 @@ namespace AccuWeather
             }
             return false;
         }
+        #endregion
+        #region IntToHex
         internal static char IntToHex(int n)
         {
             if (n <= 9)
@@ -164,6 +279,8 @@ namespace AccuWeather
             }
             return (char)((n - 10) + 0x61);
         }
+        #endregion
+        #region HtmlDecode
         public static string HtmlDecode(string s)
         {
             if (s == null)
@@ -179,6 +296,8 @@ namespace AccuWeather
             HtmlDecode(s, output);
             return sb.ToString();
         }
+        #endregion
+        #region HtmlDecode
         public static void HtmlDecode(string s, TextWriter output)
         {
             if (s != null)
@@ -246,6 +365,7 @@ namespace AccuWeather
                 }
             }
         }
+        #endregion
         private static string[] _entitiesList = new string[] { 
         "\"-quot", "&-amp", "<-lt", ">-gt", "\x00a0-nbsp", "\x00a1-iexcl", "\x00a2-cent", "\x00a3-pound", "\x00a4-curren", "\x00a5-yen", "\x00a6-brvbar", "\x00a7-sect", "\x00a8-uml", "\x00a9-copy", "\x00aa-ordf", "\x00ab-laquo", 
         "\x00ac-not", "\x00ad-shy", "\x00ae-reg", "\x00af-macr", "\x00b0-deg", "\x00b1-plusmn", "\x00b2-sup2", "\x00b3-sup3", "\x00b4-acute", "\x00b5-micro", "\x00b6-para", "\x00b7-middot", "\x00b8-cedil", "\x00b9-sup1", "\x00ba-ordm", "\x00bb-raquo", 
@@ -267,7 +387,7 @@ namespace AccuWeather
         private static Hashtable _entitiesLookupTable;
         private static object _lookupLockObject = new object();
 
-
+        #region Lookup
         internal static char Lookup(string entity)
         {
             if (_entitiesLookupTable == null)
@@ -292,93 +412,9 @@ namespace AccuWeather
             }
             return '\0';
         }
-        public static string UrlDecode(string str)
-        {
-            if (str == null)
-            {
-                return null;
-            }
-            return UrlDecode(str, Encoding.UTF8);
-        }
-
-        public static string UrlDecode(string str, Encoding e)
-        {
-            if (str == null)
-            {
-                return null;
-            }
-            return UrlDecodeStringFromStringInternal(str, e);
-        }
-
-        private static string UrlDecodeStringFromStringInternal(string s, Encoding e)
-        {
-            int length = s.Length;
-            UrlDecoder decoder = new UrlDecoder(length, e);
-            for (int i = 0; i < length; i++)
-            {
-                char ch = s[i];
-                if (ch == '+')
-                {
-                    ch = ' ';
-                }
-                else if ((ch == '%') && (i < (length - 2)))
-                {
-                    if ((s[i + 1] == 'u') && (i < (length - 5)))
-                    {
-                        int num3 = HexToInt(s[i + 2]);
-                        int num4 = HexToInt(s[i + 3]);
-                        int num5 = HexToInt(s[i + 4]);
-                        int num6 = HexToInt(s[i + 5]);
-                        if (((num3 < 0) || (num4 < 0)) || ((num5 < 0) || (num6 < 0)))
-                        {
-                            goto Label_0106;
-                        }
-                        ch = (char)((((num3 << 12) | (num4 << 8)) | (num5 << 4)) | num6);
-                        i += 5;
-                        decoder.AddChar(ch);
-                        continue;
-                    }
-                    int num7 = HexToInt(s[i + 1]);
-                    int num8 = HexToInt(s[i + 2]);
-                    if ((num7 >= 0) && (num8 >= 0))
-                    {
-                        byte b = (byte)((num7 << 4) | num8);
-                        i += 2;
-                        decoder.AddByte(b);
-                        continue;
-                    }
-                }
-            Label_0106:
-                if ((ch & 0xff80) == 0)
-                {
-                    decoder.AddByte((byte)ch);
-                }
-                else
-                {
-                    decoder.AddChar(ch);
-                }
-            }
-            return decoder.GetString();
-        }
-
-        private static int HexToInt(char h)
-        {
-            if ((h >= '0') && (h <= '9'))
-            {
-                return (h - '0');
-            }
-            if ((h >= 'a') && (h <= 'f'))
-            {
-                return ((h - 'a') + 10);
-            }
-            if ((h >= 'A') && (h <= 'F'))
-            {
-                return ((h - 'A') + 10);
-            }
-            return -1;
-        }
+        #endregion
     }
-
+    #region UrlDecoder
     public class UrlDecoder
     {
         // Fields
@@ -437,6 +473,5 @@ namespace AccuWeather
             return string.Empty;
         }
     }
-
-
+    #endregion
 }

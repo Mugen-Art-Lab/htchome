@@ -1,0 +1,19 @@
+﻿<Extras>
+  <Cid>4fe4eee3-6480-4007-b1ba-2c5d1d86386d</Cid>
+  <Title>Weather Sounds pack for HTC Home Apis</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.0</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\WeatherSounds\sounds.ext.xml</File>
+    <File>Extras\WeatherSounds\sound_clouds.wav</File>
+    <File>Extras\WeatherSounds\sound_cold.wav</File>
+    <File>Extras\WeatherSounds\sound_fog.wav</File>
+    <File>Extras\WeatherSounds\sound_hot.wav</File>
+    <File>Extras\WeatherSounds\sound_showers.wav</File>
+    <File>Extras\WeatherSounds\sound_snow.wav</File>
+    <File>Extras\WeatherSounds\sound_sunny.wav</File>
+    <File>Extras\WeatherSounds\sound_thunder.wav</File>
+    <File>Extras\WeatherSounds\sound_windy.wav</File>
+  </Files>
+</Extras>
