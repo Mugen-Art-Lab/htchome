@@ -29,7 +29,7 @@ namespace Gismeteo3
                 try
                 {
                     String JQData = Regex.Unescape(Helper.GetRequest(new Uri("http://www.gismeteo.ru/ajax/city_search/?searchQuery=х" + Query), Encoding.UTF8, 30000));
-                    Regex jqList = new Regex("\"(\\d+)\":\"([^\"]+)\"", RegexOptions.IgnoreCase);
+                    Regex jqList = new Regex("\"'(\\d+)'\":\"([^\"]+)\"", RegexOptions.IgnoreCase);
                     if (jqList.IsMatch(JQData))
                     {
                         List<LocationData> cList = new List<LocationData>();
