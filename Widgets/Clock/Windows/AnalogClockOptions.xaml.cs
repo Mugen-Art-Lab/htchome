@@ -155,13 +155,6 @@ namespace Clock.Windows
 
             UpdatesCheckBox.IsChecked = App.Settings.CheckForUpdates;
             AutostartCheckBox.IsChecked = App.Settings.Autostart;
-
-            var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
-            foreach (var updateInfo in updates)
-            {
-                UpdatesList.Items.Add(updateInfo);
-            }
-
             SilentUpdateCheckBox.IsChecked = App.Settings.SilentUpdate;
 
             ApplyButton.IsEnabled = false;

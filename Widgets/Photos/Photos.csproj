@@ -152,17 +152,13 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Home.Core\Home.Base.csproj">
+    <ProjectReference Include="..\..\Home.Base\Home.Base.csproj">
       <Project>{38C417F8-F075-4DEE-B523-EC4215A45ABD}</Project>
       <Name>Home.Base</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj">
       <Project>{3D79E2D7-7252-41CB-81C0-585D96F29173}</Project>
       <Name>Home.Packaging</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Home.Updates\Home.Updates.csproj">
-      <Project>{ACF55CA5-A3E4-4313-B81F-64C66A66A083}</Project>
-      <Name>Home.Updates</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

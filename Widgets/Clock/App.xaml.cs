@@ -37,7 +37,7 @@ namespace Clock
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         private NotifyIcon trayIcon;
-        private System.Windows.Forms.ContextMenu trayMenu;
+        private System.Windows.Forms.ContextMenuStrip trayMenu;
 
         public static Domain.WeatherProviderManager WpManager;
 
@@ -272,20 +272,20 @@ namespace Clock
             {
                 return;
             }
-            var trayMenu = new System.Windows.Forms.ContextMenu();
+            var trayMenu = new System.Windows.Forms.ContextMenuStrip();
             trayIcon = new NotifyIcon
             {
                 Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location),
                 Text = "HTC Home 3"
             };
             //trayIcon.MouseClick += (s,e) => { if (e.Button == MouseButtons.Right) trayMenu. };
-            trayIcon.ContextMenu = trayMenu;
+            trayIcon.ContextMenuStrip = trayMenu;
             trayIcon.Visible = true;
 
-            var closeItem = new System.Windows.Forms.MenuItem();
+            var closeItem = new System.Windows.Forms.ToolStripMenuItem();
             closeItem.Text = Clock.Properties.Resources.CloseItem;
             closeItem.Click += new EventHandler(closeItem_Click);
-            trayMenu.MenuItems.Add(closeItem);
+            trayMenu.Items.Add(closeItem);
         }
 
         void closeItem_Click(object sender, EventArgs e)
@@ -302,7 +302,7 @@ namespace Clock
             {
                 return;
             }
-            trayMenu = new System.Windows.Forms.ContextMenu();
+            trayMenu = new System.Windows.Forms.ContextMenuStrip();
 
             trayIcon = new NotifyIcon
             {
@@ -311,9 +311,9 @@ namespace Clock
             };
             trayIcon.MouseClick += TrayIconMouseClick;
             trayIcon.Visible = true;
-            trayIcon.ContextMenu = trayMenu;
+            trayIcon.ContextMenuStrip = trayMenu;
 
-            var closeItem = new System.Windows.Forms.MenuItem();
+            var closeItem = new System.Windows.Forms.ToolStripMenuItem();
             closeItem.Text = Clock.Properties.Resources.CloseItem;
             closeItem.Click += (s, e) =>
                                    {
@@ -322,62 +322,62 @@ namespace Clock
                                            window.Close();
                                        }
                                    };
-            trayMenu.MenuItems.Add(closeItem);
+            trayMenu.Items.Add(closeItem);
 
-            var widgetsItem = new System.Windows.Forms.MenuItem();
+            var widgetsItem = new System.Windows.Forms.ToolStripMenuItem();
             widgetsItem.Text = Clock.Properties.Resources.JumpListWidgets;
 
-            trayMenu.MenuItems.Add(0, widgetsItem);
+            trayMenu.Items.Add(widgetsItem);
             widgetsItem.Visible = false;
 
             if (File.Exists(E.Root + "\\Weather.exe"))
             {
                 widgetsItem.Visible = true;
-                var weatherItem = new System.Windows.Forms.MenuItem();
+                var weatherItem = new System.Windows.Forms.ToolStripMenuItem();
                 weatherItem.Text = Clock.Properties.Resources.JumpListWeatherWidget;
                 weatherItem.Click += (s, e) => Process.Start(E.Root + "\\Weather.exe");
 
-                widgetsItem.MenuItems.Add(weatherItem);
+                widgetsItem.DropDownItems.Add(weatherItem);
             }
 
             if (File.Exists(E.Root + "\\Photos.exe"))
             {
                 widgetsItem.Visible = true;
-                var photosItem = new System.Windows.Forms.MenuItem();
+                var photosItem = new System.Windows.Forms.ToolStripMenuItem();
                 photosItem.Text = Clock.Properties.Resources.JumpListPhotosWidget;
                 photosItem.Click += (s, e) => Process.Start(E.Root + "\\Photos.exe");
 
-                widgetsItem.MenuItems.Add(photosItem);
+                widgetsItem.DropDownItems.Add(photosItem);
             }
 
             if (File.Exists(E.Root + "\\News.exe"))
             {
                 widgetsItem.Visible = true;
-                var newsItem = new System.Windows.Forms.MenuItem();
+                var newsItem = new System.Windows.Forms.ToolStripMenuItem();
                 newsItem.Text = Clock.Properties.Resources.JumpListNewsWidget;
                 newsItem.Click += (s, e) => Process.Start(E.Root + "\\News.exe");
 
-                widgetsItem.MenuItems.Add(newsItem);
+                widgetsItem.DropDownItems.Add(newsItem);
             }
 
             if (File.Exists(E.Root + "\\FriendStream.exe"))
             {
                 widgetsItem.Visible = true;
-                var friendsItem = new System.Windows.Forms.MenuItem();
+                var friendsItem = new System.Windows.Forms.ToolStripMenuItem();
                 friendsItem.Text = Clock.Properties.Resources.JumpListFriendStreamWidget;
                 friendsItem.Click += (s, e) => Process.Start(E.Root + "\\FriendStream.exe");
 
-                widgetsItem.MenuItems.Add(friendsItem);
+                widgetsItem.DropDownItems.Add(friendsItem);
             }
 
             if (File.Exists(E.Root + "\\Calendar.exe"))
             {
                 widgetsItem.Visible = true;
-                var calendarItem = new System.Windows.Forms.MenuItem();
+                var calendarItem = new System.Windows.Forms.ToolStripMenuItem();
                 calendarItem.Text = Clock.Properties.Resources.JumpListCalendarWidget;
                 calendarItem.Click += (s, e) => Process.Start(E.Root + "\\Calendar.exe");
 
-                widgetsItem.MenuItems.Add(calendarItem);
+                widgetsItem.DropDownItems.Add(calendarItem);
             }
         }
 
