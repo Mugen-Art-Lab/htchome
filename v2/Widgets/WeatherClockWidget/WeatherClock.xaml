@@ -14,7 +14,7 @@
             <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
         </Grid.RenderTransform>
         <Grid Style="{DynamicResource BasePanelStyle}">
-            <Image Name="Bg"  Source="Skins\Sense\bg.png" Style="{DynamicResource BaseStyle}"/>
+            <Image Name="Bg" Source="Skins\Sense\bg.png" Style="{DynamicResource BaseStyle}"/>
             <Rectangle Name="LightningBg1" Style="{DynamicResource LightningBg1Style}"/>
             <Rectangle Name="LightningBg2" Style="{DynamicResource LightningBg2Style}"/>
             <Rectangle Name="FrostBg" Style="{DynamicResource FrostBgStyle}">

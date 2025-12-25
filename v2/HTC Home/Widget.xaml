@@ -21,9 +21,9 @@
             <MenuItem Name="TopMostItem" Header="Top most" Checked="TopMostItem_Checked" Unchecked="TopMostItem_Unchecked" IsCheckable="True"/>
             <MenuItem Name="PinItem" Header="Pin" IsCheckable="True" Checked="PinItem_Checked" Unchecked="PinItem_Unchecked"/>
             <MenuItem Name="SizeItem" Header="Size" IsEnabled="False" Foreground="Black"/>
-            <Slider Name="SizeSlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />
+            <Slider Name="SizeSlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="30" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="SizeSlider_ValueChanged" TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" MinWidth="160"/>
             <MenuItem Name="OpacityItem" Header="Opacity" IsEnabled="False" Foreground="Black"/>
-            <Slider Name="OpacitySlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="20" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="OpacitySliderValueChanged"  TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" />
+            <Slider Name="OpacitySlider" Margin="0,0,-30,0" Orientation="Horizontal" Minimum="20" Maximum="100" SmallChange="0.05" Value="100" ValueChanged="OpacitySliderValueChanged"  TickPlacement="TopLeft" TickFrequency="10" AutoToolTipPlacement="TopLeft" MinWidth="160"/>
             <MenuItem Name="CloseItem" Header="Close widget" Click="CloseItem_Click"/>
             <Separator/>
             <StackPanel Name="AddWidgetPanel" Orientation="Horizontal" HorizontalAlignment="Center"/>

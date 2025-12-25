@@ -23,7 +23,7 @@ using Environment = System.Environment;
 
 namespace HTCHome
 {
-    /// <summary>6
+    /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
