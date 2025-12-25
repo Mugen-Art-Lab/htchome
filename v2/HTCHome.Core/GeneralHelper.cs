@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Net;
 using System.Text;
 using System.IO;
@@ -29,10 +29,10 @@ namespace HTCHome.Core
 
             try
             {
-                //тупо, но пока ничего лучше в голову не пришло
+                //С‚СѓРїРѕ, РЅРѕ РїРѕРєР° РЅРёС‡РµРіРѕ Р»СѓС‡С€Рµ РІ РіРѕР»РѕРІСѓ РЅРµ РїСЂРёС€Р»Рѕ
                 StreamReader reader = new StreamReader(webClient.OpenRead(url));
                 string line = reader.ReadLine(); //read the first line with encoding name
-                if (line.Contains("encoding"))
+                if (line?.Contains("encoding") == true)
                 {
                     string encoding = line.Substring(line.IndexOf("encoding") + 10); //parse encoding name from the first line of xml
                     encoding = encoding.Substring(0, encoding.IndexOf('"'));

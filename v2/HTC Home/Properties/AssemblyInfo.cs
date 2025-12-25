@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Stealth Software")]
 [assembly: AssemblyProduct("HTC Home 2")]
-[assembly: AssemblyCopyright("Copyright © Stealth 2011")]
+[assembly: AssemblyCopyright("Copyright © Stealth 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,6 +51,6 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.4.223.1")]
-[assembly: AssemblyFileVersion("2.4.223.1")]
+[assembly: AssemblyVersion("2.5.224.0")]
+[assembly: AssemblyFileVersion("2.5.224.0")]
 [assembly: NeutralResourcesLanguageAttribute("")]
