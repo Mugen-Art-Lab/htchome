@@ -122,8 +122,8 @@ namespace HTCHome
             this.Top = widget.GetWindowPosition().Y;
             if (this.Left == -100 || this.Top == -100)
             {
-                this.Left = System.Windows.Forms.SystemInformation.WorkingArea.Width / 2 - w.ActualWidth / 2;
-                this.Top = System.Windows.Forms.SystemInformation.WorkingArea.Height / 2 - w.ActualHeight / 2 - 30;
+                this.Left = SystemParameters.WorkArea.Width / 2 - w.Width / 2;
+                this.Top = SystemParameters.WorkArea.Height / 2 - w.Height / 2 - 30;
             }
             this.Show();
 

@@ -693,11 +693,11 @@ namespace WeatherClockWidget
             WeatherReport temp;
             if (Properties.Settings.Default.LocationCode != string.Empty)
             {
-                temp = currentProvider.GetWeatherReport(E.Locale, Properties.Settings.Default.LocationCode, Properties.Settings.Default.DegreeType);
+                temp = currentProvider?.GetWeatherReport(E.Locale, Properties.Settings.Default.LocationCode, Properties.Settings.Default.DegreeType);
             }
             else
             {
-                temp = currentProvider.GetWeatherReport(E.Locale, string.Empty, Properties.Settings.Default.DegreeType);
+                temp = currentProvider?.GetWeatherReport(E.Locale, string.Empty, Properties.Settings.Default.DegreeType);
             }
 
             if (temp != null)
