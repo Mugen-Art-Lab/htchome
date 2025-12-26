@@ -25,18 +25,6 @@ namespace MediaPlayerWidget.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("WMP")]
-        public string Controller {
-            get {
-                return ((string)(this["Controller"]));
-            }
-            set {
-                this["Controller"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("-100")]
         public double Left {
             get {
@@ -116,6 +104,18 @@ namespace MediaPlayerWidget.Properties {
             }
             set {
                 this["Pinned"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("SMTC")]
+        public string Controller {
+            get {
+                return ((string)(this["Controller"]));
+            }
+            set {
+                this["Controller"] = value;
             }
         }
     }

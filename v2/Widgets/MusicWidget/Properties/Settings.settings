@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MediaPlayerWidget.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="Controller" Type="System.String" Scope="User">
-      <Value Profile="(Default)">WMP</Value>
-    </Setting>
     <Setting Name="Left" Type="System.Double" Scope="User">
       <Value Profile="(Default)">-100</Value>
     </Setting>
@@ -25,6 +22,9 @@
     </Setting>
     <Setting Name="Pinned" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="Controller" Type="System.String" Scope="User">
+      <Value Profile="(Default)">SMTC</Value>
     </Setting>
   </Settings>
 </SettingsFile>
