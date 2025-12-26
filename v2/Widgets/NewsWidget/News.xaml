@@ -140,6 +140,7 @@
         <Grid.RenderTransform>
             <ScaleTransform x:Name="Scale" ScaleX="1" ScaleY="{Binding ElementName=Scale, Path=ScaleX}"/>
         </Grid.RenderTransform>
+        <Rectangle Margin="0,25,0,8" Fill="#EE000000"/>
         <Image Name="Body" Source="Resources\body.png" Stretch="Fill" Margin="0,25,0,8"/>
         <Image Name="Header" Source="Resources\header.png" VerticalAlignment="Top" Height="68" Stretch="Uniform" />
         <Image Name="Footer" Source="Resources\footer.png" VerticalAlignment="Bottom" Height="22"/>
