@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151 d18.0
+VisualStudioVersion = 18.1.11312.151
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HTC Home", "HTC Home\HTC Home.csproj", "{2F0B9819-C8DC-4A81-B832-904E7B1C1E9D}"
 EndProject
@@ -34,6 +34,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WMP", "Extensions\Music\WMP\WMP.csproj", "{DA74D12C-916C-43BD-A69F-F8AF19EC794C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSN", "Extensions\Weather\MSN\MSN.csproj", "{A39C31A3-83DD-4786-992C-E10CBDC72DB3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SMTC", "Extensions\Music\SMTC\SMTC.csproj", "{53C5942F-D3F3-72E3-7422-264F1D17C15B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -194,6 +196,22 @@ Global
 		{A39C31A3-83DD-4786-992C-E10CBDC72DB3}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{A39C31A3-83DD-4786-992C-E10CBDC72DB3}.Release|x64.ActiveCfg = Release|Any CPU
 		{A39C31A3-83DD-4786-992C-E10CBDC72DB3}.Release|x86.ActiveCfg = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|x64.Build.0 = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Debug|x86.Build.0 = Debug|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|x64.ActiveCfg = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|x64.Build.0 = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|x86.ActiveCfg = Release|Any CPU
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -211,6 +229,10 @@ Global
 		{533D5A7B-2EAB-4B2B-8603-6EF8D92511CF} = {D6B921F8-2A28-4C7C-B8F7-D5BC147EC470}
 		{DA74D12C-916C-43BD-A69F-F8AF19EC794C} = {D6B921F8-2A28-4C7C-B8F7-D5BC147EC470}
 		{A39C31A3-83DD-4786-992C-E10CBDC72DB3} = {6C7983F1-BB1A-4413-BC68-D55F26EF8AA5}
+		{53C5942F-D3F3-72E3-7422-264F1D17C15B} = {D6B921F8-2A28-4C7C-B8F7-D5BC147EC470}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E86A641C-2952-4F6E-9039-C22E69D5F6F9}
 	EndGlobalSection
 	GlobalSection(TeamFoundationVersionControl) = preSolution
 		SccNumberOfProjects = 18

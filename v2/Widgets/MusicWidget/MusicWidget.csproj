@@ -111,37 +111,37 @@
     <Content Include="Resources\prev_press.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Preview.png">
+    <Content Include="Skins\Sense Light\Preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\bg_a.png">
+    <Content Include="Skins\Sense Light\Resources\bg_a.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\next_press.png">
+    <Content Include="Skins\Sense Light\Resources\next_press.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\pause.png">
+    <Content Include="Skins\Sense Light\Resources\pause.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\pause_over.png">
+    <Content Include="Skins\Sense Light\Resources\pause_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\pause_press.png">
+    <Content Include="Skins\Sense Light\Resources\pause_press.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\play.png">
+    <Content Include="Skins\Sense Light\Resources\play.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\play_over.png">
+    <Content Include="Skins\Sense Light\Resources\play_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\play_press.png">
+    <Content Include="Skins\Sense Light\Resources\play_press.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\prev_press.png">
+    <Content Include="Skins\Sense Light\Resources\prev_press.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Skin.xml">
+    <Content Include="Skins\Sense Light\Skin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skins\Honeycomb\Resources\cover_bg.png">
@@ -186,19 +186,19 @@
     <Content Include="Skins\Honeycomb\Resources\titlebar_bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\bg.png">
+    <Content Include="Skins\Sense Light\Resources\bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\next.png">
+    <Content Include="Skins\Sense Light\Resources\next.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\next_over.png">
+    <Content Include="Skins\Sense Light\Resources\next_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\prev.png">
+    <Content Include="Skins\Sense Light\Resources\prev.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Resources\prev_over.png">
+    <Content Include="Skins\Sense Light\Resources\prev_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skins\Sense\Preview.png">
@@ -207,42 +207,42 @@
     <Content Include="Skins\Sense\Skin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Preview.png">
+    <Content Include="Skins\Zune Light\Preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\cover_bg.png">
+    <Content Include="Skins\Zune Light\Resources\cover_bg.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\next.png">
+    <Content Include="Skins\Zune Light\Resources\next.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\next_over.png">
+    <Content Include="Skins\Zune Light\Resources\next_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\pause.png">
+    <Content Include="Skins\Zune Light\Resources\pause.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\pause_over.png">
+    <Content Include="Skins\Zune Light\Resources\pause_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\play.png">
+    <Content Include="Skins\Zune Light\Resources\play.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\play_over.png">
+    <Content Include="Skins\Zune Light\Resources\play_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\prev.png">
+    <Content Include="Skins\Zune Light\Resources\prev.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Resources\prev_over.png">
+    <Content Include="Skins\Zune Light\Resources\prev_over.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Layout.xaml">
+    <Content Include="Skins\Zune Light\Layout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Zune-Light\Skin.xml">
+    <Content Include="Skins\Zune Light\Skin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Skins\Honeycomb\Preview.png">
@@ -335,7 +335,7 @@
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Skins\Sense-Light\Layout.xaml">
+    <Content Include="Skins\Sense Light\Layout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

@@ -140,35 +140,65 @@ namespace MediaPlayerWidget
 
         void controller_PlayStateChanged(object sender, EventArgs e)
         {
-            if (controller.IsPlaying())
+            var isPlaying = controller.IsPlaying();
+            Dispatcher.Invoke(() =>
             {
-                if (!timer.IsEnabled)
-                    timer.IsEnabled = true;
-            }
-            else
-            {
-                timer.Stop();
-            }
-
+                if (isPlaying)
+                {
+                    PlayButton.IsChecked = true;
+                    if (!timer.IsEnabled)
+                        timer.IsEnabled = true;
+                }
+                else
+                {
+                    PlayButton.IsChecked = false;
+                    timer.Stop();
+                }
+            });
         }
 
         void controller_MediaChanged(object sender, EventArgs e)
         {
-            if (controller.IsMediaLoaded())
-            {
+            var isMediaLoaded = controller.IsMediaLoaded();
 
-                SongTitle.Text = controller.GetSongTitle();
+            if (!isMediaLoaded)
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    SongTitle.Text = "No media";
+                    SongAlbum.Text = "";
+                    SongArtistTitle.Text = "";
+                    Progress.Value = 0;
+                    SongTime.Text = "0:00";
+                    SongTimeLeft.Text = "0:00";
+                    AlbumArt.Source = new BitmapImage(new Uri(E.Path + "\\Music\\Resources\\NoartCover.png"));
+                    PlayButton.IsChecked = false;
+                });
+                return;
+            }
+
+            var title = controller.GetSongTitle();
+            var artist = controller.GetSongArtist();
+            var album = controller.GetSongAlbum();
+            var cover = controller.GetSongCover();
+
+            var duration = controller.GetDuration();
+            var position = controller.GetPosition();
+
+            Dispatcher.Invoke(() => 
+            {
+                SongTitle.Text = title;
                 SongTitle.ToolTip = SongTitle.Text;
-                SongArtistTitle.Text = controller.GetSongArtist();
-                SongAlbum.Text = controller.GetSongAlbum();
-                AlbumArt.Source = controller.GetSongCover();
+                SongArtistTitle.Text = artist;
+                SongAlbum.Text = album;
+                AlbumArt.Source = cover;
                 if (AlbumArt.Source == null)
                     AlbumArt.Source = new BitmapImage(new Uri(E.Path + "\\Music\\Resources\\NoartCover.png"));
                 SongTime.Text = "0:00";
-                SongTimeLeft.Text = "-" + controller.GetDuration().ToString(@"%m\:ss");
-                Progress.Maximum = controller.GetDuration().TotalMilliseconds;
-                Progress.Value = controller.GetPosition().TotalMilliseconds;
-            }
+                SongTimeLeft.Text = "-" + duration.ToString(@"%m\:ss");
+                Progress.Maximum = duration.TotalMilliseconds;
+                Progress.Value = position.TotalMilliseconds;
+            });
         }
 
         void optionsItem_Click(object sender, RoutedEventArgs e)

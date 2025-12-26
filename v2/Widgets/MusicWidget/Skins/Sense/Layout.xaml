@@ -12,6 +12,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <Grid>
+                        <Rectangle Fill="#EE000000" Margin="17,10,17,10" RadiusX="10" RadiusY="10"/>
                         <Image Source="../../Resources/bg.png"/>
                         <Rectangle Fill="Gray" Height="1" VerticalAlignment="Top" Margin="17,230,17,0" Opacity="0.4"/>
                         <Image Source="../../Resources/music_album_shadow.png" Width="203" Height="25" VerticalAlignment="Top" Margin="30,105,0,0"/>

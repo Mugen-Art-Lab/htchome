@@ -133,7 +133,7 @@ namespace MediaPlayerWidget
             if (Properties.Settings.Default.Controller != ControllersBox.Text)
             {
                 Properties.Settings.Default.Controller = ControllersBox.Text;
-                widget.controller = Controller.Load(E.Path + "\\Music\\Controllers\\" + ControllersBox.Text + "\\" + ControllersBox.Text + ".dll");
+                widget.controller = Controller.Load(E.ExtensionsPath + "\\Music\\" + ControllersBox.Text + "\\" + ControllersBox.Text + ".dll");
                 widget.InitController();
             }
 
@@ -150,7 +150,18 @@ namespace MediaPlayerWidget
             XDocument doc = XDocument.Load(E.Path + "\\Music\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Skin.xml");
             AuthorTextBlock.Text = Widget.LocaleManager.GetString("Author") + " " + doc.Root.Element("Author").Value;
             VersionTextBlock.Text = Widget.LocaleManager.GetString("Version") + " " + doc.Root.Element("Version").Value;
-            ContactsTextBlock.Text = Widget.LocaleManager.GetString("Contacts") + " " + doc.Root.Element("Contacts").Value;
+            var contacts = doc.Root.Element("Contacts").Value;
+            if (contacts != null)
+            {
+                ContactsTextBlock.Text = Widget.LocaleManager.GetString("Contacts") + " " + contacts;
+                ContactsTextBlock.Visibility = Visibility.Visible;
+            } 
+            else
+            {
+                ContactsTextBlock.Text = "";
+                ContactsTextBlock.Visibility = Visibility.Collapsed;
+            }
+
             DescriptionTextBlock.Text = doc.Root.Element("Description").Value;
 
             if (File.Exists(E.Path + "\\Music\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Preview.png"))
