@@ -10,6 +10,7 @@
         <ScaleTransform x:Name="Scale" />
     </UserControl.RenderTransform>
     <Grid>
+        <Rectangle x:Name="ClockBaseBg" Style="{DynamicResource ClockBaseBg}"/>
         <Image Name="ClockBase" Source="Resources/clock_base.png" Style="{DynamicResource ClockBase}"/>
         <Grid Style="{DynamicResource DayGrid}">
             <TextBlock Text="{Binding ElementName=Day, Path=Text}" Style="{DynamicResource DayShadow}"/>

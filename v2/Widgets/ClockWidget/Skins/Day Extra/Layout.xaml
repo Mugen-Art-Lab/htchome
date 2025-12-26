@@ -4,6 +4,12 @@
         <Setter Property="Width" Value="300"/>
         <Setter Property="Height" Value="300"/>
     </Style>
+    <Style x:Key="ClockBaseBg" TargetType="Rectangle">
+        <Setter Property="Fill" Value="#EE000000"/>
+        <Setter Property="RadiusX" Value="300"/>
+        <Setter Property="RadiusY" Value="300"/>
+        <Setter Property="Margin" Value="1,1,1,1"/>
+    </Style>
     <Style x:Key="ClockBase" TargetType="Image"/>
     
     <Style x:Key="DayGrid" TargetType="Grid">
