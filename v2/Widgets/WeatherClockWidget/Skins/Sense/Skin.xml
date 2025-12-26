@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Skin>
   <Author>Stealth</Author>
-  <Version>1.0</Version>
+  <Version>1.1</Version>
   <Name>Sense</Name>
-  <Contacts>stealth2008@live.ru</Contacts>
+  <Contacts></Contacts>
   <Description>Classic Sense skin from previous versions</Description>
   <UseClockAnimation>True</UseClockAnimation>
   <!-- Widget region. Used for Aero Glass. -1 disables aero -->

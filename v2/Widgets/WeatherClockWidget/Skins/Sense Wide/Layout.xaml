@@ -14,6 +14,15 @@
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,-30,0,0"/>
     </Style>
+    <Style x:Key="BaseBgStyle" TargetType="Rectangle">
+        <Setter Property="Fill" Value="#EE000000"/>
+        <Setter Property="Width" Value="499"/>
+        <Setter Property="Height" Value="140"/>
+        <Setter Property="RadiusX" Value="12"/>
+        <Setter Property="RadiusY" Value="12"/>
+        <Setter Property="Margin" Value="1,0,0,0"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
     <Style x:Key="BaseStyle" TargetType="Image">
         <Setter Property="Width" Value="500"/>
         <Setter Property="Height" Value="140"/>
@@ -23,18 +32,20 @@
     <Style x:Key="LightningBg1Style" TargetType="Rectangle">
         <Setter Property="Fill" Value="White"/>
         <Setter Property="Opacity" Value="0"/>
-        <Setter Property="Width" Value="500"/>
-        <Setter Property="Height" Value="165"/>
-        <Setter Property="RadiusX" Value="5"/>
-        <Setter Property="RadiusY" Value="5"/>
+        <Setter Property="Width" Value="499"/>
+        <Setter Property="Height" Value="140"/>
+        <Setter Property="RadiusX" Value="12"/>
+        <Setter Property="RadiusY" Value="12"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
     </Style>
     <Style x:Key="LightningBg2Style" TargetType="Rectangle">
         <Setter Property="Fill" Value="White"/>
         <Setter Property="Opacity" Value="0"/>
-        <Setter Property="Width" Value="500"/>
-        <Setter Property="Height" Value="165"/>
-        <Setter Property="RadiusX" Value="10"/>
-        <Setter Property="RadiusY" Value="10"/>
+        <Setter Property="Width" Value="499"/>
+        <Setter Property="Height" Value="140"/>
+        <Setter Property="RadiusX" Value="12"/>
+        <Setter Property="RadiusY" Value="12"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
     </Style>
     <Style x:Key="FrostBgStyle" TargetType="Rectangle">
         <Setter Property="Fill" Value="#d9f3ff"/>
@@ -169,6 +180,14 @@
         <Setter Property="VerticalAlignment" Value="Bottom"/>
         <Setter Property="HorizontalAlignment" Value="Center"/>
         <Setter Property="Margin" Value="0,10,0,0"/>
+    </Style>
+    <Style x:Key="ForecastBaseBgStyle" TargetType="Rectangle">
+        <Setter Property="Fill" Value="#EE000000"/>
+        <Setter Property="Width" Value="499"/>
+        <Setter Property="Height" Value="50"/>
+        <Setter Property="RadiusX" Value="8"/>
+        <Setter Property="RadiusY" Value="8"/>
+        <Setter Property="Margin" Value="1,0,1,0"/>
     </Style>
     <Style x:Key="ForecastBaseStyle" TargetType="Image">
         <Setter Property="Width" Value="500"/>

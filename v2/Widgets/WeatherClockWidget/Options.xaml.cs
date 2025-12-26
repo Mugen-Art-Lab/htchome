@@ -369,7 +369,17 @@ namespace WeatherClockWidget
             XDocument doc = XDocument.Load(E.Path + "\\WeatherClock\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Skin.xml");
             AuthorTextBlock.Text = Widget.LocaleManager.GetString("Author") + " " + doc.Root.Element("Author").Value;
             VersionTextBlock.Text = Widget.LocaleManager.GetString("Version") + " " + doc.Root.Element("Version").Value;
-            ContactsTextBlock.Text = Widget.LocaleManager.GetString("Contacts") + " " + doc.Root.Element("Contacts").Value;
+
+            var contacts = doc.Root.Element("Contacts").Value;
+            if (!string.IsNullOrEmpty(contacts))
+            {
+                ContactsTextBlock.Text = Widget.LocaleManager.GetString("Contacts") + " " + doc.Root.Element("Contacts").Value;
+                ContactsTextBlock.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ContactsTextBlock.Visibility = Visibility.Collapsed;
+            }
             DescriptionTextBlock.Text = doc.Root.Element("Description").Value;
 
             if (File.Exists(E.Path + "\\WeatherClock\\Skins\\" + skins[SkinsComboBox.SelectedIndex] + "\\Preview.png"))
