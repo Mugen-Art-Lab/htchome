@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("News widget")]
-[assembly: AssemblyCopyright("Copyright © Stealth 2011")]
+[assembly: AssemblyCopyright("Copyright © Stealth 2025")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -51,5 +51,5 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.68.0")]
-[assembly: AssemblyFileVersion("1.0.68.0")]
+[assembly: AssemblyVersion("1.1.69.0")]
+[assembly: AssemblyFileVersion("1.1.69.0")]

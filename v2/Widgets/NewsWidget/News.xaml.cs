@@ -103,7 +103,7 @@ namespace NewsWidget
             }, null);
         }
 
-        void NewsTimelineRefreshFinished(IEnumerable<RssItem> newItems)
+        void NewsTimelineRefreshFinished(IEnumerable<SyndicationItem> newItems)
         {
             if (newItems != null)
                 foreach (var feed in newItems)
@@ -115,9 +115,9 @@ namespace NewsWidget
                         item.Title = feed.Title;
                         item.Text = StripTags(feed.Description);
                         if (feed.PublicationDate.ToLocalTime().Day == DateTime.Now.Day)
-                            item.Footer = feed.PublicationDate.ToLocalTime().ToString(Widget.Instance.LocaleManager.GetString("ShortDateString")) + " from " + feed.Source.Title;
+                            item.Footer = feed.PublicationDate.ToLocalTime().ToString(Widget.Instance.LocaleManager.GetString("ShortDateString")) + " from " + feed.Source;
                         else
-                            item.Footer = feed.PublicationDate.ToLocalTime().ToString(Widget.Instance.LocaleManager.GetString("DateString")) + " from " + feed.Source.Title;
+                            item.Footer = feed.PublicationDate.ToLocalTime().ToString(Widget.Instance.LocaleManager.GetString("DateString")) + " from " + feed.Source;
                         item.ImageSource = GetImg(feed.Description);
                         item.Link = feed.Link.ToString();
                         NewsPanel.Children.Insert(0, item);

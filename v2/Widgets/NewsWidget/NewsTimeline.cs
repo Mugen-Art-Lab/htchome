@@ -14,10 +14,10 @@ namespace NewsWidget
     {
         public List<Source> Sources;
 
-        public List<RssItem> News { get; private set; }
+        public List<SyndicationItem> News { get; private set; }
 
         public event RefreshFinishedDelegate RefreshFinished;
-        public delegate void RefreshFinishedDelegate(IEnumerable<RssItem> newItems);
+        public delegate void RefreshFinishedDelegate(IEnumerable<SyndicationItem> newItems);
 
         private int _sourcesUpdatedCount;
         private DateTime _lastFeedDate;
@@ -35,7 +35,7 @@ namespace NewsWidget
                     Sources.Add(source);
                 }
 
-                News = new List<RssItem>();
+                News = new List<SyndicationItem>();
             }
         }
 
@@ -76,7 +76,7 @@ namespace NewsWidget
             }
         }
 
-        void SourceRefreshFinished(Source sender, IEnumerable<RssItem> newItems)
+        void SourceRefreshFinished(Source sender, IEnumerable<SyndicationItem> newItems)
         {
             if (newItems != null && newItems.Count() > 0)
             {
@@ -100,7 +100,7 @@ namespace NewsWidget
                     News.RemoveRange(Properties.Settings.Default.NewsCount, News.Count - Properties.Settings.Default.NewsCount);
                 }
                 //make list with new items that was added since last feed was published
-                List<RssItem> items = (from x in News
+                List<SyndicationItem> items = (from x in News
                                                   where x.PublicationDate.CompareTo(_lastFeedDate) == 1
                                                   select x).Reverse().ToList();
                 if (items.Count > 0)

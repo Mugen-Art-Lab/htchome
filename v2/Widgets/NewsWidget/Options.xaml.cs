@@ -143,7 +143,7 @@ namespace NewsWidget
 
         private void ButtonClick(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(AddSourceBox.Text) && AddSourceBox.Text.StartsWith("http://"))
+            if (!string.IsNullOrEmpty(AddSourceBox.Text) && (AddSourceBox.Text.StartsWith("http://") || AddSourceBox.Text.StartsWith("https://")))
             {
                 //var source = new Source();
                 //source.Url = AddSourceBox.Text;

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NewsWidget
 {
-    public struct Feed
+    struct Feed
     {
         public string Source;
         public SyndicationItem Item;
