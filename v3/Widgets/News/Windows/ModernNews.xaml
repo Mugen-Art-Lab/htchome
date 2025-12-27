@@ -31,7 +31,7 @@
     </Window.ContextMenu>
     <Grid Margin="0,15,0,0">
         <Rectangle Stroke="#353535" RadiusX="10" RadiusY="10" Opacity="0.7"/>
-        <Rectangle RadiusX="10" RadiusY="10" Stroke="#8a8a8a" Opacity="0.85" Margin="1">
+        <Rectangle RadiusX="10" RadiusY="10" Stroke="#8a8a8a" Opacity="0.99" Margin="1">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="#4a4a4a" Offset="0"/>
