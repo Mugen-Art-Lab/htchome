@@ -25,11 +25,6 @@
     <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Extras\Widgets\news.ext.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Argotic.Core" Version="3001.0.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
   </ItemGroup>
