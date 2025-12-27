@@ -13,7 +13,7 @@ namespace Clock
             Autostart = false;
             Language = CultureInfo.CurrentUICulture.Name;
             Style = Styles.FlipClock;
-            UseAero = Environment.OSVersion.Version.Major == 6;
+            UseAero = false;
             TopMost = false;
             Left = -100;
             Top = -100;

@@ -171,11 +171,11 @@ namespace Weather.Windows
                     break;
             }
 
-            var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
-            foreach (var updateInfo in updates)
-            {
-                UpdatesList.Items.Add(updateInfo);
-            }
+            //var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
+            //foreach (var updateInfo in updates)
+            //{
+            //    UpdatesList.Items.Add(updateInfo);
+            //}
 
             SilentUpdateCheckBox.IsChecked = App.Settings.SilentUpdate;
             if (App.SoundPlayer == null)
@@ -545,7 +545,7 @@ namespace Weather.Windows
 
         private void SiteLinkMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            WinAPI.ShellExecute(IntPtr.Zero, "open", "http://htchome.org", string.Empty, string.Empty, 0);
+            WinAPI.ShellExecute(IntPtr.Zero, "open", SiteLink.Text, string.Empty, string.Empty, 0);
         }
 
         private void InstallExtButtonClick(object sender, RoutedEventArgs e)

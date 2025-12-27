@@ -15,7 +15,7 @@ namespace Weather
             Autostart = false;
             Language = CultureInfo.CurrentUICulture.Name;
             Style = Styles.Large;
-            UseAero = Environment.OSVersion.Version.Major >= 6;
+            UseAero = false;
             Left = -100;
             Top = -100;
             ShowFeelsLike = false;
@@ -30,7 +30,7 @@ namespace Weather
             UseSoftwareRendering = false;
             Pin = false;
             DisableUnminimizer = true;
-            CheckForUpdates = true;
+            CheckForUpdates = false;
             UseProxy = true;
             SilentUpdate = false;
             Opacity = 1;
