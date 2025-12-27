@@ -30,6 +30,7 @@
         <TaskbarItemInfo x:Name="Taskbar"/>
     </Window.TaskbarItemInfo>
     <Grid Margin="0,35,0,40">
+        <Rectangle Fill="#EE000000" RadiusX="8" RadiusY="8" Margin="1"/>
         <Image Name="Bg" Source="/Clock;component/Resources/FlipClock/base_default.png" Stretch="Fill"/>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-16,0,-18">
             <Controls:FlipTab x:Name="HoursTab" Delay="0.3" Margin="0,0,10,0"/>

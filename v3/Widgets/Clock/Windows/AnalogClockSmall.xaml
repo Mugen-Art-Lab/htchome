@@ -35,6 +35,7 @@
             <TextBlock Name="ClockNameTextBlock" Text="Local time" Foreground="White" Margin="10,0,10,0" VerticalAlignment="Center" FontSize="14" MaxWidth="150" TextTrimming="CharacterEllipsis"/>
         </Grid>
         <Grid>
+            <Ellipse Fill="#EE000000" Margin="21,1,22,1"/>
             <Image Name="Bg" Source="/Resources/AnalogClockSmall/clock_base_day.png"/>
             <TextBlock Name="Day" Text="MON" Margin="-90,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="#5b5b5d"/>
             <TextBlock Name="Month" Text="JAN 1" Margin="85,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="14" Foreground="#5b5b5d"/>

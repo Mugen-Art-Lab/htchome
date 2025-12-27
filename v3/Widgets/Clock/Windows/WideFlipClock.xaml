@@ -49,6 +49,7 @@
         <TaskbarItemInfo x:Name="Taskbar"/>
     </Window.TaskbarItemInfo>
     <Grid Margin="0,35,0,0">
+        <Rectangle Fill="#EE000000" RadiusX="9" RadiusY="9" Margin="7,5,7,0" Height="129" VerticalAlignment="Top"/>
         <Image Name="Bg" Source="/Clock;component/Resources/FlipClock/wide_base_default.png" Stretch="Fill" Height="140" VerticalAlignment="Top"/>
         <Rectangle Name="LightningBg1" Opacity="0" Fill="White" Height="130" RadiusX="7" RadiusY="7" Margin="6,5,6,0" VerticalAlignment="Top"/>
         <Rectangle Name="LightningBg2" Opacity="0" Fill="White"  Height="130" RadiusX="7" RadiusY="7" Margin="6,5,6,0" VerticalAlignment="Top"/>
@@ -110,6 +111,7 @@
             </Grid>
         </Grid>
         <Grid Name="ForecastGrid" Opacity="0" Height="100" VerticalAlignment="Bottom"  Margin="8,0,8,0">
+            <Rectangle Fill="#EE000000" RadiusX="4" RadiusY="4" Margin="0,22,0,23"/>
             <Image Source="/Clock;component/Resources/FlipClock/wide_forecast_base.png" Stretch="Fill" Height="72" Margin="-10,0,-10,0"/>
             <Grid Name="ForecastPanel" SnapsToDevicePixels="True" Margin="0,5,0,21">
                 <Grid.ColumnDefinitions>

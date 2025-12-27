@@ -480,6 +480,7 @@ namespace MSN
                 case 4:
                     return isDay ? 3 : 35;
                 case 5:
+                case 31:
                     return isDay ? 6 : 38;
                 case 19:
                 case 23:

@@ -52,6 +52,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Rectangle Fill="#EE000000" Grid.ColumnSpan="2" RadiusX="8" RadiusY="8" Margin="37,10,37,0"/>
             <Image Grid.ColumnSpan="2" Source="/Resources/DualClock/clock_bg.png" Margin="0,10,0,0"/>
             <Grid Name="FirstClock" Margin="-10,0,-10,-10">
                 <Image Name="FirstClockBg" Source="/Resources/DualClock/clock_base_day.png"/>
