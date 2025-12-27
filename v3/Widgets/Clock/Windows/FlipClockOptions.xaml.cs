@@ -454,7 +454,7 @@ namespace Clock.Windows
 
         private void GetLocations(string query)
         {
-            locations = App.WpManager.CurrentProvider.GetLocations(query, CultureInfo.GetCultureInfo(App.Settings.Language), App.Settings.TempScale);
+            locations = App.WpManager.CurrentProvider?.GetLocations(query, CultureInfo.GetCultureInfo(App.Settings.Language), App.Settings.TempScale);
             if (locations != null && locations.Count > 0)
             {
                 foreach (var location in locations)

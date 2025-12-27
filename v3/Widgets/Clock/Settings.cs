@@ -13,7 +13,7 @@ namespace Clock
             Autostart = false;
             Language = CultureInfo.CurrentUICulture.Name;
             Style = Styles.FlipClock;
-            UseAero = Environment.OSVersion.Version.Major >= 6;
+            UseAero = Environment.OSVersion.Version.Major == 6;
             TopMost = false;
             Left = -100;
             Top = -100;
@@ -42,8 +42,8 @@ namespace Clock
             UseTrayIcon = (Environment.OSVersion.Version.Major <= 6 && Environment.OSVersion.Version.Minor < 1); //if not win7 use tray icon
             UseSoftwareRendering = false;
             Pin = false;
-            DisableUnminimizer = true;
-            CheckForUpdates = true;
+            DisableUnminimizer = false;
+            CheckForUpdates = false;
             UseProxy = false;
             DisableShadows = false;
             SilentUpdate = false;

@@ -133,7 +133,7 @@ namespace Clock.Windows
             {
                 App.Settings.Provider = "MSN";
                 App.WpManager.CurrentProvider = App.WpManager.Providers.Find(p => p.Name == "MSN");
-                App.WpManager.CurrentProvider.Load();
+                App.WpManager.CurrentProvider?.Load();
             }
 
             if (currentLocation.Code != null)
