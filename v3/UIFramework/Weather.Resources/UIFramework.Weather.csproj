@@ -120,9 +120,4 @@
     <Resource Include="Images\wind_lvl3.png" />
     <Resource Include="Images\wind_lvl4.png" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.2.220602">
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
 </Project>
