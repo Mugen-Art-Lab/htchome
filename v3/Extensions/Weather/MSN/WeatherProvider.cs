@@ -33,7 +33,9 @@ namespace MSN
             foreach (var el in xml.Elements("weather"))
             {
                 var l = new LocationData();
-                var locString = el.Attribute("weatherlocationname").Value;
+                var locString = el.Attribute("weatherlocationname")?.Value;
+                if (string.IsNullOrEmpty(locString))
+                    continue;
                 if (locString.Contains(","))
                 {
                     l.City = locString.Substring(0, locString.IndexOf(","));
@@ -76,7 +78,9 @@ namespace MSN
             foreach (var el in xml.Elements("weather"))
             {
                 var l = new LocationData();
-                var locString = el.Attribute("weatherlocationname").Value;
+                var locString = el.Attribute("weatherlocationname")?.Value;
+                if (string.IsNullOrEmpty(locString))
+                    continue;
                 if (locString.Contains(","))
                 {
                     l.City = locString.Substring(0, locString.IndexOf(","));
@@ -149,8 +153,12 @@ namespace MSN
                         sunset = sc.DSunSet;
                     }
                     weatherReport.Curent.SkyCode = GetWeatherPic(current.Icon, sunrise, sunset, baseUtcOffset);
+                    if (weatherReport.Location != null && string.IsNullOrEmpty(weatherReport.Location.City))
+                        weatherReport.Location.City = source.Location?.Name;
                 }
-                weatherReport.Location = location;
+                
+                if (weatherReport.Location == null)
+                    weatherReport.Location = location;
 
                 url = string.Format(tempScale == TemperatureScale.Celsius ? ForecastUrlForCelsius : ForecastUrlForFahrenheit, culture.Name, location.Code);
 
