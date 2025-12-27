@@ -133,6 +133,9 @@
     <Page Remove="Windows\Sense4FlipClock.xaml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Home.Base\Home.Base.csproj" />
     <ProjectReference Include="..\..\Home.Packaging\Home.Packaging.csproj" />
     <ProjectReference Include="..\..\UIFramework\Weather.Resources\UIFramework.Weather.csproj" />
