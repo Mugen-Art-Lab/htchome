@@ -108,11 +108,11 @@ namespace News.Windows
             UpdatesCheckBox.IsChecked = App.Settings.CheckForUpdates;
             AutostartCheckBox.IsChecked = App.Settings.Autostart;
 
-            var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
-            foreach (var updateInfo in updates)
-            {
-                UpdatesList.Items.Add(updateInfo);
-            }
+            //var updates = Home.Updates.Updater.GetInstalledUpdatesInfoList();
+            //foreach (var updateInfo in updates)
+            //{
+            //    UpdatesList.Items.Add(updateInfo);
+            //}
 
             SilentUpdateCheckBox.IsChecked = App.Settings.SilentUpdate;
 
@@ -220,7 +220,7 @@ namespace News.Windows
 
         private void SiteLinkMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            WinAPI.ShellExecute(IntPtr.Zero, "open", "http://htchome.org", string.Empty, string.Empty, 0);
+            WinAPI.ShellExecute(IntPtr.Zero, "open", SiteLink.Text, string.Empty, string.Empty, 0);
         }
 
         private void CheckUpdatesButtonClick(object sender, RoutedEventArgs e)
@@ -325,7 +325,7 @@ namespace News.Windows
 
         private void AddButtonClick(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(UrlBox.Text) && UrlBox.Text.StartsWith("http://") && !App.Settings.Feeds.Contains(UrlBox.Text))
+            if (!string.IsNullOrEmpty(UrlBox.Text) && (UrlBox.Text.StartsWith("http://") || UrlBox.Text.StartsWith("https://")) && !App.Settings.Feeds.Contains(UrlBox.Text))
             {
                 App.NewsLine.AddSource(UrlBox.Text);
                 FeedList.Items.Add(UrlBox.Text);

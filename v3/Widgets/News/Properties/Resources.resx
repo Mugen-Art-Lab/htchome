@@ -169,7 +169,7 @@
     <value>Widget style</value>
   </data>
   <data name="OptionsCopyright" xml:space="preserve">
-    <value>This software is protected by copyright law and distributed under Microsoft Public License.</value>
+    <value>This software is protected by copyright law and distributed under Apache License 2.0.</value>
   </data>
   <data name="OptionsExpiration" xml:space="preserve">
     <value>This version expires:</value>

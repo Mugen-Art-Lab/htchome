@@ -11,7 +11,7 @@ namespace News
     {
         public Settings()
         {
-            UseAero = Environment.OSVersion.Version.Major >= 6;
+            UseAero = false;
             Autostart = false;
             Language = CultureInfo.CurrentUICulture.Name;
             TopMost = false;
@@ -26,7 +26,7 @@ namespace News
             SilentUpdate = false;
             Opacity = 1;
             UpdateInterval = 60;
-            CheckForUpdates = true;
+            CheckForUpdates = false;
             Debug = false;
             OptionsWidth = 520;
             OptionsHeight = 480;

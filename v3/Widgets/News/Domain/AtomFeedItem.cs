@@ -23,9 +23,9 @@ namespace News.Domain
             Title = entry.Title.Content;
             if (entry.Source != null)
                 Channel = entry.Source.Title.Content;
-            if (entry.Summary != null)
-                Description = entry.Summary.Content;
-            //Url = entry.BaseUri.OriginalString;
+            if (entry.Content != null)
+                Description = entry.Content.Content;
+            Url = entry.Links.FirstOrDefault()?.Uri?.OriginalString;
             PublicationDate = entry.PublishedOn;
         }
     }

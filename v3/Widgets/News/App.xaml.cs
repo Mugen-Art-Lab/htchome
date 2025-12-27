@@ -80,10 +80,7 @@ namespace News
             if (App.Settings.Feeds == null)
             {
                 App.Settings.Feeds = new List<string>();
-                if (App.Settings.Language == "ru-RU")
-                    App.Settings.Feeds.Add("http://www.htchome.org/rss/ru.xml");
-                else
-                    App.Settings.Feeds.Add("http://www.htchome.org/rss/en.xml");
+                App.Settings.Feeds.Add("https://github.com/artemshuba/htchome/releases.atom");
             }
 
             if (Settings.UseSoftwareRendering)

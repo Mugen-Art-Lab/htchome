@@ -35,7 +35,7 @@ namespace News.Domain
                 //Title = feed.Channel;
                     List<FeedItem> newItems =
                         (from x in feed.Items
-                         where x.PublicationDate.CompareTo(lastFeedDate) == 1
+                         where x.PublicationDate.CompareTo(lastFeedDate) == 1 || x.PublicationDate.CompareTo(lastFeedDate) == 0
                          select x).ToList();
                     if (newItems.Count > 0)
                     {

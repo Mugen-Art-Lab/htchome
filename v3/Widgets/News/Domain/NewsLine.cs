@@ -64,8 +64,8 @@ namespace News.Domain
 
                                                 //make list with new items that was added since last feed was published
                                                 var items = (from x in Items
-                                                                       where x.PublicationDate.CompareTo(lastFeedDate) == 1
-                                                                       select x).Reverse().ToList();
+                                                                       where x.PublicationDate.CompareTo(lastFeedDate) == 1 || x.PublicationDate.CompareTo(lastFeedDate) == 0
+                                                             select x).Reverse().ToList();
                                                 if (items.Count > 0)
                                                 {
                                                     foreach (var syndicationItem in items)
