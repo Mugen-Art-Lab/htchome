@@ -45,7 +45,7 @@
         </Storyboard>
     </Window.Resources>
     <Grid Margin="0,45,0,0">
-        <Rectangle RadiusX="10" RadiusY="10" Stroke="#717171" Opacity="0.7">
+        <Rectangle RadiusX="10" RadiusY="10" Stroke="#717171" Opacity="0.99">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                     <GradientStop Color="#666666" Offset="0"/>

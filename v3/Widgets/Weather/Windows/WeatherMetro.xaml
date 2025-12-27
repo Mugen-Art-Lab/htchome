@@ -36,7 +36,7 @@
     </Window.Resources>
     <Grid Margin="10,45,10,10">
         <Image Source="/Weather;component/Resources/shadow.png" Margin="-6" Stretch="Fill"/>
-        <Rectangle RadiusX="10" RadiusY="10" Stroke="#717171" Opacity="0.7" Fill="#CC000000"/>
+        <Rectangle RadiusX="10" RadiusY="10" Stroke="#717171" Opacity="1" Fill="#EE000000"/>
         <Border ClipToBounds="True" CornerRadius="10,10,0,0" Margin="1,1,1,145">
             <Border.Background>
                 <VisualBrush>
