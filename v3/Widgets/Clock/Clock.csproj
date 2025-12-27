@@ -8,9 +8,9 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <ApplicationIcon>clock_icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>clock_icon.ico</ApplicationIcon>
     <AssemblyVersion>3.1.622.0</AssemblyVersion>
     <FileVersion>3.1.622.0</FileVersion>
     <ProductVersion>3.1.622.0</ProductVersion>

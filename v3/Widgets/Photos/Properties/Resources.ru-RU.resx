@@ -172,7 +172,7 @@
     <value>Стиль виджета</value>
   </data>
   <data name="OptionsCopyright" xml:space="preserve">
-    <value>Данная программа защищена законом об авторских правах и распространяется под лицензией Microsoft Public License.</value>
+    <value>Данная программа защищена законом об авторских правах и распространяется под лицензией Apache License 2.0</value>
   </data>
   <data name="OptionsExpiration" xml:space="preserve">
     <value>Срок действия данной версии истекает:</value>
@@ -224,9 +224,6 @@
   </data>
   <data name="OptionsLessChecks" xml:space="preserve">
     <value>Реже</value>
-  </data>
-  <data name="OptionsLicense" xml:space="preserve">
-    <value>Данное программа распространяется под лицензией Microsoft Public License.</value>
   </data>
   <data name="OptionsMore" xml:space="preserve">
     <value>Больше</value>
@@ -326,5 +323,8 @@
   </data>
   <data name="JumpListFriendStreamWidget" xml:space="preserve">
     <value>FriendStream</value>
+  </data>
+  <data name="OptionsLicense" xml:space="preserve">
+    <value>Данное программа распространяется под лицензией Microsoft Public License.</value>
   </data>
 </root>

@@ -26,7 +26,7 @@ namespace Photos
             UpdateInterval = 60;
             SwitchAutomatically = true;
             SwitchInterval = 5;
-            CheckForUpdates = true;
+            CheckForUpdates = false;
             Debug = false;
             MaxSize = 500;
             Angle = 0;

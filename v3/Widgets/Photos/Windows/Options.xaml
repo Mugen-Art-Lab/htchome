@@ -86,26 +86,27 @@
                         <Separator Margin="0,0,0,10"/>
                         <CheckBox Name="AutostartCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsAutostart}" Click="CheckBoxClick"/>
 
-                        <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsUpdates}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
-                        <Separator Margin="0,0,0,10"/>
-                        <TextBlock Text="{x:Static Properties:Resources.OptionsUpdatesInfo}" Foreground="Gray" TextWrapping="Wrap"/>
-                        <CheckBox Name="UpdatesCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckForUpdates}" Click="CheckBoxClick"/>
-                        <CheckBox Name="SilentUpdateCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsSilentUpdate}" Click="CheckBoxClick"/>
+                        <StackPanel Orientation="Vertical" Visibility="Collapsed">
+                            <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsUpdates}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
+                            <Separator Margin="0,0,0,10"/>
+                            <TextBlock Text="{x:Static Properties:Resources.OptionsUpdatesInfo}" Foreground="Gray" TextWrapping="Wrap"/>
+                            <CheckBox Name="UpdatesCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckForUpdates}" Click="CheckBoxClick"/>
+                            <CheckBox Name="SilentUpdateCheckBox" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsSilentUpdate}" Click="CheckBoxClick"/>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-                            <TextBlock Text="{x:Static Properties:Resources.OptionsUpdateInterval}"/>
-                            <TextBlock Name="UpdateFreqValueTextBlock" Text="100%" Margin="5,0,3,0" FontWeight="DemiBold"/>
-                        </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                <TextBlock Text="{x:Static Properties:Resources.OptionsUpdateInterval}"/>
+                                <TextBlock Name="UpdateFreqValueTextBlock" Text="100%" Margin="5,0,3,0" FontWeight="DemiBold"/>
+                            </StackPanel>
 
-                        <DockPanel>
-                            <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsLessChecks}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
-                            <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsMoreChecks}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
-                            <Slider Name="UpdateFreqSlider" IsEnabled="{Binding ElementName=UpdatesCheckBox, Path=IsChecked}" Margin="0,3,0,0" Value="100" TickPlacement="Both" Minimum="30" Maximum="300" TickFrequency="5" SmallChange="10" LargeChange="10"
+                            <DockPanel>
+                                <TextBlock DockPanel.Dock="Left" Text="{x:Static Properties:Resources.OptionsLessChecks}" Margin="0,0,7,0" VerticalAlignment="Center" Foreground="Gray"/>
+                                <TextBlock DockPanel.Dock="Right" Text="{x:Static Properties:Resources.OptionsMoreChecks}" Margin="7,0,0,0" VerticalAlignment="Center" Foreground="Gray"/>
+                                <Slider Name="UpdateFreqSlider" IsEnabled="{Binding ElementName=UpdatesCheckBox, Path=IsChecked}" Margin="0,3,0,0" Value="100" TickPlacement="Both" Minimum="30" Maximum="300" TickFrequency="5" SmallChange="10" LargeChange="10"
                                         IsSnapToTickEnabled="True" ValueChanged="UpdateFreqSliderValueChanged" IsDirectionReversed="True"/>
-                        </DockPanel>
+                            </DockPanel>
 
-                        <Button Name="CheckUpdatesButton" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckNow}" Click="CheckUpdatesButtonClick" HorizontalAlignment="Left" Padding="15,0,15,0"/>
-
+                            <Button Name="CheckUpdatesButton" Margin="0,3,0,0" Content="{x:Static Properties:Resources.OptionsCheckNow}" Click="CheckUpdatesButtonClick" HorizontalAlignment="Left" Padding="15,0,15,0"/>
+                        </StackPanel>
 
                         <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsLanguage}" Margin="0,15,0,0" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
                         <Separator Margin="0,0,0,10"/>
@@ -160,7 +161,7 @@
                                     <Run Text="{x:Static Properties:Resources.OptionsVersion}"/> 
                                     <Run Name="WidgetBuildTag" Text="3.0.0.0"/>
                                 </TextBlock>
-                                <TextBlock Text="Copyright © Stealth 2011"/>
+                                <TextBlock Text="Copyright © Stealth 2011 – 2025"/>
                                 <TextBlock Text="{x:Static Properties:Resources.OptionsCopyright}" TextWrapping="Wrap"/>
                             </StackPanel>
                         </Grid>
@@ -174,10 +175,10 @@
                                     <Run Text="{x:Static Properties:Resources.OptionsVersion}"/> 
                                     <Run Name="HomeBuildTag" Text="3.0.0.0"/>
                                 </TextBlock>
-                                <TextBlock Text="Copyright © Stealth 2011"/>
+                                <TextBlock Text="Copyright © Stealth 2011 – 2025"/>
                                 <TextBlock Text="{x:Static Properties:Resources.OptionsCopyright}" TextWrapping="Wrap"/>
                                 <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="{x:Static Properties:Resources.OptionsLegalInfo}"/>
-                                <TextBlock Name="SiteLink" TextWrapping="Wrap" Text="http://htchome.org" HorizontalAlignment="Right" MouseLeftButtonUp="SiteLinkMouseLeftButtonUp">
+                                <TextBlock Name="SiteLink" TextWrapping="Wrap" Text="https://github.com/artemshuba/htchome" HorizontalAlignment="Right" MouseLeftButtonUp="SiteLinkMouseLeftButtonUp">
                                     <TextBlock.Style>
                                         <Style TargetType="{x:Type TextBlock}">
                                            <Setter Property="Cursor" Value="Hand"/>
