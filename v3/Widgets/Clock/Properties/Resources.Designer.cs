@@ -349,7 +349,7 @@ namespace Clock.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This software is protected by copyright law and distributed under Microsoft Public License..
+        ///   Looks up a localized string similar to This software is protected by copyright law and distributed under Apache License 2.0..
         /// </summary>
         public static string OptionsCopyright {
             get {

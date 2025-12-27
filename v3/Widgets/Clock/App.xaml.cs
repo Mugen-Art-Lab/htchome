@@ -307,7 +307,7 @@ namespace Clock
             trayIcon = new NotifyIcon
             {
                 Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location),
-                Text = "HTC Home Apis"
+                Text = "HTC Home"
             };
             trayIcon.MouseClick += TrayIconMouseClick;
             trayIcon.Visible = true;

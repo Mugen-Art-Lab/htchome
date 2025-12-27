@@ -211,7 +211,7 @@
     <value>Стиль виджета</value>
   </data>
   <data name="OptionsCopyright" xml:space="preserve">
-    <value>Данная программа защищена законом об авторских правах и распространяется под лицензией Microsoft Public License.</value>
+    <value>Данная программа защищена законом об авторских правах и распространяется под лицензией Apache License 2.0.</value>
   </data>
   <data name="OptionsDateFormat" xml:space="preserve">
     <value>Формат отображения даты:</value>
@@ -287,9 +287,6 @@
   </data>
   <data name="OptionsLessUpdates" xml:space="preserve">
     <value>Реже</value>
-  </data>
-  <data name="OptionsLicense" xml:space="preserve">
-    <value>Данное программа распространяется под лицензией Microsoft Public License.</value>
   </data>
   <data name="OptionsLocation" xml:space="preserve">
     <value>Местоположение</value>
@@ -467,5 +464,8 @@
   </data>
   <data name="WindSpeed" xml:space="preserve">
     <value>Скорость ветра:</value>
+  </data>
+  <data name="OptionsLicense" xml:space="preserve">
+    <value>Данное программа распространяется под лицензией Apache License 2.0.</value>
   </data>
 </root>

@@ -69,5 +69,4 @@
   <ItemGroup>
     <Reference Include="PresentationFramework.Aero" />
   </ItemGroup>
-  <PropertyGroup />
 </Project>
