@@ -24,6 +24,20 @@
   <ItemGroup>
     <Resource Include="Fonts\DroidSans.ttf" />
     <Resource Include="Fonts\DroidSansMono.ttf" />
+    <Resource Include="Resources\Sense4FlipClock\am.png" />
+    <Resource Include="Resources\Sense4FlipClock\Background\weather_bg.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\0.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\1.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\2.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\3.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\4.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\5.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\6.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\7.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\8.png" />
+    <Resource Include="Resources\Sense4FlipClock\Digits\9.png" />
+    <Resource Include="Resources\Sense4FlipClock\pm.png" />
+    <Resource Include="Resources\sense4flipclock_preview.png" />
     <None Update="NLog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -133,10 +147,20 @@
     <Resource Include="Resources\flipclocknoweather_preview.png" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Remove="Controls\Sense4FlipTab.xaml.cs" />
-    <Compile Remove="Windows\Sense4FlipClock.xaml.cs" />
-    <Page Remove="Controls\Sense4FlipTab.xaml" />
-    <Page Remove="Windows\Sense4FlipClock.xaml" />
+    <None Remove="Resources\Sense4FlipClock\am.png" />
+    <None Remove="Resources\Sense4FlipClock\Background\weather_bg.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\0.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\1.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\2.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\3.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\4.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\5.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\6.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\7.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\8.png" />
+    <None Remove="Resources\Sense4FlipClock\Digits\9.png" />
+    <None Remove="Resources\Sense4FlipClock\pm.png" />
+    <None Remove="Resources\sense4flipclock_preview.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />

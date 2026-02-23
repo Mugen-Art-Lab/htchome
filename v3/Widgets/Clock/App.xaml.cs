@@ -155,6 +155,11 @@ namespace Clock
                 case Styles.FlipClockNoWeather:
                     StartupUri = new Uri("/Windows/FlipClockNoWeather.xaml", UriKind.Relative);
                     break;
+                case Styles.Sense4FlipClock:
+                    StartupUri = new Uri("/Windows/Sense4FlipClock.xaml", UriKind.Relative);
+                    WpManager = new WeatherProviderManager();
+                    WpManager.FindProviders();
+                    break;
             }
 
             if (e.Args.Length > 0)

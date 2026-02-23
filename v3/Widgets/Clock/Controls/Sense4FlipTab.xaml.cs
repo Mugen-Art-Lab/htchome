@@ -17,11 +17,11 @@ using Clock.Domain;
 namespace Clock.Controls
 {
     /// <summary>
-    /// Interaction logic for FlipTab.xaml
+    /// Interaction logic for Sense4FlipTab.xaml
     /// </summary>
-    public partial class FlipTab : UserControl
+    public partial class Sense4FlipTab : UserControl
     {
-        const string Path = "/Clock;component/Resources/FlipClock/Digits/{0}.png";
+        const string Path = "/Clock;component/Resources/Sense4FlipClock/Digits/{0}.png";
 
         public event EventHandler FlipCompleted;
 
@@ -91,7 +91,7 @@ namespace Clock.Controls
             }
         }
 
-        public FlipTab()
+        public Sense4FlipTab()
         {
             InitializeComponent();
 

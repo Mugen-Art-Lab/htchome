@@ -187,6 +187,9 @@
                         <TextBlock FontSize="24" FontWeight="Light" Text="{x:Static Properties:Resources.OptionsChooseStyle}" Foreground="{StaticResource OptionsBigHeaderColor}" TextOptions.TextFormattingMode="Ideal"/>
                         <Separator Margin="0,0,0,10"/>
                         <WrapPanel Orientation="Horizontal">
+                            <RadioButton Name="Sense4FlipClockStyle" Height="135" Style="{StaticResource StyleItemRadioButton}" Padding="0,0,0,5" Click="CheckBoxClick">
+                                <Image Source="/Resources/sense4flipclock_preview.png" RenderOptions.BitmapScalingMode="HighQuality"/>
+                            </RadioButton>
                             <RadioButton Name="FlipClockStyle" Height="135" Style="{StaticResource StyleItemRadioButton}" Padding="0,0,0,5" Click="CheckBoxClick">
                                 <Image Source="/Resources/flipclock_preview.png" RenderOptions.BitmapScalingMode="HighQuality"/>
                             </RadioButton>

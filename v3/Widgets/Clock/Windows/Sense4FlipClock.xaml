@@ -133,13 +133,13 @@
                     <ColumnDefinition Width="1"/>
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
-                <Controls:ForecastItem Cursor="Hand" Order="1" IconHeight="30" IconMargin="3,0,3,3"/>
+                <Controls:ForecastItem Cursor="Hand" Order="1" Margin="3,0,3,3"/>
                 <Rectangle Grid.Column="1" Fill="#5e5e5e" Width="1" Opacity="0.8" Margin="0,3,0,4"/>
-                <Controls:ForecastItem Grid.Column="2" Cursor="Hand" Order="3" IconHeight="30" IconMargin="3,0,3,3"/>
+                <Controls:ForecastItem Grid.Column="2" Cursor="Hand" Order="3" Margin="3,0,3,3"/>
                 <Rectangle Grid.Column="3" Fill="#878787" Width="1" Opacity="0.6" Margin="0,3,0,4"/>
-                <Controls:ForecastItem Grid.Column="4" Cursor="Hand" Order="0" IconHeight="30" IconMargin="3,0,3,3"/>
+                <Controls:ForecastItem Grid.Column="4" Cursor="Hand" Order="0" Margin="3,0,3,3"/>
                 <Rectangle Grid.Column="5" Fill="#5e5e5e" Width="1" Opacity="0.8" Margin="0,3,0,4"/>
-                <Controls:ForecastItem Grid.Column="6" Cursor="Hand" Order="2" IconHeight="30" IconMargin="3,0,3,3"/>
+                <Controls:ForecastItem Grid.Column="6" Cursor="Hand" Order="2" Margin="3,0,3,3"/>
             </Grid>
         </Grid>
         <Canvas Name="WeatherFxHost" Margin="-100,0,-100,0" IsHitTestVisible="False"/>

@@ -30,7 +30,7 @@
     </Window.Resources>
     <Window.ContextMenu>
         <ContextMenu Opened="ContextMenuOpened">
-            <MenuItem Name="DemoItem" Header="Demo" Visibility="Collapsed">
+            <MenuItem Name="DemoItem" Header="Demo" Visibility="Visible">
                 <MenuItem Name="CloudsItem" Header="Clouds" Click="CloudsItemClick"/>
                 <MenuItem Name="LightningItem" Header="Lightning" Click="LightningItemClick"/>
                 <MenuItem Name="SnowItem" Header="Snow" Click="SnowItemClick"/>

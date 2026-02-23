@@ -13,6 +13,7 @@ namespace Clock
         DualClock = 3,
         ModernFlipClock = 4,
         WideFlipClock = 5,
-        FlipClockNoWeather = 6
+        FlipClockNoWeather = 6,
+        Sense4FlipClock = 7
     }
 }

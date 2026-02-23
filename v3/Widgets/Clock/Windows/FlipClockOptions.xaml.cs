@@ -178,6 +178,9 @@ namespace Clock.Windows
                     WeatherTab.Visibility = System.Windows.Visibility.Collapsed;
                     NoWeatherFlipClockStyle.IsChecked = true;
                     break;
+                case Styles.Sense4FlipClock:
+                    Sense4FlipClockStyle.IsChecked = true;
+                    break;
             }
 
             SizeSlider.Value = Math.Round(App.Settings.Scale * 100);
@@ -303,6 +306,14 @@ namespace Clock.Windows
             if ((bool)WideFlipClockStyle.IsChecked)
             {
                 App.Settings.Style = Styles.WideFlipClock;
+                if (!string.IsNullOrEmpty(App.Settings.LocationCode))
+                    App.Settings.ShowForecast = true;
+                else
+                    App.Settings.ShowForecast = false;
+            }
+            if ((bool)Sense4FlipClockStyle.IsChecked)
+            {
+                App.Settings.Style = Styles.Sense4FlipClock;
                 if (!string.IsNullOrEmpty(App.Settings.LocationCode))
                     App.Settings.ShowForecast = true;
                 else
