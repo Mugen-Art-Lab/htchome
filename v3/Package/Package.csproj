@@ -26,6 +26,7 @@
     <ProjectReference Include="..\Widgets\Photos\Photos.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Extensions\Weather\MSN\MSN.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Extensions\Weather\OpenMeteo\OpenMeteo.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Extensions\Weather\Wttr\Wttr.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Target Name="PackageReleaseZip" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
@@ -52,7 +53,7 @@
     </ItemGroup>
 
     <Error Condition="!Exists('$(BinRoot)\Clock.exe') Or !Exists('$(BinRoot)\Weather.exe') Or !Exists('$(BinRoot)\News.exe') Or !Exists('$(BinRoot)\Photos.exe')" Text="v3 build output is incomplete, refusing to package" />
-    <Error Condition="!Exists('$(BinRoot)\Extras\Weather\MSN.dll') Or !Exists('$(BinRoot)\Extras\Weather\OpenMeteo.dll')" Text="Weather providers are missing from build output, refusing to package" />
+    <Error Condition="!Exists('$(BinRoot)\Extras\Weather\MSN.dll') Or !Exists('$(BinRoot)\Extras\Weather\OpenMeteo.dll') Or !Exists('$(BinRoot)\Extras\Weather\wttr.in.dll')" Text="Weather providers are missing from build output, refusing to package" />
 
     <RemoveDir Directories="$(StageDir)" />
     <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(StageDir)\%(RecursiveDir)%(Filename)%(Extension)')" />

@@ -1,0 +1,10 @@
+<Extras>
+  <Title>wttr.in weather provider</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.0.0</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\wttr.in.dll</File>
+    <File>Extras\Weather\wttr.ext.xml</File>
+  </Files>
+</Extras>
