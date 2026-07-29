@@ -15,11 +15,11 @@ namespace MSN
 {
     public class Weather : IWeatherProvider
     {
-        private const string RequestForCelsius = "http://service.weather.microsoft.com/{0}/weather/current/{1}?units=C";
-        private const string RequestForFahrenheit = "http://service.weather.microsoft.com/{0}/weather/current/{1}?units=F";
-        private const string RequestForLocation = "http://weather.service.msn.com/find.aspx?weasearchstr={0}&culture={1}&src=outlook";
-        private const string ForecastUrlForCelsius = "http://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=C&nl=true";
-        private const string ForecastUrlForFahrenheit = "http://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=F&nl=true";
+        private const string RequestForCelsius = "https://service.weather.microsoft.com/{0}/weather/current/{1}?units=C";
+        private const string RequestForFahrenheit = "https://service.weather.microsoft.com/{0}/weather/current/{1}?units=F";
+        private const string RequestForLocation = "https://weather.service.msn.com/find.aspx?weasearchstr={0}&culture={1}&src=outlook";
+        private const string ForecastUrlForCelsius = "https://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=C&nl=true";
+        private const string ForecastUrlForFahrenheit = "https://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=F&nl=true";
 
         public Coordinates GetCoordinates(string locationCode)
         {

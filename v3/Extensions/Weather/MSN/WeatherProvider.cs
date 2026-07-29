@@ -18,11 +18,11 @@ namespace MSN
 {
     public class WeatherProvider : IWeatherProvider
     {
-        private const string RequestForLocation = "http://weather.service.msn.com/find.aspx?weasearchstr={0}&culture={1}&src=outlook";
-        private const string RequestForCelsius = "http://service.weather.microsoft.com/{0}/weather/current/{1}?units=C";//"http://weather.service.msn.com/data.aspx?culture={0}&wealocations={1}&weadegreetype=C&src=outlook";
-        private const string RequestForFahrenheit = "http://service.weather.microsoft.com/{0}/weather/current/{1}?units=F";//"http://weather.service.msn.com/data.aspx?culture={0}&wealocations={1}&weadegreetype=F&src=outlook";
-        private const string ForecastUrlForCelsius = "http://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=C&nl=true";//"http://weather.msn.com/local.aspx?wealocations={0}&weadegreetype=C&src=outlook";
-        private const string ForecastUrlForFahrenheit = "http://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=F&nl=true";//"http://weather.service.msn.com/local.aspx?wealocations={0}&weadegreetype=F&src=outlook";
+        private const string RequestForLocation = "https://weather.service.msn.com/find.aspx?weasearchstr={0}&culture={1}&src=outlook";
+        private const string RequestForCelsius = "https://service.weather.microsoft.com/{0}/weather/current/{1}?units=C";//"http://weather.service.msn.com/data.aspx?culture={0}&wealocations={1}&weadegreetype=C&src=outlook";
+        private const string RequestForFahrenheit = "https://service.weather.microsoft.com/{0}/weather/current/{1}?units=F";//"http://weather.service.msn.com/data.aspx?culture={0}&wealocations={1}&weadegreetype=F&src=outlook";
+        private const string ForecastUrlForCelsius = "https://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=C&nl=true";//"http://weather.msn.com/local.aspx?wealocations={0}&weadegreetype=C&src=outlook";
+        private const string ForecastUrlForFahrenheit = "https://service.weather.microsoft.com/{0}/weather/forecast/daily/{1}?units=F&nl=true";//"http://weather.service.msn.com/local.aspx?wealocations={0}&weadegreetype=F&src=outlook";
 
         public List<LocationData> GetLocations(string query, CultureInfo culture)
         {

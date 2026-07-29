@@ -7,7 +7,7 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <Version>2.2.14</Version>
+    <Version>2.2.15</Version>
     <Authors>Stealth</Authors>
     <Copyright>© Stealth 2025</Copyright>
     <Product>MSN weather provider</Product>
