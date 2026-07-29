@@ -1,0 +1,10 @@
+<Extras>
+  <Title>Open-Meteo weather provider</Title>
+  <Developer>Stealth</Developer>
+  <Version>1.0.0</Version>
+  <Removable>True</Removable>
+  <Files>
+    <File>Extras\Weather\OpenMeteo.dll</File>
+    <File>Extras\Weather\openmeteo.ext.xml</File>
+  </Files>
+</Extras>
