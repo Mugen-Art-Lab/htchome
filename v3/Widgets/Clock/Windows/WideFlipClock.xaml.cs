@@ -387,7 +387,7 @@ namespace Clock.Windows
                                                       }, null);
             ForecastPanel.Dispatcher.Invoke((Action)delegate
                                                         {
-                                                            if (currentWeather.ForecastList.Count >= 5)
+                                                            if (currentWeather.ForecastList.Count > 0)
                                                             {
                                                                 var i = 0;
                                                                 foreach (var item in ForecastPanel.Children)
@@ -395,6 +395,18 @@ namespace Clock.Windows
                                                                     if (item.GetType() == typeof(WideForecastItem))
                                                                     {
                                                                         var forecastItem = (WideForecastItem)item;
+                                                                        //providers may return a short forecast (e.g. wttr.in has 3 days): show a placeholder
+                                                                        if (i >= currentWeather.ForecastList.Count)
+                                                                        {
+                                                                            forecastItem.FlipWeather(0); //0 = no icon
+                                                                            forecastItem.High.Text = "-";
+                                                                            forecastItem.Low.Text = "-";
+                                                                            forecastItem.DayName.Text = DateTime.Now.AddDays(i).ToString("dddd").ToLower();
+                                                                            forecastItem.ToolTip = null;
+                                                                            forecastItem.Url = null;
+                                                                            i++;
+                                                                            continue;
+                                                                        }
                                                                         //forecastItem.Temperature.Text = currentWeather.ForecastList[i].HighTemperature + "°/" +
                                                                         //    currentWeather.ForecastList[i].LowTemperature + "°";
                                                                         forecastItem.High.Text = currentWeather.ForecastList[i].HighTemperature + "°";

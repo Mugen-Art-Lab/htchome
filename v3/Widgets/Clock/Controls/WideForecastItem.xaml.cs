@@ -66,6 +66,13 @@ namespace Clock.Controls
         private int temp;
         public void FlipWeather(int i)
         {
+            //skycode 0 means "no icon" (forecast placeholder or a provider without data)
+            if (i == 0)
+            {
+                temp = 0;
+                Icon.Source = null;
+                return;
+            }
             if (i != temp)
             {
                 temp = i;
@@ -77,7 +84,7 @@ namespace Clock.Controls
         private void DoubleAnimationCompleted(object sender, EventArgs e)
         {
 
-            Icon.Source = new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png", temp), UriKind.Relative));
+            Icon.Source = temp == 0 ? null : new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png", temp), UriKind.Relative));
             var s = (Storyboard)Icon.Resources["FlipAnim2"];
             s.Begin(this);
         }

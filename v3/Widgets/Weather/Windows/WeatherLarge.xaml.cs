@@ -279,7 +279,7 @@ namespace Weather.Windows
 
             ForecastPanel.Dispatcher.Invoke((Action)delegate
             {
-                if (currentWeather.ForecastList.Count >= 5)
+                if (currentWeather.ForecastList.Count > 1)
                 {
                     var i = 1;
                     foreach (var item in /*forecastWindow.*/ForecastPanel.Children)
@@ -287,10 +287,21 @@ namespace Weather.Windows
                         if (item.GetType() == typeof(ForecastItem))
                         {
                             var forecastItem = (ForecastItem)item;
+                            //providers may return a short forecast (e.g. wttr.in has 3 days): show a placeholder
+                            if (i >= currentWeather.ForecastList.Count)
+                            {
+                                forecastItem.Icon.Source = null; //no icon
+                                forecastItem.Temperature.Text = "-/-";
+                                forecastItem.DayName.Text = DateTime.Now.AddDays(i).ToString("ddd").ToLower();
+                                forecastItem.ToolTip = null;
+                                forecastItem.Url = null;
+                                i++;
+                                continue;
+                            }
                             forecastItem.Temperature.Text = currentWeather.ForecastList[i].HighTemperature + "°/" +
                                 currentWeather.ForecastList[i].LowTemperature + "°";
                             forecastItem.DayName.Text = DateTime.Now.AddDays(i).ToString("ddd").ToLower();
-                            forecastItem.Icon.Source = new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png",
+                            forecastItem.Icon.Source = currentWeather.ForecastList[i].SkyCode == 0 ? null : new BitmapImage(new Uri(string.Format("/UIFramework.Weather;Component/Images/weather_{0}.png",
                                             currentWeather.ForecastList[i].SkyCode), UriKind.Relative));
                             forecastItem.ToolTip = currentWeather.ForecastList[i].Text + "\n" + Properties.Resources.ForecastTooltip;
                             forecastItem.Url = currentWeather.ForecastList[i].Url;
