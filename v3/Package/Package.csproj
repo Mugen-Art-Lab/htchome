@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Release packaging: building the solution in Release produces dist\htchome-<major.minor>.zip
+    with the same clean flat layout as the published releases (no pdb/doc-xml/junk).
+    The version comes from the built Home.Base.dll (bump Home.Base\Properties\AssemblyInfo.cs
+    for a release); override the zip name if needed: dotnet build -c Release -p:ReleaseVersion=3.2-beta
+  -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <OutputType>Library</OutputType>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <!-- keep this helper assembly out of the shared v3\bin output -->
+    <OutputPath>obj\out\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <!-- this project intentionally has no sources -->
+    <NoWarn>$(NoWarn);CS2008</NoWarn>
+  </PropertyGroup>
+
+  <!-- build after everything that lands in v3\bin\Release (build order only, nothing is referenced) -->
+  <ItemGroup>
+    <ProjectReference Include="..\Widgets\Clock\Clock.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Widgets\Weather\Weather.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Widgets\News\News.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Widgets\Photos\Photos.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Extensions\Weather\MSN\MSN.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Extensions\Weather\OpenMeteo\OpenMeteo.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Target Name="PackageReleaseZip" AfterTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
+    <PropertyGroup>
+      <BinRoot>$(MSBuildThisFileDirectory)..\bin\Release</BinRoot>
+      <StageDir>$(MSBuildThisFileDirectory)obj\stage</StageDir>
+      <DistDir>$(MSBuildThisFileDirectory)..\..\dist</DistDir>
+    </PropertyGroup>
+
+    <!-- zip name follows the product version (Home.Base assembly), e.g. 3.1.622.0 -> htchome-3.1.zip -->
+    <GetAssemblyIdentity AssemblyFiles="$(BinRoot)\Home.Base.dll">
+      <Output TaskParameter="Assemblies" ItemName="HomeBaseAssembly" />
+    </GetAssemblyIdentity>
+    <PropertyGroup>
+      <HomeBaseVersion>%(HomeBaseAssembly.Version)</HomeBaseVersion>
+      <ReleaseVersion Condition=" '$(ReleaseVersion)' == '' ">$([System.Version]::Parse($(HomeBaseVersion)).Major).$([System.Version]::Parse($(HomeBaseVersion)).Minor)</ReleaseVersion>
+      <ZipPath>$(DistDir)\htchome-$(ReleaseVersion).zip</ZipPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <!-- everything from bin\Release except junk; *.ext.xml manifests are added back below -->
+      <ReleaseFiles Include="$(BinRoot)\**\*" Exclude="$(BinRoot)\**\*.pdb;$(BinRoot)\**\*.xml;$(BinRoot)\**\*.deps.json;$(BinRoot)\**\*.runtimeconfig*.json;$(BinRoot)\**\*.bak;$(BinRoot)\**\.DS_Store;$(BinRoot)\**\Thumbs.db" />
+      <ReleaseFiles Include="$(BinRoot)\**\*.ext.xml" />
+    </ItemGroup>
+
+    <Error Condition="!Exists('$(BinRoot)\Clock.exe') Or !Exists('$(BinRoot)\Weather.exe') Or !Exists('$(BinRoot)\News.exe') Or !Exists('$(BinRoot)\Photos.exe')" Text="v3 build output is incomplete, refusing to package" />
+    <Error Condition="!Exists('$(BinRoot)\Extras\Weather\MSN.dll') Or !Exists('$(BinRoot)\Extras\Weather\OpenMeteo.dll')" Text="Weather providers are missing from build output, refusing to package" />
+
+    <RemoveDir Directories="$(StageDir)" />
+    <Copy SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(StageDir)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <MakeDir Directories="$(DistDir)" />
+    <Delete Files="$(ZipPath)" />
+    <ZipDirectory SourceDirectory="$(StageDir)" DestinationFile="$(ZipPath)" Overwrite="true" />
+    <Message Importance="high" Text="Release package: $(ZipPath)" />
+  </Target>
+</Project>
