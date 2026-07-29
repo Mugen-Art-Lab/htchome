@@ -44,6 +44,8 @@ namespace MSN
                 else
                     l.City = locString;
                 l.Code = el.Attribute("weatherlocationcode").Value;
+                if (!string.IsNullOrEmpty(l.City))
+                    l.Code += "|" + l.City; //embed the picked name so GetWeatherReport can restore the label (issue #4)
                 if (resultTempsScale == TemperatureScale.Null)
                 {
                     var scale = el.Attribute("degreetype").Value;
@@ -89,6 +91,8 @@ namespace MSN
                 else
                     l.City = locString;
                 l.Code = el.Attribute("weatherlocationcode").Value;
+                if (!string.IsNullOrEmpty(l.City))
+                    l.Code += "|" + l.City; //embed the picked name so GetWeatherReport can restore the label (issue #4)
                 //if (resultTempsScale == TemperatureScale.Null)
                 //{
                 var scale = el.Attribute("degreetype").Value;
@@ -118,7 +122,18 @@ namespace MSN
         {
             try
             {
-                var url = string.Format(tempScale == TemperatureScale.Celsius ? RequestForCelsius : RequestForFahrenheit, culture.Name, location.Code);
+                //the code may carry the user-picked city name after '|' (see GetLocations);
+                //MSN resolves wc-codes to its nearest station city (often transliterated), so prefer the picked name
+                var locationCode = location.Code;
+                string pickedCity = null;
+                var separatorIndex = locationCode == null ? -1 : locationCode.IndexOf('|');
+                if (separatorIndex >= 0)
+                {
+                    pickedCity = locationCode.Substring(separatorIndex + 1);
+                    locationCode = locationCode.Substring(0, separatorIndex);
+                }
+
+                var url = string.Format(tempScale == TemperatureScale.Celsius ? RequestForCelsius : RequestForFahrenheit, culture.Name, locationCode);
 
                 var json = GeneralHelper.GetWebPageContent(url);
                 if (string.IsNullOrEmpty(json))
@@ -140,6 +155,9 @@ namespace MSN
                 weatherReport.Curent.Text = current.Cap;
                 weatherReport.Curent.SkyCode = current.Icon;
 
+                if (!string.IsNullOrEmpty(pickedCity))
+                    weatherReport.Location.City = pickedCity;
+
                 if (o.SelectToken("responses[0].source") != null)
                 {
                     var source = JsonConvert.DeserializeObject<Source>(o.SelectToken("responses[0].source").ToString());
@@ -160,7 +178,7 @@ namespace MSN
                 if (weatherReport.Location == null)
                     weatherReport.Location = location;
 
-                url = string.Format(tempScale == TemperatureScale.Celsius ? ForecastUrlForCelsius : ForecastUrlForFahrenheit, culture.Name, location.Code);
+                url = string.Format(tempScale == TemperatureScale.Celsius ? ForecastUrlForCelsius : ForecastUrlForFahrenheit, culture.Name, locationCode);
 
                 json = GeneralHelper.GetWebPageContent(url);
                 if (string.IsNullOrEmpty(json))

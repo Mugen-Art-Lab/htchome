@@ -1,7 +1,7 @@
 <Extras>
   <Title>MSN Weather provider</Title>
   <Developer>Stealth</Developer>
-  <Version>2.2.15</Version>
+  <Version>2.2.16</Version>
   <Removable>False</Removable>
   <Files>
     <File>Extras\Weather\MSN.dll</File>
