@@ -37,7 +37,8 @@ jobs:
             'v2/HTCHome.Core/HTCHome.Core.csproj',
             'v2/HTC Home/HTC Home.csproj',
             'v2/Widgets/WeatherClockWidget/WeatherClockWidget.csproj',
-            'v2/Extensions/Weather/MSN/MSN.csproj'
+            'v2/Extensions/Weather/MSN/MSN.csproj',
+            'v2/HTCHome.Manager/HTCHome.Manager.csproj'
           )
 
           foreach ($project in $projects) {

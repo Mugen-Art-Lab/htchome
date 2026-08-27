@@ -1,0 +1,38 @@
+<Window x:Class="HTCHome.Manager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="HTC Home Mugen Manager" Height="430" Width="760" MinHeight="360" MinWidth="680"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel Margin="14">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <TextBlock Text="HTC Home Mugen Manager" FontSize="24" FontWeight="SemiBold" />
+            <TextBlock Text="Несколько независимых экземпляров HTC Home из одной папки" Margin="0,4,0,0" Opacity="0.7" />
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button x:Name="AddButton" Content="+ Добавить" Width="100" Margin="0,0,8,0" Click="AddButton_Click" />
+            <Button x:Name="RenameButton" Content="Переименовать" Width="110" Margin="0,0,8,0" Click="RenameButton_Click" />
+            <Button x:Name="StartButton" Content="Запустить" Width="95" Margin="0,0,8,0" Click="StartButton_Click" />
+            <Button x:Name="StopButton" Content="Остановить" Width="95" Margin="0,0,8,0" Click="StopButton_Click" />
+            <Button x:Name="DeleteButton" Content="Удалить" Width="85" Click="DeleteButton_Click" />
+        </StackPanel>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Border Grid.ColumnSpan="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" />
+            <ListView x:Name="ProfilesList" Grid.ColumnSpan="3" Margin="1" SelectionChanged="ProfilesList_SelectionChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Имя" Width="300" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn Header="Статус" Width="150" DisplayMemberBinding="{Binding StatusText}" />
+                        <GridViewColumn Header="ID" Width="220" DisplayMemberBinding="{Binding ShortId}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+    </DockPanel>
+</Window>
