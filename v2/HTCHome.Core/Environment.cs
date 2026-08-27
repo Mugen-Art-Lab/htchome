@@ -14,5 +14,11 @@ namespace HTCHome.Core
         public static string Locale;
         public static string ExtensionsPath;
         public static string LogsPath;
+
+        // Mugen fork: non-empty when this host was launched as a named instance.
+        // Widgets can use this value to isolate per-user settings for multiple
+        // instances running from the same installation directory.
+        public static string ProfileId;
+        public static string ProfileDirectory;
     }
 }
