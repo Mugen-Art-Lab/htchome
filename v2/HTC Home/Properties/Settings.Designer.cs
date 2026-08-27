@@ -16,6 +16,50 @@ namespace HTCHome.Properties {
     internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
         
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
+
+        // Mugen fork: ApplicationSettingsBase supports SettingsKey specifically
+        // for multiple independent instances of the same settings class. We use
+        // --profile <id> to give every HTC Home host its own user settings while
+        // keeping the legacy no-argument behavior fully compatible.
+        public Settings() {
+            string profileId = GetProfileId();
+            global::HTCHome.Core.Environment.ProfileId = profileId;
+            if (!string.IsNullOrEmpty(profileId)) {
+                this.SettingsKey = profileId;
+            }
+        }
+
+        private static string GetProfileId() {
+            string[] args = global::System.Environment.GetCommandLineArgs();
+            for (int i = 1; i < args.Length; i++) {
+                string value = null;
+                if (string.Equals(args[i], "--profile", global::System.StringComparison.OrdinalIgnoreCase) && i + 1 < args.Length) {
+                    value = args[++i];
+                }
+                else if (args[i].StartsWith("--profile=", global::System.StringComparison.OrdinalIgnoreCase)) {
+                    value = args[i].Substring("--profile=".Length);
+                }
+
+                if (!string.IsNullOrWhiteSpace(value)) {
+                    return SanitizeProfileId(value);
+                }
+            }
+            return string.Empty;
+        }
+
+        private static string SanitizeProfileId(string value) {
+            var result = new global::System.Text.StringBuilder();
+            foreach (char c in value.Trim()) {
+                if (char.IsLetterOrDigit(c) || c == '-' || c == '_' || c == '.') {
+                    result.Append(c);
+                }
+                else {
+                    result.Append('_');
+                }
+                if (result.Length >= 64) break;
+            }
+            return result.ToString();
+        }
         
         public static Settings Default {
             get {
