@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Xml.Serialization;
 using System.Collections.Generic;
+
 namespace WeatherClockWidget.Domain
 {
     public class WeatherReport
@@ -16,6 +17,7 @@ namespace WeatherClockWidget.Domain
 
         public static WeatherReport Read(string path)
         {
+            path = ResolveProfilePath(path);
             var result = new WeatherReport();
             if (File.Exists(path))
             {
@@ -36,11 +38,25 @@ namespace WeatherClockWidget.Domain
 
         public void Write(string path)
         {
+            path = ResolveProfilePath(path);
             using (TextWriter textWriter = new StreamWriter(path))
             {
                 var serializer = new XmlSerializer(typeof(WeatherReport));
                 serializer.Serialize(textWriter, this);
             }
+        }
+
+        private static string ResolveProfilePath(string path)
+        {
+            string profileId = HTCHome.Core.Environment.ProfileId;
+            if (string.IsNullOrEmpty(profileId) ||
+                !string.Equals(System.IO.Path.GetFileName(path), "Weather.data", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return path;
+            }
+
+            string directory = System.IO.Path.GetDirectoryName(path);
+            return System.IO.Path.Combine(directory, "Weather." + profileId + ".data");
         }
     }
 }
