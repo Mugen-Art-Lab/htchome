@@ -96,8 +96,8 @@ namespace HTCHome.Manager
             menu.Items.Add(new Forms.ToolStripSeparator());
             menu.Items.Add(trayExitItem);
 
-            Icon icon = null;
-            try { icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location); } catch { }
+            System.Drawing.Icon icon = null;
+            try { icon = System.Drawing.Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location); } catch { }
             trayIcon = new Forms.NotifyIcon
             {
                 Icon = icon ?? SystemIcons.Application,
