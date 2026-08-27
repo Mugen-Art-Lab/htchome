@@ -108,6 +108,21 @@ namespace HTCHome
             WinAPI.ShellExecute(IntPtr.Zero, "open", ContactString.Text, string.Empty, string.Empty, 0);
         }
 
+        private static string GetAutostartValueName()
+        {
+            return string.IsNullOrEmpty(Core.Environment.ProfileId)
+                ? "HTC Home"
+                : "HTC Home - " + Core.Environment.ProfileId;
+        }
+
+        private static string GetAutostartCommand()
+        {
+            string command = "\"" + Assembly.GetExecutingAssembly().Location + "\"";
+            if (!string.IsNullOrEmpty(Core.Environment.ProfileId))
+                command += " --profile \"" + Core.Environment.ProfileId + "\"";
+            return command;
+        }
+
         private void ApplySettings()
         {
 
@@ -124,7 +139,7 @@ namespace HTCHome
                 {
                     using (RegistryKey key = Registry.CurrentUser.OpenSubKey("Software", RegistryKeyPermissionCheck.ReadWriteSubTree).OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").OpenSubKey("Run", true))
                     {
-                        key.SetValue("HTC Home", "\"" + Assembly.GetExecutingAssembly().Location + "\"", RegistryValueKind.String);
+                        key.SetValue(GetAutostartValueName(), GetAutostartCommand(), RegistryValueKind.String);
                         key.Close();
                     }
                 }
@@ -139,7 +154,7 @@ namespace HTCHome
                 {
                     using (RegistryKey key = Registry.CurrentUser.OpenSubKey("Software", RegistryKeyPermissionCheck.ReadWriteSubTree).OpenSubKey("Microsoft").OpenSubKey("Windows").OpenSubKey("CurrentVersion").OpenSubKey("Run", true))
                     {
-                        key.DeleteValue("HTC Home", false);
+                        key.DeleteValue(GetAutostartValueName(), false);
                         key.Close();
                     }
                 }
