@@ -28,13 +28,20 @@ namespace HTCHome.Manager
         public static string LanguageLabel { get { return russian ? "Язык:" : "Language:"; } }
         public static string NameHeader { get { return russian ? "Имя" : "Name"; } }
         public static string StatusHeader { get { return russian ? "Статус" : "Status"; } }
+        public static string AutoStartHeader { get { return russian ? "Автозапуск" : "Autostart"; } }
         public static string Add { get { return russian ? "+ Добавить" : "+ Add"; } }
         public static string Rename { get { return russian ? "Переименовать" : "Rename"; } }
         public static string Start { get { return russian ? "Запустить" : "Start"; } }
         public static string Stop { get { return russian ? "Остановить" : "Stop"; } }
         public static string Delete { get { return russian ? "Удалить" : "Delete"; } }
+        public static string StartAll { get { return russian ? "Запустить все" : "Start all"; } }
+        public static string StopAll { get { return russian ? "Остановить все" : "Stop all"; } }
+        public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
+        public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
+        public static string Yes { get { return russian ? "Да" : "Yes"; } }
+        public static string No { get { return russian ? "Нет" : "No"; } }
         public static string NewInstancePrompt { get { return russian ? "Имя нового экземпляра:" : "New instance name:"; } }
         public static string NewInstanceDefault { get { return russian ? "Новый экземпляр" : "New instance"; } }
         public static string RenamePrompt { get { return russian ? "Новое имя экземпляра:" : "New instance name:"; } }

@@ -1,20 +1,38 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace HTCHome.Manager
 {
+    [DataContract]
     public sealed class ProfileRecord : INotifyPropertyChanged
     {
         private string name;
+        private bool autoStart;
         private bool isRunning;
 
+        [DataMember(Order = 1)]
         public string Id { get; set; }
 
+        [DataMember(Order = 2)]
         public string Name
         {
             get { return name; }
             set { name = value; OnPropertyChanged(); }
+        }
+
+        [DataMember(Order = 3)]
+        public bool AutoStart
+        {
+            get { return autoStart; }
+            set
+            {
+                if (autoStart == value) return;
+                autoStart = value;
+                OnPropertyChanged();
+                OnPropertyChanged("AutoStartText");
+            }
         }
 
         public bool IsRunning
@@ -30,13 +48,15 @@ namespace HTCHome.Manager
         }
 
         public string StatusText { get { return IsRunning ? ManagerText.Running : ManagerText.Stopped; } }
+        public string AutoStartText { get { return AutoStart ? ManagerText.Yes : ManagerText.No; } }
         public string ShortId { get { return string.IsNullOrEmpty(Id) ? string.Empty : Id.Substring(0, Math.Min(8, Id.Length)); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public void RefreshStatusText()
+        public void RefreshLocalizedText()
         {
             OnPropertyChanged("StatusText");
+            OnPropertyChanged("AutoStartText");
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
