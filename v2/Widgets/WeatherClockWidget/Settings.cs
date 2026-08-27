@@ -13,6 +13,15 @@
             // named host instance launched with --profile <id>.
             if (!string.IsNullOrEmpty(global::HTCHome.Core.Environment.ProfileId)) {
                 this.SettingsKey = global::HTCHome.Core.Environment.ProfileId;
+
+                // Mugen profile defaults: desktop widgets should stay quiet and
+                // should not create a separate taskbar button for every instance.
+                if (this.Properties["EnableSounds"] != null) {
+                    this.Properties["EnableSounds"].DefaultValue = false;
+                }
+                if (this.Properties["ShowIconOnTaskbar"] != null) {
+                    this.Properties["ShowIconOnTaskbar"].DefaultValue = false;
+                }
             }
 
             // // To add event handlers for saving and changing settings, uncomment the lines below:

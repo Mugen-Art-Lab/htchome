@@ -1,13 +1,16 @@
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
 using Microsoft.VisualBasic;
+using Forms = System.Windows.Forms;
 
 namespace HTCHome.Manager
 {
@@ -19,10 +22,17 @@ namespace HTCHome.Manager
         private readonly AutostartController autostart;
         private readonly ObservableCollection<ProfileRecord> profiles;
         private readonly DispatcherTimer refreshTimer;
+        private readonly bool launchedFromAutostart;
         private ManagerSettings settings;
+        private Forms.NotifyIcon trayIcon;
+        private Forms.ToolStripMenuItem trayOpenItem;
+        private Forms.ToolStripMenuItem trayStartAllItem;
+        private Forms.ToolStripMenuItem trayStopAllItem;
+        private Forms.ToolStripMenuItem trayExitItem;
         private bool refreshing;
         private bool languageChanging;
         private bool checkChanging;
+        private bool allowExit;
 
         public MainWindow()
         {
@@ -35,11 +45,13 @@ namespace HTCHome.Manager
             settings = store.LoadManagerSettings();
             profiles = new ObservableCollection<ProfileRecord>(store.LoadAll());
             ProfilesList.ItemsSource = profiles;
+            launchedFromAutostart = Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--autostart", StringComparison.OrdinalIgnoreCase));
 
             ManagerText.SetLanguage(string.IsNullOrWhiteSpace(settings.Language) ? ManagerText.DetectLanguage() : settings.Language);
             SelectLanguage(ManagerText.Language);
             ApplyLanguage();
             RestoreWindowPlacement();
+            InitializeTray();
 
             checkChanging = true;
             ManagerAutoStartCheckBox.IsChecked = autostart.IsEnabled();
@@ -52,14 +64,90 @@ namespace HTCHome.Manager
             Loaded += async delegate
             {
                 await RefreshStatusesAsync();
-                if (Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--autostart", StringComparison.OrdinalIgnoreCase)))
+                if (launchedFromAutostart)
+                {
                     await StartAutoProfilesAsync();
+                    HideToTray();
+                }
             };
 
             UpdateButtons();
         }
 
         private ProfileRecord SelectedProfile { get { return ProfilesList.SelectedItem as ProfileRecord; } }
+
+        private void InitializeTray()
+        {
+            trayOpenItem = new Forms.ToolStripMenuItem();
+            trayStartAllItem = new Forms.ToolStripMenuItem();
+            trayStopAllItem = new Forms.ToolStripMenuItem();
+            trayExitItem = new Forms.ToolStripMenuItem();
+
+            trayOpenItem.Click += delegate { Dispatcher.BeginInvoke(new Action(ShowManager)); };
+            trayStartAllItem.Click += delegate { Dispatcher.BeginInvoke(new Action(StartAllFromTray)); };
+            trayStopAllItem.Click += delegate { Dispatcher.BeginInvoke(new Action(StopAllFromTray)); };
+            trayExitItem.Click += delegate { Dispatcher.BeginInvoke(new Action(ExitManager)); };
+
+            var menu = new Forms.ContextMenuStrip();
+            menu.Items.Add(trayOpenItem);
+            menu.Items.Add(new Forms.ToolStripSeparator());
+            menu.Items.Add(trayStartAllItem);
+            menu.Items.Add(trayStopAllItem);
+            menu.Items.Add(new Forms.ToolStripSeparator());
+            menu.Items.Add(trayExitItem);
+
+            Icon icon = null;
+            try { icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location); } catch { }
+            trayIcon = new Forms.NotifyIcon
+            {
+                Icon = icon ?? SystemIcons.Application,
+                Visible = true,
+                ContextMenuStrip = menu
+            };
+            trayIcon.DoubleClick += delegate { Dispatcher.BeginInvoke(new Action(ShowManager)); };
+            ApplyTrayLanguage();
+        }
+
+        private void ApplyTrayLanguage()
+        {
+            if (trayIcon == null) return;
+            trayIcon.Text = ManagerText.TrayTip.Length > 63 ? ManagerText.TrayTip.Substring(0, 63) : ManagerText.TrayTip;
+            trayOpenItem.Text = ManagerText.TrayOpen;
+            trayStartAllItem.Text = ManagerText.StartAll;
+            trayStopAllItem.Text = ManagerText.StopAll;
+            trayExitItem.Text = ManagerText.TrayExit;
+        }
+
+        private void ShowManager()
+        {
+            ShowInTaskbar = true;
+            Show();
+            if (WindowState == WindowState.Minimized) WindowState = WindowState.Normal;
+            Activate();
+            Topmost = true;
+            Topmost = false;
+            Focus();
+        }
+
+        private void HideToTray()
+        {
+            SaveWindowPlacement();
+            ShowInTaskbar = false;
+            Hide();
+        }
+
+        private void ExitManager()
+        {
+            allowExit = true;
+            SaveWindowPlacement();
+            if (trayIcon != null)
+            {
+                trayIcon.Visible = false;
+                trayIcon.Dispose();
+                trayIcon = null;
+            }
+            Application.Current.Shutdown();
+        }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
@@ -93,14 +181,19 @@ namespace HTCHome.Manager
             await RefreshStatusesAsync();
         }
 
-        private async void StartAllButton_Click(object sender, RoutedEventArgs e)
+        private async void StartAllButton_Click(object sender, RoutedEventArgs e) { await StartAllAsync(); }
+        private async void StopAllButton_Click(object sender, RoutedEventArgs e) { await StopAllAsync(); }
+        private async void StartAllFromTray() { await StartAllAsync(); }
+        private async void StopAllFromTray() { await StopAllAsync(); }
+
+        private async Task StartAllAsync()
         {
             foreach (var profile in profiles) processes.Start(profile);
             await Task.Delay(300);
             await RefreshStatusesAsync();
         }
 
-        private async void StopAllButton_Click(object sender, RoutedEventArgs e)
+        private async Task StopAllAsync()
         {
             foreach (var profile in profiles) processes.Stop(profile);
             await Task.Delay(200);
@@ -206,6 +299,7 @@ namespace HTCHome.Manager
             ManagerAutoStartCheckBox.Content = ManagerText.ManagerAutoStart;
             ProfileAutoStartCheckBox.Content = ManagerText.ProfileAutoStart;
             foreach (var profile in profiles) profile.RefreshLocalizedText();
+            ApplyTrayLanguage();
         }
 
         private void RestoreWindowPlacement()
@@ -218,7 +312,7 @@ namespace HTCHome.Manager
             WindowStartupLocation = WindowStartupLocation.Manual;
         }
 
-        private void Window_Closing(object sender, CancelEventArgs e)
+        private void SaveWindowPlacement()
         {
             settings.Language = ManagerText.Language;
             settings.AutoStartManager = ManagerAutoStartCheckBox.IsChecked == true;
@@ -228,6 +322,21 @@ namespace HTCHome.Manager
             settings.Height = RestoreBounds.Height;
             settings.HasWindowPlacement = true;
             SaveManagerSettings();
+        }
+
+        private void Window_StateChanged(object sender, EventArgs e)
+        {
+            if (WindowState == WindowState.Minimized) HideToTray();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            SaveWindowPlacement();
+            if (!allowExit)
+            {
+                e.Cancel = true;
+                HideToTray();
+            }
         }
 
         private void SaveManagerSettings()
@@ -246,6 +355,8 @@ namespace HTCHome.Manager
             ProfileAutoStartCheckBox.IsEnabled = selected;
             StartAllButton.IsEnabled = profiles.Any(p => !p.IsRunning);
             StopAllButton.IsEnabled = profiles.Any(p => p.IsRunning);
+            if (trayStartAllItem != null) trayStartAllItem.Enabled = profiles.Any(p => !p.IsRunning);
+            if (trayStopAllItem != null) trayStopAllItem.Enabled = profiles.Any(p => p.IsRunning);
         }
     }
 }

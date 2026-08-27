@@ -11,15 +11,12 @@ namespace HTCHome.Manager
 
         public static void SetLanguage(string language)
         {
-            russian = !string.IsNullOrWhiteSpace(language) &&
-                      language.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
+            russian = !string.IsNullOrWhiteSpace(language) && language.StartsWith("ru", StringComparison.OrdinalIgnoreCase);
         }
 
         public static string DetectLanguage()
         {
-            return string.Equals(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, "ru", StringComparison.OrdinalIgnoreCase)
-                ? "ru-RU"
-                : "en-US";
+            return string.Equals(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName, "ru", StringComparison.OrdinalIgnoreCase) ? "ru-RU" : "en-US";
         }
 
         public static string WindowTitle { get { return "HTC Home Mugen Manager"; } }
@@ -47,6 +44,9 @@ namespace HTCHome.Manager
         public static string RenamePrompt { get { return russian ? "Новое имя экземпляра:" : "New instance name:"; } }
         public static string StopBeforeDelete { get { return russian ? "Сначала остановите экземпляр." : "Stop the instance before deleting it."; } }
         public static string ExecutableNotFound { get { return russian ? "HTCHome.exe не найден рядом с Manager." : "HTCHome.exe was not found next to Manager."; } }
+        public static string TrayOpen { get { return russian ? "Открыть Manager" : "Open Manager"; } }
+        public static string TrayExit { get { return russian ? "Выход" : "Exit"; } }
+        public static string TrayTip { get { return russian ? "HTC Home Mugen — управление экземплярами" : "HTC Home Mugen — instance manager"; } }
 
         public static string DeleteQuestion(string name)
         {
