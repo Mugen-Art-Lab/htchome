@@ -30,11 +30,21 @@ jobs:
       - name: Restore packages
         run: nuget restore "v2/HTC Home.sln"
 
-      - name: Build Release
+      - name: Build prototype projects
         shell: pwsh
         run: |
-          msbuild "v2/HTC Home.sln" /m /p:Configuration=Release /p:Platform="Any CPU" /fl /flp:"logfile=build-v2.log;verbosity=diagnostic"
-          exit $LASTEXITCODE
+          $projects = @(
+            'v2/HTCHome.Core/HTCHome.Core.csproj',
+            'v2/HTC Home/HTC Home.csproj',
+            'v2/Widgets/WeatherClockWidget/WeatherClockWidget.csproj',
+            'v2/Extensions/Weather/MSN/MSN.csproj'
+          )
+
+          foreach ($project in $projects) {
+            Write-Host "Building $project"
+            msbuild $project /m /p:Configuration=Release /p:Platform=AnyCPU /fl /flp:"logfile=build-v2.log;verbosity=diagnostic;append"
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
 
       - name: Upload build diagnostics
         if: always()
