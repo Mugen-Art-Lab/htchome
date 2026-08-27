@@ -176,8 +176,9 @@ namespace HTCHome.Manager
 
         private async void StopButton_Click(object sender, RoutedEventArgs e)
         {
-            processes.Stop(SelectedProfile);
-            await Task.Delay(150);
+            var profile = SelectedProfile;
+            if (profile == null) return;
+            await Task.Run(() => processes.Stop(profile));
             await RefreshStatusesAsync();
         }
 
@@ -195,8 +196,11 @@ namespace HTCHome.Manager
 
         private async Task StopAllAsync()
         {
-            foreach (var profile in profiles) processes.Stop(profile);
-            await Task.Delay(200);
+            var snapshot = profiles.ToArray();
+            await Task.Run(() =>
+            {
+                foreach (var profile in snapshot) processes.Stop(profile);
+            });
             await RefreshStatusesAsync();
         }
 
