@@ -4,13 +4,26 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Management;
+using System.Runtime.InteropServices;
 
 namespace HTCHome.Manager
 {
     internal sealed class ProcessController
     {
+        private const uint WM_CLOSE = 0x0010;
         private readonly string rootDirectory;
         private readonly string executablePath;
+
+        private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+        [DllImport("user32.dll")]
+        private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        private static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
         public ProcessController(string rootDirectory)
         {
@@ -38,17 +51,63 @@ namespace HTCHome.Manager
         public void Stop(ProfileRecord profile)
         {
             if (profile == null) return;
+
             foreach (Process process in FindProcesses(profile.Id))
             {
                 try
                 {
-                    if (!process.CloseMainWindow()) process.Kill();
-                }
-                catch
-                {
+                    bool closeRequested = RequestGracefulClose(process);
+                    if (closeRequested)
+                    {
+                        try
+                        {
+                            if (process.WaitForExit(3000))
+                                continue;
+                        }
+                        catch { }
+                    }
+
                     try { process.Kill(); } catch { }
                 }
+                finally
+                {
+                    process.Dispose();
+                }
             }
+        }
+
+        private static bool RequestGracefulClose(Process process)
+        {
+            if (process == null) return false;
+
+            bool sent = false;
+            int processId;
+            try { processId = process.Id; }
+            catch { return false; }
+
+            try
+            {
+                process.Refresh();
+                IntPtr mainWindow = process.MainWindowHandle;
+                if (mainWindow != IntPtr.Zero)
+                    sent |= PostMessage(mainWindow, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+            }
+            catch { }
+
+            try
+            {
+                EnumWindows(delegate(IntPtr hWnd, IntPtr lParam)
+                {
+                    uint ownerPid;
+                    GetWindowThreadProcessId(hWnd, out ownerPid);
+                    if (ownerPid == (uint)processId)
+                        sent |= PostMessage(hWnd, WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+                    return true;
+                }, IntPtr.Zero);
+            }
+            catch { }
+
+            return sent;
         }
 
         public HashSet<string> GetRunningProfileIds()
