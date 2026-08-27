@@ -32,3 +32,11 @@ jobs:
 
       - name: Build Release
         run: msbuild "v2/HTC Home.sln" /m /p:Configuration=Release /p:Platform="Any CPU"
+
+      - name: Upload test build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: htchome-v2-mugen
+          path: v2/bin/Release/**
+          if-no-files-found: error
