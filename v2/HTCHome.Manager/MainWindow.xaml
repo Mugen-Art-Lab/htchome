@@ -4,10 +4,23 @@
         Title="HTC Home Mugen Manager" Height="430" Width="760" MinHeight="360" MinWidth="680"
         WindowStartupLocation="CenterScreen">
     <DockPanel Margin="14">
-        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,12">
-            <TextBlock Text="HTC Home Mugen Manager" FontSize="24" FontWeight="SemiBold" />
-            <TextBlock Text="Несколько независимых экземпляров HTC Home из одной папки" Margin="0,4,0,0" Opacity="0.7" />
-        </StackPanel>
+        <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <TextBlock x:Name="HeaderText" Text="HTC Home Mugen Manager" FontSize="24" FontWeight="SemiBold" />
+                <TextBlock x:Name="SubtitleText" Text="Несколько независимых экземпляров HTC Home из одной папки" Margin="0,4,0,0" Opacity="0.7" />
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Top" Margin="18,3,0,0">
+                <TextBlock x:Name="LanguageLabel" Text="Язык:" VerticalAlignment="Center" Margin="0,0,6,0" />
+                <ComboBox x:Name="LanguageBox" Width="100" SelectionChanged="LanguageBox_SelectionChanged">
+                    <ComboBoxItem Content="Русский" Tag="ru-RU" />
+                    <ComboBoxItem Content="English" Tag="en-US" />
+                </ComboBox>
+            </StackPanel>
+        </Grid>
 
         <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
             <Button x:Name="AddButton" Content="+ Добавить" Width="100" Margin="0,0,8,0" Click="AddButton_Click" />
@@ -18,17 +31,12 @@
         </StackPanel>
 
         <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-            <Border Grid.ColumnSpan="3" BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" />
-            <ListView x:Name="ProfilesList" Grid.ColumnSpan="3" Margin="1" SelectionChanged="ProfilesList_SelectionChanged">
+            <Border BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" />
+            <ListView x:Name="ProfilesList" Margin="1" SelectionChanged="ProfilesList_SelectionChanged">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="Имя" Width="300" DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn Header="Статус" Width="150" DisplayMemberBinding="{Binding StatusText}" />
+                        <GridViewColumn x:Name="NameColumn" Header="Имя" Width="300" DisplayMemberBinding="{Binding Name}" />
+                        <GridViewColumn x:Name="StatusColumn" Header="Статус" Width="150" DisplayMemberBinding="{Binding StatusText}" />
                         <GridViewColumn Header="ID" Width="220" DisplayMemberBinding="{Binding ShortId}" />
                     </GridView>
                 </ListView.View>

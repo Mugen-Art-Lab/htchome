@@ -20,13 +20,24 @@ namespace HTCHome.Manager
         public bool IsRunning
         {
             get { return isRunning; }
-            set { isRunning = value; OnPropertyChanged(); OnPropertyChanged("StatusText"); }
+            set
+            {
+                if (isRunning == value) return;
+                isRunning = value;
+                OnPropertyChanged();
+                OnPropertyChanged("StatusText");
+            }
         }
 
-        public string StatusText { get { return IsRunning ? "Запущен" : "Остановлен"; } }
+        public string StatusText { get { return IsRunning ? ManagerText.Running : ManagerText.Stopped; } }
         public string ShortId { get { return string.IsNullOrEmpty(Id) ? string.Empty : Id.Substring(0, Math.Min(8, Id.Length)); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        public void RefreshStatusText()
+        {
+            OnPropertyChanged("StatusText");
+        }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
