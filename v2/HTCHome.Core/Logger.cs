@@ -8,13 +8,22 @@ namespace HTCHome.Core
 {
     public static class Logger
     {
+        private static string GetLogPath()
+        {
+            var fileName = string.IsNullOrEmpty(Environment.ProfileId)
+                ? "log.txt"
+                : "log-" + Environment.ProfileId + ".txt";
+            return System.IO.Path.Combine(Environment.LogsPath, fileName);
+        }
+
         public static void Log(string s)
         {
-            if (!File.Exists(Environment.LogsPath + "\\log.txt"))
-                File.WriteAllText(Environment.LogsPath + "\\log.txt", "");
+            var logPath = GetLogPath();
+            if (!File.Exists(logPath))
+                File.WriteAllText(logPath, "");
             try
             {
-                File.AppendAllText(Environment.LogsPath + "\\log.txt",  DateTime.Now + " -------------- " + (char)(13) + (char)(10) + "OS: " + System.Environment.OSVersion.VersionString + (char)(13) + (char)(10) + s + (char)(13) + (char)(10));
+                File.AppendAllText(logPath, DateTime.Now + " -------------- " + (char)(13) + (char)(10) + "OS: " + System.Environment.OSVersion.VersionString + (char)(13) + (char)(10) + "Profile: " + (string.IsNullOrEmpty(Environment.ProfileId) ? "legacy" : Environment.ProfileId) + (char)(13) + (char)(10) + s + (char)(13) + (char)(10));
             }
             catch { }
         }
