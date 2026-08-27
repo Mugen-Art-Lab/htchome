@@ -88,36 +88,59 @@ namespace WeatherClockWidget
 
         public IntPtr GetRegion()
         {
-
             string uri = Widget.ResourceManager.GetResourcePath("Skin.xml");
             if (string.IsNullOrEmpty(uri))
                 return IntPtr.Zero;
-            XDocument doc = XDocument.Load(Widget.ResourceManager.GetResourcePath("Skin.xml"));
-            int left = Convert.ToInt32(doc.Descendants("Left").First().Value);
-            int top = Convert.ToInt32(doc.Descendants("Top").First().Value);
-            int right = Convert.ToInt32(doc.Descendants("Right").First().Value);
-            int bottom = Convert.ToInt32(doc.Descendants("Bottom").First().Value);
-            int radiusX = Convert.ToInt32(doc.Descendants("RadiusX").First().Value);
-            int radiusY = Convert.ToInt32(doc.Descendants("RadiusY").First().Value);
 
-            if (left == -1 || top == -1 || right == -1 || bottom == -1)
+            XDocument doc = XDocument.Load(uri);
+            XElement region = doc.Descendants("Region").FirstOrDefault();
+            if (region == null)
                 return IntPtr.Zero;
-            else
+
+            int left;
+            XElement leftElement = region.Element("Left");
+            if (leftElement == null || !Int32.TryParse(leftElement.Value, out left) || left == -1)
+                return IntPtr.Zero;
+
+            int top;
+            int right;
+            int bottom;
+            int radiusX;
+            int radiusY;
+
+            XElement topElement = region.Element("Top");
+            XElement rightElement = region.Element("Right");
+            XElement bottomElement = region.Element("Bottom");
+            XElement radiusXElement = region.Element("RadiusX");
+            XElement radiusYElement = region.Element("RadiusY");
+
+            if (topElement == null || rightElement == null || bottomElement == null ||
+                radiusXElement == null || radiusYElement == null ||
+                !Int32.TryParse(topElement.Value, out top) ||
+                !Int32.TryParse(rightElement.Value, out right) ||
+                !Int32.TryParse(bottomElement.Value, out bottom) ||
+                !Int32.TryParse(radiusXElement.Value, out radiusX) ||
+                !Int32.TryParse(radiusYElement.Value, out radiusY) ||
+                top == -1 || right == -1 || bottom == -1)
             {
-                double dpiX = 0.0f;
-                double dpiY = 0.0f;
-                PresentationSource source = PresentationSource.FromVisual(_widgetControl);
-                if (source != null)
-                {
-                    dpiX = source.CompositionTarget.TransformToDevice.M11;
-                    dpiY = source.CompositionTarget.TransformToDevice.M22;
-                }
-                return WinAPI.CreateRoundRectRgn((int) (left*Properties.Settings.Default.ScaleFactor*dpiX),
-                                                 (int) (top*Properties.Settings.Default.ScaleFactor*dpiY),
-                                                 (int) (right*Properties.Settings.Default.ScaleFactor*dpiX),
-                                                 (int) (bottom*Properties.Settings.Default.ScaleFactor*dpiY), radiusX,
-                                                 radiusY);
+                return IntPtr.Zero;
             }
+
+            double dpiX = 1.0;
+            double dpiY = 1.0;
+            PresentationSource source = PresentationSource.FromVisual(_widgetControl);
+            if (source != null && source.CompositionTarget != null)
+            {
+                dpiX = source.CompositionTarget.TransformToDevice.M11;
+                dpiY = source.CompositionTarget.TransformToDevice.M22;
+            }
+
+            return WinAPI.CreateRoundRectRgn((int)(left * Properties.Settings.Default.ScaleFactor * dpiX),
+                                             (int)(top * Properties.Settings.Default.ScaleFactor * dpiY),
+                                             (int)(right * Properties.Settings.Default.ScaleFactor * dpiX),
+                                             (int)(bottom * Properties.Settings.Default.ScaleFactor * dpiY),
+                                             radiusX,
+                                             radiusY);
         }
 
 
@@ -184,7 +207,8 @@ namespace WeatherClockWidget
 
         public void UpdateAero(object sender)
         {
-            UpdateAeroEvent(sender, EventArgs.Empty);
+            if (UpdateAeroEvent != null)
+                UpdateAeroEvent(sender, EventArgs.Empty);
         }
 
     }
