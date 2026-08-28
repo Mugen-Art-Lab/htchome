@@ -26,6 +26,14 @@ namespace HTCHome.Properties {
             global::HTCHome.Core.Environment.ProfileId = profileId;
             if (!string.IsNullOrEmpty(profileId)) {
                 this.SettingsKey = profileId;
+
+                // The classic WPF compositor can lose its DirectX render channel
+                // across hibernate/resume on some multi-monitor systems and then
+                // surface the failure as OutOfMemoryException from DUCE.SyncFlush.
+                // Keep this workaround local to Mugen profile processes instead of
+                // changing the machine-wide Avalon.Graphics registry setting.
+                global::System.Windows.Interop.RenderOptions.ProcessRenderMode =
+                    global::System.Windows.Interop.RenderMode.SoftwareOnly;
             }
         }
 
