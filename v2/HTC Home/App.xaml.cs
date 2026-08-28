@@ -55,34 +55,32 @@ namespace HTCHome
 
         public static void Log(string message)
         {
-            if (!Directory.Exists(App.Path + "\\Logs"))
-                Directory.CreateDirectory(App.Path + "\\Logs");
-            if (!File.Exists(App.Path + "\\Logs\\log.txt"))
-            {
-                File.WriteAllText(App.Path + "\\Logs\\log.txt", string.Empty);
-            }
+            // Mugen fork: route host-level errors through the same profile-aware
+            // logger used by widgets/extensions. This prevents several instances
+            // from racing on one shared Logs\log.txt file.
+            if (string.IsNullOrEmpty(HTCHome.Core.Environment.LogsPath))
+                HTCHome.Core.Environment.LogsPath = App.Path + "\\Logs";
+            if (!Directory.Exists(HTCHome.Core.Environment.LogsPath))
+                Directory.CreateDirectory(HTCHome.Core.Environment.LogsPath);
 
-            try
-            {
-                File.AppendAllText(App.Path + "\\Logs\\log.txt",
-                   DateTime.Now + " -------------- " + (char)(13) + (char)(10) + "OS: " + Environment.OSVersion.VersionString + (char)(13) + (char)(10) + message + (char)(13) + (char)(10));
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Can't write log. " + ex.Message);
-            }
+            HTCHome.Core.Logger.Log(message);
         }
 
         private void ApplicationStartup(object sender, StartupEventArgs e)
         {
             try
             {
-                //check if we must run as administrator
-                if (!Directory.Exists(Path + "\\Temp"))
-                    Directory.CreateDirectory(Path + "\\Temp");
-                Directory.Delete(Path + "\\Temp");
+                // Check write access without creating/deleting one shared Temp
+                // directory. Multiple Mugen profiles can start at the same time,
+                // so every process gets its own short-lived probe directory.
+                string tempRoot = System.IO.Path.Combine(Path, "Temp");
+                Directory.CreateDirectory(tempRoot);
+                string probe = System.IO.Path.Combine(tempRoot,
+                    "probe-" + Process.GetCurrentProcess().Id + "-" + Guid.NewGuid().ToString("N"));
+                Directory.CreateDirectory(probe);
+                Directory.Delete(probe);
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
                 var p = new ProcessStartInfo { Verb = "runas", FileName = Assembly.GetExecutingAssembly().Location };
                 Process.Start(p);
