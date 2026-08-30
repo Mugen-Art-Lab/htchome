@@ -99,11 +99,11 @@ namespace HTCHome.Manager
 
         private static void RunFreshDispatcherAfterDelay(int current, int delayMs)
         {
-            Thread launcher = new Thread(delegate
+            Thread launcher = new Thread(new ThreadStart(delegate
             {
                 Thread.Sleep(delayMs);
                 RunFreshDispatcher(current);
-            });
+            }));
             launcher.IsBackground = true;
             launcher.Name = "Mugen Manager WPF probe launcher";
             launcher.Start();
@@ -111,7 +111,7 @@ namespace HTCHome.Manager
 
         private static void RunFreshDispatcher(int current)
         {
-            Thread thread = new Thread(delegate
+            Thread thread = new Thread(new ThreadStart(delegate
             {
                 HwndSource source = null;
                 DispatcherTimer finishTimer = null;
@@ -170,7 +170,7 @@ namespace HTCHome.Manager
                     Write("MANAGER_WPF_FRESH_FAILED generation=" + current + " " + ex);
                     try { if (source != null) source.Dispose(); } catch { }
                 }
-            });
+            }));
             thread.IsBackground = true;
             thread.Name = "Mugen Manager Fresh WPF Dispatcher Probe";
             thread.SetApartmentState(ApartmentState.STA);
