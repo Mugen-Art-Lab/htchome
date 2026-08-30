@@ -168,8 +168,6 @@ namespace HTCHome
                     {
                         ticks++;
                         visual.InvalidateVisual();
-                        if (source.RootVisual != null)
-                            source.RootVisual.InvalidateVisual();
                     };
                     pulseTimer.Start();
 
