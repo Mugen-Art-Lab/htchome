@@ -1,7 +1,7 @@
 ﻿<Window x:Class="HTCHome.Widget"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Background="#FFF0F0F0" AllowsTransparency="False" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" AllowDrop="True"
+        Background="Transparent" AllowsTransparency="True" WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" AllowDrop="True"
         MouseMove="Window_MouseMove" SourceInitialized="Window_SourceInitialized" Closing="Window_Closing" MouseEnter="Window_MouseEnter" MouseLeave="Window_MouseLeave"
         DragEnter="Window_DragEnter" Drop="Window_Drop" Opacity="0">
     <Window.Resources>
