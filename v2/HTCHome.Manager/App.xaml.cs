@@ -43,10 +43,12 @@ namespace HTCHome.Manager
 
             base.OnStartup(e);
             ResumeSystemDiagnostics.Start();
+            ManagerWpfResumeProbe.Start();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            try { ManagerWpfResumeProbe.Stop(); } catch { }
             try { ResumeSystemDiagnostics.Stop(); } catch { }
 
             try
