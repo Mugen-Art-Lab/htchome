@@ -27,13 +27,10 @@ namespace HTCHome.Properties {
             if (!string.IsNullOrEmpty(profileId)) {
                 this.SettingsKey = profileId;
 
-                // The classic WPF compositor can lose its DirectX render channel
-                // across hibernate/resume on some multi-monitor systems and then
-                // surface the failure as OutOfMemoryException from DUCE.SyncFlush.
-                // Keep this workaround local to Mugen profile processes instead of
-                // changing the machine-wide Avalon.Graphics registry setting.
-                global::System.Windows.Media.RenderOptions.ProcessRenderMode =
-                    global::System.Windows.Interop.RenderMode.SoftwareOnly;
+                // Resume diagnostic build: observe WPF's normal renderer. The
+                // SoftwareOnly experiment changed the symptom but did not prevent
+                // the post-hibernate DUCE/HwndTarget failure.
+                global::HTCHome.ResumeDiagnostics.Start();
             }
         }
 
@@ -153,6 +150,317 @@ namespace HTCHome.Properties {
         public string ProxyPassword {
             get { return ((string)(this["ProxyPassword"])); }
             set { this["ProxyPassword"] = value; }
+        }
+    }
+}
+
+namespace HTCHome
+{
+    // Passive diagnostics for the long-standing WPF hibernate/resume failure.
+    // This class deliberately does not move, redraw, recreate, close or restart
+    // any window. It only records the native event sequence and process/window
+    // state around resume so that a later DUCE/HwndTarget failure can be tied to
+    // what Windows and DWM actually did immediately beforehand.
+    internal static class ResumeDiagnostics
+    {
+        private const int WM_WINDOWPOSCHANGING = 0x0046;
+        private const int WM_WINDOWPOSCHANGED = 0x0047;
+        private const int WM_DISPLAYCHANGE = 0x007E;
+        private const int WM_POWERBROADCAST = 0x0218;
+        private const int WM_DEVICECHANGE = 0x0219;
+        private const int WM_DPICHANGED = 0x02E0;
+        private const int WM_DWMCOMPOSITIONCHANGED = 0x031E;
+
+        private const int PBT_APMSUSPEND = 0x0004;
+        private const int PBT_APMRESUMESUSPEND = 0x0007;
+        private const int PBT_APMRESUMEAUTOMATIC = 0x0012;
+
+        private static readonly object Sync = new object();
+        private static bool started;
+        private static global::System.DateTime traceUntilUtc = global::System.DateTime.MinValue;
+        private static int traceMessageCount;
+        private const int MaxWindowPositionMessagesPerResume = 250;
+
+        [global::System.Runtime.InteropServices.StructLayout(global::System.Runtime.InteropServices.LayoutKind.Sequential)]
+        private struct WINDOWPOS
+        {
+            public global::System.IntPtr hwnd;
+            public global::System.IntPtr hwndInsertAfter;
+            public int x;
+            public int y;
+            public int cx;
+            public int cy;
+            public uint flags;
+        }
+
+        public static void Start()
+        {
+            lock (Sync)
+            {
+                if (started)
+                    return;
+                started = true;
+            }
+
+            try
+            {
+                global::Microsoft.Win32.SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+                global::Microsoft.Win32.SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
+                global::Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+                global::System.Windows.Interop.ComponentDispatcher.ThreadFilterMessage += ComponentDispatcher_ThreadFilterMessage;
+                SafeLog("[ResumeDiag] START pid=" + global::System.Diagnostics.Process.GetCurrentProcess().Id +
+                    " renderMode=" + global::System.Windows.Media.RenderOptions.ProcessRenderMode +
+                    " tier=" + (global::System.Windows.Media.RenderCapability.Tier >> 16));
+            }
+            catch (global::System.Exception ex)
+            {
+                SafeLog("[ResumeDiag] START failed: " + ex.GetType().FullName + ": " + ex.Message);
+            }
+        }
+
+        private static void SystemEvents_PowerModeChanged(object sender, global::Microsoft.Win32.PowerModeChangedEventArgs e)
+        {
+            SafeLog("[ResumeDiag] SystemEvents.PowerModeChanged mode=" + e.Mode);
+
+            if (e.Mode == global::Microsoft.Win32.PowerModes.Suspend)
+            {
+                SnapshotOnUi("systemevents-suspend");
+            }
+            else if (e.Mode == global::Microsoft.Win32.PowerModes.Resume)
+            {
+                BeginResumeTrace("systemevents-resume");
+            }
+        }
+
+        private static void SystemEvents_DisplaySettingsChanging(object sender, global::System.EventArgs e)
+        {
+            SafeLog("[ResumeDiag] SystemEvents.DisplaySettingsChanging");
+            SnapshotOnUi("display-settings-changing");
+        }
+
+        private static void SystemEvents_DisplaySettingsChanged(object sender, global::System.EventArgs e)
+        {
+            SafeLog("[ResumeDiag] SystemEvents.DisplaySettingsChanged");
+            SnapshotOnUi("display-settings-changed");
+        }
+
+        private static void ComponentDispatcher_ThreadFilterMessage(ref global::System.Windows.Interop.MSG msg, ref bool handled)
+        {
+            try
+            {
+                int message = msg.message;
+                if (message == WM_POWERBROADCAST)
+                {
+                    long wParam = msg.wParam.ToInt64();
+                    SafeLog("[ResumeDiag] WM_POWERBROADCAST hwnd=0x" + msg.hwnd.ToInt64().ToString("X") +
+                        " wParam=0x" + wParam.ToString("X") + " (" + PowerBroadcastName(wParam) + ")");
+
+                    if (wParam == PBT_APMRESUMESUSPEND || wParam == PBT_APMRESUMEAUTOMATIC)
+                        BeginResumeTrace("wm-powerbroadcast-" + PowerBroadcastName(wParam));
+                    else if (wParam == PBT_APMSUSPEND)
+                        SnapshotOnUi("wm-powerbroadcast-suspend");
+                    return;
+                }
+
+                if (message == WM_DISPLAYCHANGE || message == WM_DEVICECHANGE ||
+                    message == WM_DWMCOMPOSITIONCHANGED || message == WM_DPICHANGED)
+                {
+                    SafeLog("[ResumeDiag] " + MessageName(message) +
+                        " hwnd=0x" + msg.hwnd.ToInt64().ToString("X") +
+                        " wParam=0x" + msg.wParam.ToInt64().ToString("X") +
+                        " lParam=0x" + msg.lParam.ToInt64().ToString("X"));
+                    SnapshotOnUi("native-" + MessageName(message));
+                    return;
+                }
+
+                if ((message == WM_WINDOWPOSCHANGING || message == WM_WINDOWPOSCHANGED) && IsResumeTraceActive())
+                {
+                    if (global::System.Threading.Interlocked.Increment(ref traceMessageCount) <= MaxWindowPositionMessagesPerResume)
+                    {
+                        string details = "";
+                        if (msg.lParam != global::System.IntPtr.Zero)
+                        {
+                            WINDOWPOS pos = (WINDOWPOS)global::System.Runtime.InteropServices.Marshal.PtrToStructure(
+                                msg.lParam, typeof(WINDOWPOS));
+                            details = " target=0x" + pos.hwnd.ToInt64().ToString("X") +
+                                " x=" + pos.x + " y=" + pos.y + " cx=" + pos.cx + " cy=" + pos.cy +
+                                " flags=0x" + pos.flags.ToString("X");
+                        }
+                        SafeLog("[ResumeDiag] " + MessageName(message) +
+                            " msgHwnd=0x" + msg.hwnd.ToInt64().ToString("X") + details);
+                    }
+                }
+            }
+            catch (global::System.Exception ex)
+            {
+                SafeLog("[ResumeDiag] native-message parse failed: " + ex.GetType().FullName + ": " + ex.Message);
+            }
+        }
+
+        private static void BeginResumeTrace(string reason)
+        {
+            traceUntilUtc = global::System.DateTime.UtcNow.AddSeconds(30);
+            global::System.Threading.Interlocked.Exchange(ref traceMessageCount, 0);
+            SafeLog("[ResumeDiag] RESUME TRACE BEGIN reason=" + reason + " window=30s");
+
+            ScheduleSnapshot(0, reason + "+0ms");
+            ScheduleSnapshot(250, reason + "+250ms");
+            ScheduleSnapshot(1000, reason + "+1s");
+            ScheduleSnapshot(3000, reason + "+3s");
+            ScheduleSnapshot(10000, reason + "+10s");
+            ScheduleSnapshot(30000, reason + "+30s");
+        }
+
+        private static bool IsResumeTraceActive()
+        {
+            return global::System.DateTime.UtcNow <= traceUntilUtc;
+        }
+
+        private static void ScheduleSnapshot(int delayMs, string reason)
+        {
+            try
+            {
+                global::System.Windows.Application app = global::System.Windows.Application.Current;
+                if (app == null || app.Dispatcher == null)
+                    return;
+
+                app.Dispatcher.BeginInvoke(new global::System.Action(delegate
+                {
+                    if (delayMs <= 0)
+                    {
+                        Snapshot(reason);
+                        return;
+                    }
+
+                    global::System.Windows.Threading.DispatcherTimer timer = new global::System.Windows.Threading.DispatcherTimer();
+                    timer.Interval = global::System.TimeSpan.FromMilliseconds(delayMs);
+                    timer.Tick += delegate(object sender, global::System.EventArgs e)
+                    {
+                        timer.Stop();
+                        Snapshot(reason);
+                    };
+                    timer.Start();
+                }));
+            }
+            catch (global::System.Exception ex)
+            {
+                SafeLog("[ResumeDiag] ScheduleSnapshot failed: " + ex.GetType().FullName + ": " + ex.Message);
+            }
+        }
+
+        private static void SnapshotOnUi(string reason)
+        {
+            ScheduleSnapshot(0, reason);
+        }
+
+        private static void Snapshot(string reason)
+        {
+            try
+            {
+                global::System.Diagnostics.Process process = global::System.Diagnostics.Process.GetCurrentProcess();
+                process.Refresh();
+
+                SafeLog("[ResumeDiag] SNAPSHOT reason=" + reason +
+                    " pid=" + process.Id +
+                    " handles=" + process.HandleCount +
+                    " workingMB=" + Mb(process.WorkingSet64) +
+                    " privateMB=" + Mb(process.PrivateMemorySize64) +
+                    " managedMB=" + Mb(global::System.GC.GetTotalMemory(false)) +
+                    " renderMode=" + global::System.Windows.Media.RenderOptions.ProcessRenderMode +
+                    " tier=" + (global::System.Windows.Media.RenderCapability.Tier >> 16));
+
+                global::System.Windows.Application app = global::System.Windows.Application.Current;
+                if (app == null)
+                {
+                    SafeLog("[ResumeDiag] WINDOWS application=null");
+                    return;
+                }
+
+                int index = 0;
+                foreach (global::System.Windows.Window window in app.Windows)
+                {
+                    global::System.IntPtr hwnd = new global::System.Windows.Interop.WindowInteropHelper(window).Handle;
+                    string monitor = "n/a";
+                    string bounds = "n/a";
+                    try
+                    {
+                        global::System.Windows.Forms.Screen screen = global::System.Windows.Forms.Screen.FromHandle(hwnd);
+                        if (screen != null)
+                        {
+                            monitor = screen.DeviceName;
+                            bounds = screen.Bounds.Left + "," + screen.Bounds.Top + "," +
+                                screen.Bounds.Width + "x" + screen.Bounds.Height +
+                                (screen.Primary ? ",primary" : "");
+                        }
+                    }
+                    catch { }
+
+                    SafeLog("[ResumeDiag] WINDOW #" + index +
+                        " type=" + window.GetType().FullName +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                        " visible=" + window.IsVisible +
+                        " active=" + window.IsActive +
+                        " state=" + window.WindowState +
+                        " topmost=" + window.Topmost +
+                        " left=" + FormatDouble(window.Left) +
+                        " top=" + FormatDouble(window.Top) +
+                        " width=" + FormatDouble(window.Width) +
+                        " height=" + FormatDouble(window.Height) +
+                        " actual=" + FormatDouble(window.ActualWidth) + "x" + FormatDouble(window.ActualHeight) +
+                        " monitor=" + monitor +
+                        " bounds=" + bounds);
+                    index++;
+                }
+            }
+            catch (global::System.Exception ex)
+            {
+                SafeLog("[ResumeDiag] SNAPSHOT failed reason=" + reason + ": " + ex.GetType().FullName + ": " + ex.Message);
+            }
+        }
+
+        private static string PowerBroadcastName(long value)
+        {
+            if (value == PBT_APMSUSPEND) return "PBT_APMSUSPEND";
+            if (value == PBT_APMRESUMESUSPEND) return "PBT_APMRESUMESUSPEND";
+            if (value == PBT_APMRESUMEAUTOMATIC) return "PBT_APMRESUMEAUTOMATIC";
+            return "unknown";
+        }
+
+        private static string MessageName(int message)
+        {
+            switch (message)
+            {
+                case WM_WINDOWPOSCHANGING: return "WM_WINDOWPOSCHANGING";
+                case WM_WINDOWPOSCHANGED: return "WM_WINDOWPOSCHANGED";
+                case WM_DISPLAYCHANGE: return "WM_DISPLAYCHANGE";
+                case WM_POWERBROADCAST: return "WM_POWERBROADCAST";
+                case WM_DEVICECHANGE: return "WM_DEVICECHANGE";
+                case WM_DPICHANGED: return "WM_DPICHANGED";
+                case WM_DWMCOMPOSITIONCHANGED: return "WM_DWMCOMPOSITIONCHANGED";
+                default: return "WM_0x" + message.ToString("X");
+            }
+        }
+
+        private static string Mb(long bytes)
+        {
+            return (bytes / 1024d / 1024d).ToString("0.0", global::System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static string FormatDouble(double value)
+        {
+            return value.ToString("0.##", global::System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        private static void SafeLog(string message)
+        {
+            try
+            {
+                global::HTCHome.App.Log(message);
+            }
+            catch
+            {
+                // Diagnostics must never change application behaviour.
+            }
         }
     }
 }
