@@ -35,6 +35,7 @@ namespace HTCHome.Manager
         public static string StopAll { get { return russian ? "Остановить все" : "Stop all"; } }
         public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
         public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
+        public static string ResumeHideControl { get { return russian ? "Диагностика resume: скрывать этот профиль перед гибернацией (после перезапуска)" : "Resume diagnostic: hide this profile before hibernate (after restart)"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
         public static string Yes { get { return russian ? "Да" : "Yes"; } }
@@ -72,6 +73,13 @@ namespace HTCHome.Manager
         public static string NvidiaAdminRequired { get { return russian ? "Windows не разрешила изменить файлы NVIDIA. Запустите Manager один раз от имени администратора и повторите действие." : "Windows did not allow the NVIDIA files to be changed. Run Manager as administrator once and try again."; } }
         public static string NvidiaApplyFailed { get { return russian ? "Не удалось применить исключения NVIDIA." : "Could not apply NVIDIA exclusions."; } }
         public static string NvidiaUpdated(DateTime time) { return russian ? "Обновлено: " + time.ToString("HH:mm:ss") : "Updated: " + time.ToString("HH:mm:ss"); }
+
+        public static string ResumeControlAlreadyRunning(string name)
+        {
+            return russian
+                ? "Сначала остановите текущий контрольный профиль «" + name + "». Диагностический флаг передаётся при запуске процесса."
+                : "Stop the current control profile \"" + name + "\" first. The diagnostic flag is passed when the process starts.";
+        }
 
         public static string DeleteQuestion(string name)
         {

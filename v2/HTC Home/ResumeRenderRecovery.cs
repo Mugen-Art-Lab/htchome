@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -10,19 +11,21 @@ using Microsoft.Win32;
 
 namespace HTCHome
 {
-    // Process-local diagnostic for the post-hibernate DUCE failure.
-    // A fresh HwndTarget on the OLD Dispatcher already failed, which points at
-    // Dispatcher/MediaContext scope. This probe creates a completely new STA
-    // Dispatcher on another thread after Resume, then creates an off-screen
-    // HwndSource with its own animated visual tree. If it can render for several
-    // seconds, a damaged main Dispatcher/MediaContext can potentially be replaced
-    // without restarting the process. If this probe gets the same DUCE OOM, the
-    // broken state is below Dispatcher scope and a process restart is the honest
-    // recovery boundary.
+    // Process-local diagnostics for the post-hibernate DUCE failure.
+    // A fresh Dispatcher/MediaContext cannot recover a poisoned HTC Home PID,
+    // while the hidden Mugen Manager survives the same bad system wake. The
+    // --resume-hide-control experiment therefore hides one profile's visible
+    // WPF windows at Suspend, keeps the process alive through the existing fresh
+    // Dispatcher probe, then restores the windows after the probe finishes.
     internal static class ResumeRenderRecovery
     {
+        private const int ProbeDelayMs = 12000;
+        private const int ControlRestoreDelayMs = 22000;
+
         private static readonly object Sync = new object();
+        private static readonly List<Window> ControlHiddenWindows = new List<Window>();
         private static bool started;
+        private static bool resumeHideControl;
         private static int resumeGeneration;
         private static int probeGeneration;
 
@@ -36,10 +39,18 @@ namespace HTCHome
                 if (started)
                     return true;
                 started = true;
+                resumeHideControl = HasSwitch("--resume-hide-control");
             }
 
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
             SafeLog("[ResumeProbe] FRESH_DISPATCHER probe armed");
+
+            if (resumeHideControl)
+            {
+                SafeLog("[ResumeControl] ENABLED profile=" + GetProfileId() +
+                    " mode=hide-visible-windows-on-suspend restoreDelayMs=" + ControlRestoreDelayMs);
+            }
+
             return true;
         }
 
@@ -66,8 +77,38 @@ namespace HTCHome
             return false;
         }
 
+        private static bool HasSwitch(string name)
+        {
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 1; i < args.Length; i++)
+                if (string.Equals(args[i], name, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            return false;
+        }
+
+        private static string GetProfileId()
+        {
+            string[] args = System.Environment.GetCommandLineArgs();
+            for (int i = 1; i < args.Length; i++)
+            {
+                if (string.Equals(args[i], "--profile", StringComparison.OrdinalIgnoreCase))
+                    return i + 1 < args.Length ? args[i + 1] : "<missing>";
+
+                if (args[i].StartsWith("--profile=", StringComparison.OrdinalIgnoreCase))
+                    return args[i].Substring("--profile=".Length);
+            }
+            return "<none>";
+        }
+
         private static void SystemEvents_PowerModeChanged(object sender, PowerModeChangedEventArgs e)
         {
+            if (e.Mode == PowerModes.Suspend)
+            {
+                if (resumeHideControl)
+                    HideControlWindowsForSuspend();
+                return;
+            }
+
             if (e.Mode != PowerModes.Resume)
                 return;
 
@@ -82,10 +123,18 @@ namespace HTCHome
                 " mainThread=" + Thread.CurrentThread.ManagedThreadId +
                 " mainTier=" + (RenderCapability.Tier >> 16));
 
-            // Do not depend on the poisoned UI Dispatcher to schedule this test.
-            Thread launcher = new Thread(delegate()
+            if (resumeHideControl)
             {
-                Thread.Sleep(12000);
+                SafeLog("[ResumeControl] RESUME_HOLD_HIDDEN generation=" + generation +
+                    " hiddenWindows=" + GetControlHiddenWindowCount() +
+                    " mainTier=" + (RenderCapability.Tier >> 16));
+                ScheduleControlRestore(generation);
+            }
+
+            // Do not depend on the poisoned UI Dispatcher to schedule this test.
+            Thread launcher = new Thread(new ThreadStart(delegate
+            {
+                Thread.Sleep(ProbeDelayMs);
                 lock (Sync)
                 {
                     if (generation != resumeGeneration || probeGeneration == generation)
@@ -93,15 +142,156 @@ namespace HTCHome
                     probeGeneration = generation;
                 }
                 RunFreshDispatcherProbe(generation);
-            });
+            }));
             launcher.IsBackground = true;
             launcher.Name = "Mugen WPF Resume Probe Launcher";
             launcher.Start();
         }
 
+        private static void HideControlWindowsForSuspend()
+        {
+            Application app = Application.Current;
+            if (app == null)
+            {
+                SafeLog("[ResumeControl] SUSPEND_HIDE_FAILED application=<null>");
+                return;
+            }
+
+            SafeLog("[ResumeControl] SUSPEND_HIDE_BEGIN thread=" + Thread.CurrentThread.ManagedThreadId +
+                " tier=" + (RenderCapability.Tier >> 16));
+
+            try
+            {
+                app.Dispatcher.Invoke(DispatcherPriority.Send, new Action(delegate
+                {
+                    List<Window> visibleWindows = new List<Window>();
+                    foreach (Window window in app.Windows)
+                    {
+                        if (window != null && window.IsVisible)
+                            visibleWindows.Add(window);
+                    }
+
+                    lock (Sync)
+                    {
+                        ControlHiddenWindows.Clear();
+                        ControlHiddenWindows.AddRange(visibleWindows);
+                    }
+
+                    foreach (Window window in visibleWindows)
+                    {
+                        try
+                        {
+                            IntPtr hwnd = new WindowInteropHelper(window).Handle;
+                            SafeLog("[ResumeControl] HIDE_WINDOW type=" + window.GetType().FullName +
+                                " hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                                " title=" + SafeWindowTitle(window));
+                            window.Hide();
+                        }
+                        catch (Exception ex)
+                        {
+                            SafeLog("[ResumeControl] HIDE_WINDOW_FAILED type=" + window.GetType().FullName + "\n" + ex);
+                        }
+                    }
+
+                    SafeLog("[ResumeControl] SUSPEND_HIDE_OK hiddenWindows=" + visibleWindows.Count +
+                        " uiThread=" + Thread.CurrentThread.ManagedThreadId +
+                        " tier=" + (RenderCapability.Tier >> 16));
+                }));
+            }
+            catch (Exception ex)
+            {
+                SafeLog("[ResumeControl] SUSPEND_HIDE_FAILED\n" + ex);
+            }
+        }
+
+        private static void ScheduleControlRestore(int generation)
+        {
+            Thread restorer = new Thread(new ThreadStart(delegate
+            {
+                Thread.Sleep(ControlRestoreDelayMs);
+
+                lock (Sync)
+                {
+                    if (generation != resumeGeneration)
+                        return;
+                }
+
+                Application app = Application.Current;
+                if (app == null)
+                {
+                    SafeLog("[ResumeControl] RESTORE_FAILED generation=" + generation + " application=<null>");
+                    return;
+                }
+
+                SafeLog("[ResumeControl] RESTORE_QUEUE generation=" + generation +
+                    " hiddenWindows=" + GetControlHiddenWindowCount() +
+                    " tier=" + (RenderCapability.Tier >> 16));
+
+                try
+                {
+                    app.Dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(delegate
+                    {
+                        List<Window> windows;
+                        lock (Sync)
+                        {
+                            windows = new List<Window>(ControlHiddenWindows);
+                            ControlHiddenWindows.Clear();
+                        }
+
+                        int restored = 0;
+                        foreach (Window window in windows)
+                        {
+                            try
+                            {
+                                window.Show();
+                                restored++;
+                            }
+                            catch (Exception ex)
+                            {
+                                SafeLog("[ResumeControl] RESTORE_WINDOW_FAILED type=" +
+                                    (window == null ? "<null>" : window.GetType().FullName) + "\n" + ex);
+                            }
+                        }
+
+                        SafeLog("[ResumeControl] RESTORE_OK generation=" + generation +
+                            " restoredWindows=" + restored +
+                            " uiThread=" + Thread.CurrentThread.ManagedThreadId +
+                            " tier=" + (RenderCapability.Tier >> 16));
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    SafeLog("[ResumeControl] RESTORE_QUEUE_FAILED generation=" + generation + "\n" + ex);
+                }
+            }));
+            restorer.IsBackground = true;
+            restorer.Name = "Mugen Resume Control Restorer";
+            restorer.Start();
+        }
+
+        private static int GetControlHiddenWindowCount()
+        {
+            lock (Sync)
+                return ControlHiddenWindows.Count;
+        }
+
+        private static string SafeWindowTitle(Window window)
+        {
+            try
+            {
+                string title = window == null ? null : window.Title;
+                if (string.IsNullOrEmpty(title)) return "<empty>";
+                return title.Replace("\r", " ").Replace("\n", " ");
+            }
+            catch
+            {
+                return "<unavailable>";
+            }
+        }
+
         private static void RunFreshDispatcherProbe(int generation)
         {
-            Thread thread = new Thread(delegate()
+            Thread thread = new Thread(new ThreadStart(delegate
             {
                 HwndSource source = null;
                 DispatcherTimer finishTimer = null;
@@ -199,7 +389,7 @@ namespace HTCHome
                     SafeLog("[ResumeProbe] NEW_DISPATCHER_PROBE_FAILED generation=" + generation + "\n" + ex);
                     try { if (source != null) source.Dispose(); } catch { }
                 }
-            });
+            }));
 
             thread.IsBackground = true;
             thread.Name = "Mugen Fresh WPF Dispatcher Probe";

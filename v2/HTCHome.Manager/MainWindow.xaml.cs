@@ -44,6 +44,7 @@ namespace HTCHome.Manager
             autostart = new AutostartController(rootDirectory);
             settings = store.LoadManagerSettings();
             profiles = new ObservableCollection<ProfileRecord>(store.LoadAll());
+            NormalizeResumeControlSelection();
             ProfilesList.ItemsSource = profiles;
             launchedFromAutostart = Environment.GetCommandLineArgs().Any(a => string.Equals(a, "--autostart", StringComparison.OrdinalIgnoreCase));
 
@@ -75,6 +76,23 @@ namespace HTCHome.Manager
         }
 
         private ProfileRecord SelectedProfile { get { return ProfilesList.SelectedItem as ProfileRecord; } }
+
+        private void NormalizeResumeControlSelection()
+        {
+            ProfileRecord first = null;
+            foreach (ProfileRecord profile in profiles)
+            {
+                if (!profile.ResumeHideControl) continue;
+                if (first == null)
+                {
+                    first = profile;
+                    continue;
+                }
+
+                profile.ResumeHideControl = false;
+                try { store.Save(profile); } catch { }
+            }
+        }
 
         private void InitializeTray()
         {
@@ -228,6 +246,7 @@ namespace HTCHome.Manager
         {
             checkChanging = true;
             ProfileAutoStartCheckBox.IsChecked = SelectedProfile != null && SelectedProfile.AutoStart;
+            ResumeHideControlCheckBox.IsChecked = SelectedProfile != null && SelectedProfile.ResumeHideControl;
             checkChanging = false;
             UpdateButtons();
         }
@@ -237,6 +256,44 @@ namespace HTCHome.Manager
             if (checkChanging || SelectedProfile == null) return;
             SelectedProfile.AutoStart = ProfileAutoStartCheckBox.IsChecked == true;
             store.Save(SelectedProfile);
+        }
+
+        private void ResumeHideControlCheckBox_Click(object sender, RoutedEventArgs e)
+        {
+            if (checkChanging || SelectedProfile == null) return;
+
+            ProfileRecord selected = SelectedProfile;
+            bool enabled = ResumeHideControlCheckBox.IsChecked == true;
+
+            if (enabled)
+            {
+                ProfileRecord runningControl = profiles.FirstOrDefault(p =>
+                    !object.ReferenceEquals(p, selected) && p.ResumeHideControl && p.IsRunning);
+                if (runningControl != null)
+                {
+                    checkChanging = true;
+                    ResumeHideControlCheckBox.IsChecked = false;
+                    checkChanging = false;
+                    MessageBox.Show(ManagerText.ResumeControlAlreadyRunning(runningControl.Name),
+                        "HTC Home Mugen", MessageBoxButton.OK, MessageBoxImage.Information);
+                    return;
+                }
+
+                foreach (ProfileRecord profile in profiles)
+                {
+                    bool shouldBeControl = object.ReferenceEquals(profile, selected);
+                    if (profile.ResumeHideControl == shouldBeControl) continue;
+                    profile.ResumeHideControl = shouldBeControl;
+                    store.Save(profile);
+                }
+            }
+            else
+            {
+                selected.ResumeHideControl = false;
+                store.Save(selected);
+            }
+
+            UpdateButtons();
         }
 
         private void ManagerAutoStartCheckBox_Click(object sender, RoutedEventArgs e)
@@ -309,6 +366,7 @@ namespace HTCHome.Manager
             NvidiaCompatibilityButton.Content = ManagerText.NvidiaCompatibility;
             ManagerAutoStartCheckBox.Content = ManagerText.ManagerAutoStart;
             ProfileAutoStartCheckBox.Content = ManagerText.ProfileAutoStart;
+            ResumeHideControlCheckBox.Content = ManagerText.ResumeHideControl;
             foreach (var profile in profiles) profile.RefreshLocalizedText();
             ApplyTrayLanguage();
         }
@@ -364,6 +422,7 @@ namespace HTCHome.Manager
             StartButton.IsEnabled = selected && !profile.IsRunning;
             StopButton.IsEnabled = selected && profile.IsRunning;
             ProfileAutoStartCheckBox.IsEnabled = selected;
+            ResumeHideControlCheckBox.IsEnabled = selected && !profile.IsRunning;
             StartAllButton.IsEnabled = profiles.Any(p => !p.IsRunning);
             StopAllButton.IsEnabled = profiles.Any(p => p.IsRunning);
             if (trayStartAllItem != null) trayStartAllItem.Enabled = profiles.Any(p => !p.IsRunning);

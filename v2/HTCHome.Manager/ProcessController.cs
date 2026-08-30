@@ -39,10 +39,14 @@ namespace HTCHome.Manager
             if (!File.Exists(executable))
                 throw new FileNotFoundException(ManagerText.ExecutableNotFound, executable);
 
+            string arguments = "--profile " + profile.Id;
+            if (profile.ResumeHideControl)
+                arguments += " --resume-hide-control";
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = executable,
-                Arguments = "--profile " + profile.Id,
+                Arguments = arguments,
                 WorkingDirectory = rootDirectory,
                 UseShellExecute = true
             });

@@ -1,10 +1,10 @@
 # HTC Home Mugen — latest resume investigation result
 
-Updated: 2026-08-30 after workflow run #42 (`fea9a0947bb4ccf91f2234ac761d540b34329601`).
+Updated: 2026-08-30 after analysis of `Logs(20260830-171614).zip`, collected after workflow run #42.
 
 Read this together with `docs/MUGEN_RESUME_INVESTIGATION.md`.
 
-## Decisive #42 result
+## Earlier decisive #42 result
 
 The same four `HTCHome.exe` profile processes were tested through two consecutive hibernate/resume cycles without being restarted between cycles.
 
@@ -12,7 +12,7 @@ The same four `HTCHome.exe` profile processes were tested through two consecutiv
 
 All four original widget UIs resumed normally. The main WPF render tier remained `tier=2`.
 
-The new diagnostic STA-thread probe succeeded in every process:
+The diagnostic STA-thread probe succeeded in every process:
 
 ```text
 [ResumeProbe] NEW_DISPATCHER_BEGIN generation=1 ... tierBeforeSource=2
@@ -27,7 +27,7 @@ This established that the probe itself is valid when the process graphics state 
 
 On the next hibernate/resume, all four original widgets froze. All four processes returned with `mainTier=0` and remained `tier=0` through the +30 second diagnostic snapshots.
 
-The fresh STA Dispatcher probe then failed in **all four processes** before it could create its off-screen `HwndSource`.
+The fresh STA Dispatcher probe failed in **all four processes** before it could create its off-screen `HwndSource`.
 
 Each process logged the same stack:
 
@@ -47,41 +47,43 @@ The failure occurs while WPF is constructing the new `MediaContext`, specificall
 
 No fresh `HwndSource` is created in the bad-resume case.
 
-## Interpretation
+## New control-process evidence from Logs(20260830-171614)
 
-This rules out recovery by simply moving HTC Home to a new STA Dispatcher inside the same process.
+The later log bundle adds an important control process: **HTC Home Mugen Manager itself**.
 
-The damaged state is **below Dispatcher scope**. A new Dispatcher receives the same DUCE/MediaSystem failure because the process-wide/native WPF graphics/composition system is already poisoned.
-
-The practical recovery boundary is therefore currently the **process boundary**, not the Window, HwndTarget, or Dispatcher boundary.
-
-This does **not** mean automatic process restart is accepted as the final product fix. The investigation should now shift from post-failure recovery to **preventing the process-wide WPF MediaSystem/DUCE corruption during hibernate/resume**.
-
-## Useful same-process healthy-vs-bad comparison
-
-For the main profile in this test:
-
-Healthy generation 1:
+On the same bad wake where all four visible `HTCHome.exe` profile processes changed from `tier=2` to `tier=0` and their fresh Dispatcher probes failed with the DUCE/MediaSystem OOM, the Manager process remained healthy:
 
 ```text
-Suspend: tier=2
-Resume generation=1: mainTier=2
-+0ms/+250ms/+1s/+3s/+10s/+30s: tier=2
-fresh Dispatcher: PROBE_OK
+HTCHome.exe x4: mainTier=0, fresh MediaContext/HwndSource probe -> OOM
+HTCHome.Manager.exe: tier=2, fresh Dispatcher + HwndSource probe -> OK
 ```
 
-Bad generation 2:
+The Manager probe succeeds on both the healthy wake and the bad wake. Therefore the shared graphics wake event does **not** poison arbitrary WPF processes system-wide.
+
+The damage is still process-wide *inside each affected HTC Home PID*: once an HTC Home process is poisoned, a fresh Dispatcher/MediaContext inside that same PID cannot reconnect to WPF composition. But another WPF process can remain healthy through the same wake.
+
+A useful visible-state difference in this bundle is:
 
 ```text
-Suspend: tier=2
-Resume generation=2: mainTier=0
-+0ms/+250ms/+1s/+3s/+10s/+30s: tier=0
-fresh Dispatcher: OOM in MediaContext.CreateChannels -> MediaSystem.ConnectChannels
+HTCHome.exe profile processes: visible=True before suspend
+HTCHome.Manager.exe:           visible=0 before suspend
 ```
 
-The four processes fail synchronously, which strongly points to a shared system graphics/compositor/driver resume event rather than independent widget logic.
+This does not prove visibility is the cause, but it makes an active visible/rendering WPF window at suspend/resume a strong discriminator worth testing directly.
 
-`Tier 0` remains an indicator, not proven root cause: previous tests showed a visually working instance can exist at Tier 0. In this exact healthy-vs-bad pair, however, Tier 2 vs Tier 0 cleanly correlates with whether the process MediaSystem is healthy enough to create a new MediaContext.
+## Current interpretation
+
+The practical post-failure recovery boundary remains the **process boundary**, not Window, HwndTarget, or Dispatcher. Automatic process restart is still not accepted as the final product fix.
+
+The investigation target is now narrower than the earlier note suggested:
+
+- a common system graphics/display wake event still appears to trigger the failure;
+- the failure is not a global WPF failure across every process;
+- affected HTC Home processes acquire poisoned process-local/native WPF MediaSystem state;
+- a hidden Manager process can survive the same event with Tier 2 and create a new MediaContext;
+- therefore window visibility/render participation at the suspend boundary is now a concrete candidate.
+
+`Tier 0` remains an indicator rather than a proven root cause. Previous tests showed a visually working instance can exist at Tier 0. In the decisive healthy-vs-bad pairs, however, Tier 2 vs Tier 0 correlates with whether the process MediaSystem can create a new MediaContext.
 
 ## What is already ruled out as a necessary cause
 
@@ -94,18 +96,40 @@ The four processes fail synchronously, which strongly points to a shared system 
 - switching HwndTarget to SoftwareOnly before suspend
 - switching HwndTarget to SoftwareOnly after resume
 - creating a fresh HWND/HwndTarget on the old Dispatcher
-- creating a fresh Dispatcher/MediaContext inside the same process after the bad resume
+- creating a fresh Dispatcher/MediaContext inside the same poisoned process after the bad resume
+- a machine-wide failure that necessarily poisons every WPF process on the bad wake (Manager survives)
 
-## Next investigation target
+## Next controlled experiment: one hidden HTC Home profile
 
-Do not spend more time on post-resume Window/HwndTarget/Dispatcher reconstruction. The next useful work is to compare the **system-level graphics wake sequence** between a healthy resume and a bad resume and identify what poisons WPF `MediaSystem` before/while it reconnects its DUCE channels.
+The Manager now supports selecting exactly one profile as a resume diagnostic control. When that profile is launched, Manager adds:
 
-Useful next evidence should include, around the exact suspend/resume timestamps:
+```text
+--resume-hide-control
+```
 
-- Windows System/Application event log entries for display/GPU/DWM/driver recovery
-- NVIDIA driver (`nvlddmkm`) / DXGKRNL / Desktop Window Manager events if present
-- display topology and adapter state transitions
-- potentially ETW/WPF graphics diagnostics if practical
-- exact ordering of WPF tier changes relative to power/display notifications
+Only that HTC Home process reacts to the flag.
 
-The current logs already show the important boundary: once the bad wake has occurred, a new `MediaContext` in the same PID cannot connect to `MediaSystem` and immediately dies in `DUCE.Channel.SyncFlush()`.
+At `PowerModes.Suspend` it synchronously asks its WPF UI Dispatcher to hide all currently visible process windows, records their HWND/type/title, and keeps the process alive. It does **not** restart the process, close the windows, or intentionally recreate their HWNDs.
+
+After resume the control process remains hidden while the existing fresh-Dispatcher probe runs at +12 seconds for 6 seconds. At +22 seconds it queues restoration of the hidden windows on the original UI Dispatcher.
+
+Expected diagnostic log markers:
+
+```text
+[ResumeControl] ENABLED ...
+[ResumeControl] SUSPEND_HIDE_BEGIN ...
+[ResumeControl] HIDE_WINDOW ...
+[ResumeControl] SUSPEND_HIDE_OK ...
+[ResumeControl] RESUME_HOLD_HIDDEN ...
+[ResumeProbe] NEW_DISPATCHER_...
+[ResumeControl] RESTORE_QUEUE ...
+[ResumeControl] RESTORE_OK ...
+```
+
+### Decisive outcomes
+
+**If the three visible HTC Home processes fail with Tier 0 / MediaSystem OOM while the hidden control stays Tier 2 and its fresh Dispatcher probe succeeds:** visibility/render participation at the suspend boundary becomes strongly implicated. The next experiment should distinguish simple visibility from actual HwndTarget/composition attachment.
+
+**If the hidden control fails exactly like the three visible processes:** merely hiding the existing WPF windows at Suspend is not sufficient. The next experiment should move the boundary earlier/stronger, for example starting one control profile hidden from process launch or explicitly removing/recreating its presentation target around suspend.
+
+Either result is useful and avoids spending more time on post-resume Dispatcher reconstruction that has already been disproven as a recovery mechanism.

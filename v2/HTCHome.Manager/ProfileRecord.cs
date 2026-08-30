@@ -10,6 +10,7 @@ namespace HTCHome.Manager
     {
         private string name;
         private bool autoStart;
+        private bool resumeHideControl;
         private bool isRunning;
 
         [DataMember(Order = 1)]
@@ -32,6 +33,18 @@ namespace HTCHome.Manager
                 autoStart = value;
                 OnPropertyChanged();
                 OnPropertyChanged("AutoStartText");
+            }
+        }
+
+        [DataMember(Order = 4)]
+        public bool ResumeHideControl
+        {
+            get { return resumeHideControl; }
+            set
+            {
+                if (resumeHideControl == value) return;
+                resumeHideControl = value;
+                OnPropertyChanged();
             }
         }
 
