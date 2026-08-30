@@ -597,7 +597,7 @@ namespace HTCHome
             });
         }
 
-        private static void ScheduleRecoveryCheck(final int generation, int delayMs, string reason)
+        private static void ScheduleRecoveryCheck(int generation, int delayMs, string reason)
         {
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(delayMs);
@@ -708,7 +708,7 @@ namespace HTCHome
             }
         }
 
-        private static void ScheduleVerification(final int generation, int delayMs, string reason)
+        private static void ScheduleVerification(int generation, int delayMs, string reason)
         {
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromMilliseconds(delayMs);
