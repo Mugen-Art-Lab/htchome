@@ -46,13 +46,30 @@
 
         <Grid>
             <Border BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" />
-            <ListView x:Name="ProfilesList" Margin="1" SelectionChanged="ProfilesList_SelectionChanged">
+            <ListView x:Name="ProfilesList" Margin="1" SelectionChanged="ProfilesList_SelectionChanged"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn x:Name="NameColumn" Width="300" DisplayMemberBinding="{Binding Name}" />
-                        <GridViewColumn x:Name="StatusColumn" Width="140" DisplayMemberBinding="{Binding StatusText}" />
-                        <GridViewColumn x:Name="AutoStartColumn" Width="120" DisplayMemberBinding="{Binding AutoStartText}" />
-                        <GridViewColumn Header="ID" Width="190" DisplayMemberBinding="{Binding ShortId}" />
+                        <GridViewColumn x:Name="NameColumn" Width="300">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" TextAlignment="Left" /></DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn x:Name="StatusColumn" Width="140">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding StatusText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn x:Name="AutoStartColumn" Width="120">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding AutoStartText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="ID" Width="190">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>
