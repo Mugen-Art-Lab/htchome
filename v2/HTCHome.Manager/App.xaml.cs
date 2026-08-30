@@ -42,10 +42,13 @@ namespace HTCHome.Manager
             activateThread.Start();
 
             base.OnStartup(e);
+            ResumeSystemDiagnostics.Start();
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
+            try { ResumeSystemDiagnostics.Stop(); } catch { }
+
             try
             {
                 if (activateEvent != null)
