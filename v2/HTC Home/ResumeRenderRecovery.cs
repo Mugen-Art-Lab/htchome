@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
@@ -9,19 +8,18 @@ using Microsoft.Win32;
 
 namespace HTCHome
 {
-    // Isolated post-hibernate recovery experiment for Mugen profile processes.
-    // The passive ResumeDiagnostics remains untouched. After resume/display
-    // changes settle, if WPF is still stuck at Tier 0, this switches the existing
-    // HwndTarget to SoftwareOnly and invalidates the same Window. It does not
-    // restart, hide, move, recreate or change the Z-order of the widget window.
+    // Pre-suspend WPF recovery experiment for Mugen profile processes.
+    // The previous experiment proved that changing RenderMode after resume is
+    // too late: the existing render channel is already unusable by then. This
+    // version moves the same HwndTarget to SoftwareOnly while Tier is still 2,
+    // before Windows suspends the GPU. It does not restart, hide, move or
+    // recreate the widget window.
     internal static class ResumeRenderRecovery
     {
         private static readonly object Sync = new object();
         private static bool started;
+        private static int suspendGeneration;
         private static int resumeGeneration;
-        private static int attemptedGeneration;
-        private static DateTime lastResumeUtc = DateTime.MinValue;
-        private static DateTime lastDisplayChangeUtc = DateTime.MinValue;
 
         public static bool Start()
         {
@@ -39,6 +37,7 @@ namespace HTCHome
             SystemEvents.DisplaySettingsChanging += SystemEvents_DisplaySettingsChanging;
             SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
             RenderCapability.TierChanged += RenderCapability_TierChanged;
+            SafeLog("[ResumeRepair] PRE_SUSPEND_GUARD started tier=" + CurrentTier());
             return true;
         }
 
@@ -59,10 +58,23 @@ namespace HTCHome
         {
             if (e.Mode == PowerModes.Suspend)
             {
-                RunOnUi(delegate
+                int generation;
+                lock (Sync)
                 {
-                    SafeLog("[ResumeRepair] SUSPEND tier=" + CurrentTier());
-                    LogTargets("suspend");
+                    suspendGeneration++;
+                    generation = suspendGeneration;
+                }
+
+                // This is intentionally synchronous. The useful window is between
+                // PowerModes.Suspend and WPF dropping Tier 2 to Tier 0, so a queued
+                // BeginInvoke could execute only after the GPU is already gone.
+                RunOnUiSync(delegate
+                {
+                    SafeLog("[ResumeRepair] SUSPEND_PREPARE generation=" + generation +
+                        " tier=" + CurrentTier());
+                    LogTargets("pre-suspend-before");
+                    ArmSoftwareTargets(generation);
+                    LogTargets("pre-suspend-after");
                 });
                 return;
             }
@@ -70,32 +82,71 @@ namespace HTCHome
             if (e.Mode != PowerModes.Resume)
                 return;
 
-            int generation;
+            int resume;
             lock (Sync)
             {
-                DateTime now = DateTime.UtcNow;
                 resumeGeneration++;
-                generation = resumeGeneration;
-                attemptedGeneration = 0;
-                lastResumeUtc = now;
-                lastDisplayChangeUtc = now;
+                resume = resumeGeneration;
             }
 
             RunOnUi(delegate
             {
-                SafeLog("[ResumeRepair] RESUME generation=" + generation + " tier=" + CurrentTier());
+                SafeLog("[ResumeRepair] RESUME generation=" + resume + " tier=" + CurrentTier());
                 LogTargets("resume");
-                ScheduleCheck(generation, 3000, "resume+3s");
-                ScheduleCheck(generation, 9000, "resume+9s");
-                ScheduleCheck(generation, 15000, "resume+15s");
+                ScheduleVerify(resume, 250, "resume+250ms");
+                ScheduleVerify(resume, 3000, "resume+3s");
+                ScheduleVerify(resume, 10000, "resume+10s");
+                ScheduleVerify(resume, 30000, "resume+30s");
             });
+        }
+
+        private static void ArmSoftwareTargets(int generation)
+        {
+            foreach (Window window in GetWidgetWindows())
+            {
+                IntPtr hwnd = new WindowInteropHelper(window).Handle;
+                HwndSource source = HwndSource.FromHwnd(hwnd);
+                HwndTarget target = source == null ? null : source.CompositionTarget;
+
+                if (target == null)
+                {
+                    SafeLog("[ResumeRepair] PRE_SUSPEND_NO_TARGET generation=" + generation +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X"));
+                    continue;
+                }
+
+                try
+                {
+                    RenderMode before = target.RenderMode;
+                    target.RenderMode = RenderMode.SoftwareOnly;
+
+                    // Ask for one final render while the channel is still healthy.
+                    // This also makes the mode transition observable before sleep.
+                    window.InvalidateVisual();
+                    UIElement content = window.Content as UIElement;
+                    if (content != null)
+                        content.InvalidateVisual();
+
+                    SafeLog("[ResumeRepair] PRE_SUSPEND_ARMED generation=" + generation +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                        " renderMode=" + before + "->" + target.RenderMode +
+                        " tier=" + CurrentTier());
+                }
+                catch (OutOfMemoryException ex)
+                {
+                    SafeLog("[ResumeRepair] PRE_SUSPEND_OOM generation=" + generation +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X") + ": " + ex);
+                }
+                catch (Exception ex)
+                {
+                    SafeLog("[ResumeRepair] PRE_SUSPEND_FAILED generation=" + generation +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X") + ": " + ex);
+                }
+            }
         }
 
         private static void SystemEvents_DisplaySettingsChanging(object sender, EventArgs e)
         {
-            lock (Sync)
-                lastDisplayChangeUtc = DateTime.UtcNow;
-
             RunOnUi(delegate
             {
                 SafeLog("[ResumeRepair] DISPLAY changing tier=" + CurrentTier());
@@ -105,145 +156,20 @@ namespace HTCHome
 
         private static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
         {
-            int generation;
-            lock (Sync)
-            {
-                lastDisplayChangeUtc = DateTime.UtcNow;
-                generation = resumeGeneration;
-            }
-
             RunOnUi(delegate
             {
-                SafeLog("[ResumeRepair] DISPLAY changed generation=" + generation + " tier=" + CurrentTier());
+                SafeLog("[ResumeRepair] DISPLAY changed tier=" + CurrentTier());
                 LogTargets("display-changed");
-                if (generation > 0)
-                    ScheduleCheck(generation, 3500, "display+3.5s");
             });
         }
 
         private static void RenderCapability_TierChanged(object sender, EventArgs e)
         {
-            int generation;
-            lock (Sync)
-                generation = resumeGeneration;
-
             RunOnUi(delegate
             {
-                SafeLog("[ResumeRepair] TIER_CHANGED generation=" + generation + " tier=" + CurrentTier());
+                SafeLog("[ResumeRepair] TIER_CHANGED tier=" + CurrentTier());
                 LogTargets("tier-changed");
-                if (generation > 0)
-                    ScheduleCheck(generation, 1500, "tier-change+1.5s");
             });
-        }
-
-        private static void ScheduleCheck(int generation, int delayMs, string reason)
-        {
-            RunOnUi(delegate
-            {
-                DispatcherTimer timer = new DispatcherTimer();
-                timer.Interval = TimeSpan.FromMilliseconds(delayMs);
-                timer.Tick += delegate(object sender, EventArgs e)
-                {
-                    timer.Stop();
-                    TryRecovery(generation, reason);
-                };
-                timer.Start();
-            });
-        }
-
-        private static void TryRecovery(int generation, string reason)
-        {
-            try
-            {
-                DateTime resumeUtc;
-                DateTime displayUtc;
-                int attempted;
-
-                lock (Sync)
-                {
-                    if (generation != resumeGeneration)
-                        return;
-                    resumeUtc = lastResumeUtc;
-                    displayUtc = lastDisplayChangeUtc;
-                    attempted = attemptedGeneration;
-                }
-
-                double sinceResume = (DateTime.UtcNow - resumeUtc).TotalSeconds;
-                double sinceDisplay = (DateTime.UtcNow - displayUtc).TotalSeconds;
-                int tier = CurrentTier();
-
-                SafeLog("[ResumeRepair] CHECK reason=" + reason +
-                    " generation=" + generation +
-                    " tier=" + tier +
-                    " sinceResume=" + sinceResume.ToString("0.0", CultureInfo.InvariantCulture) +
-                    "s sinceDisplay=" + sinceDisplay.ToString("0.0", CultureInfo.InvariantCulture) + "s");
-
-                if (tier > 0)
-                {
-                    SafeLog("[ResumeRepair] HEALTHY: hardware tier recovered; no intervention");
-                    return;
-                }
-
-                if (sinceResume < 8.0 || sinceDisplay < 3.0)
-                {
-                    ScheduleCheck(generation, 3000, "settle-retry");
-                    return;
-                }
-
-                if (attempted == generation)
-                    return;
-
-                lock (Sync)
-                    attemptedGeneration = generation;
-
-                SafeLog("[ResumeRepair] ATTEMPT generation=" + generation +
-                    ": Tier remained 0 after display settle; switching existing HwndTarget(s) to SoftwareOnly");
-                LogTargets("pre-rebind");
-
-                foreach (Window window in GetWidgetWindows())
-                {
-                    IntPtr hwnd = new WindowInteropHelper(window).Handle;
-                    HwndSource source = HwndSource.FromHwnd(hwnd);
-                    HwndTarget target = source == null ? null : source.CompositionTarget;
-
-                    if (target == null)
-                    {
-                        SafeLog("[ResumeRepair] no HwndTarget for hwnd=0x" + hwnd.ToInt64().ToString("X"));
-                        continue;
-                    }
-
-                    try
-                    {
-                        RenderMode before = target.RenderMode;
-                        target.RenderMode = RenderMode.SoftwareOnly;
-                        window.InvalidateVisual();
-
-                        UIElement content = window.Content as UIElement;
-                        if (content != null)
-                            content.InvalidateVisual();
-
-                        SafeLog("[ResumeRepair] REBIND_OK hwnd=0x" + hwnd.ToInt64().ToString("X") +
-                            " renderMode=" + before + "->" + target.RenderMode +
-                            " tier=" + CurrentTier());
-                    }
-                    catch (OutOfMemoryException ex)
-                    {
-                        SafeLog("[ResumeRepair] REBIND_OOM hwnd=0x" + hwnd.ToInt64().ToString("X") + ": " + ex);
-                    }
-                    catch (Exception ex)
-                    {
-                        SafeLog("[ResumeRepair] REBIND_FAILED hwnd=0x" + hwnd.ToInt64().ToString("X") + ": " + ex);
-                    }
-                }
-
-                ScheduleVerify(generation, 1000, "rebind+1s");
-                ScheduleVerify(generation, 5000, "rebind+5s");
-                ScheduleVerify(generation, 15000, "rebind+15s");
-            }
-            catch (Exception ex)
-            {
-                SafeLog("[ResumeRepair] CHECK failed: " + ex);
-            }
         }
 
         private static void ScheduleVerify(int generation, int delayMs, string reason)
@@ -283,6 +209,29 @@ namespace HTCHome
             catch (Exception ex)
             {
                 SafeLog("[ResumeRepair] dispatcher failed: " + ex.GetType().FullName + ": " + ex.Message);
+            }
+        }
+
+        private static void RunOnUiSync(Action action)
+        {
+            try
+            {
+                Application app = Application.Current;
+                if (app == null || app.Dispatcher == null)
+                {
+                    SafeLog("[ResumeRepair] synchronous dispatcher unavailable");
+                    return;
+                }
+
+                if (app.Dispatcher.CheckAccess())
+                    action();
+                else
+                    app.Dispatcher.Invoke(action, DispatcherPriority.Send);
+            }
+            catch (Exception ex)
+            {
+                SafeLog("[ResumeRepair] synchronous dispatcher failed: " +
+                    ex.GetType().FullName + ": " + ex.Message);
             }
         }
 
@@ -338,8 +287,6 @@ namespace HTCHome
         }
     }
 
-    // WPF instantiates App before widget windows are created. This partial-class
-    // field subscribes the isolated recovery probe without modifying App.xaml.cs.
     public partial class App
     {
         private static readonly bool ResumeRenderRecoveryBootstrap = ResumeRenderRecovery.Start();
