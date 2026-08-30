@@ -45,6 +45,7 @@
     <Compile Include="ProcessController.cs" />
     <Compile Include="ProfileRecord.cs" />
     <Compile Include="ProfileStore.cs" />
+    <Compile Include="ResumeSystemDiagnostics.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
