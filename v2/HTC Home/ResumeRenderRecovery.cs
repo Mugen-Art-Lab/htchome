@@ -12,6 +12,17 @@ namespace HTCHome
     {
         public static bool Start()
         {
+            // For this diagnostic run only, keep DWM blur/glass out of the test.
+            // Do not Save(): the user's normal setting must remain unchanged.
+            try
+            {
+                HTCHome.Properties.Settings.Default.EnableGlass = false;
+                App.Log("[ResumeProbe] NON_LAYERED_AB AllowsTransparency=False EnableGlass=False (runtime only)");
+            }
+            catch
+            {
+            }
+
             return true;
         }
     }
