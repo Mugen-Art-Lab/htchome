@@ -149,6 +149,12 @@ namespace HTCHome.Manager
             Application.Current.Shutdown();
         }
 
+        private void NvidiaCompatibilityButton_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new NvidiaCompatibilityWindow(rootDirectory, profiles) { Owner = this };
+            window.ShowDialog();
+        }
+
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             string name = Interaction.InputBox(ManagerText.NewInstancePrompt, "HTC Home Mugen", ManagerText.NewInstanceDefault);
@@ -300,6 +306,7 @@ namespace HTCHome.Manager
             DeleteButton.Content = ManagerText.Delete;
             StartAllButton.Content = ManagerText.StartAll;
             StopAllButton.Content = ManagerText.StopAll;
+            NvidiaCompatibilityButton.Content = ManagerText.NvidiaCompatibility;
             ManagerAutoStartCheckBox.Content = ManagerText.ManagerAutoStart;
             ProfileAutoStartCheckBox.Content = ManagerText.ProfileAutoStart;
             foreach (var profile in profiles) profile.RefreshLocalizedText();

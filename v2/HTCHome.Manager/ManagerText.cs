@@ -48,6 +48,31 @@ namespace HTCHome.Manager
         public static string TrayExit { get { return russian ? "Выход" : "Exit"; } }
         public static string TrayTip { get { return russian ? "HTC Home Mugen — управление экземплярами" : "HTC Home Mugen — instance manager"; } }
 
+        public static string NvidiaCompatibility { get { return russian ? "Совместимость NVIDIA" : "NVIDIA Compatibility"; } }
+        public static string NvidiaWindowTitle { get { return NvidiaCompatibility; } }
+        public static string NvidiaHeader { get { return NvidiaCompatibility; } }
+        public static string NvidiaDescription { get { return russian ? "Диагностика интеграции NVIDIA с экземплярами HTC Home. Handles обновляются автоматически каждые 5 секунд; резкий устойчивый рост после гибернации может указывать на утечку ресурсов." : "Diagnostics for NVIDIA integration with HTC Home instances. Handle counts refresh every 5 seconds; a large sustained increase after hibernate may indicate a resource leak."; } }
+        public static string NvidiaProfile { get { return russian ? "Профиль" : "Profile"; } }
+        public static string NvidiaModule { get { return russian ? "NVIDIA DLL" : "NVIDIA DLL"; } }
+        public static string NvidiaDelta { get { return russian ? "Изменение" : "Change"; } }
+        public static string NvidiaHealth { get { return russian ? "Оценка" : "Assessment"; } }
+        public static string NvidiaNormal { get { return russian ? "Норма" : "Normal"; } }
+        public static string NvidiaWatch { get { return russian ? "Наблюдать" : "Watch"; } }
+        public static string NvidiaSuspicious { get { return russian ? "Подозрительный рост" : "Suspicious growth"; } }
+        public static string NvidiaStopped { get { return russian ? "Остановлен" : "Stopped"; } }
+        public static string NvidiaExclusionHeader { get { return russian ? "Исключения NVIDIA FrameView" : "NVIDIA FrameView exclusions"; } }
+        public static string NvidiaExclusionsPresent { get { return russian ? "HTCHome.exe уже добавлен в оба списка исключений." : "HTCHome.exe is already present in both exclusion lists."; } }
+        public static string NvidiaExclusionsMissing { get { return russian ? "HTCHome.exe ещё не добавлен в оба списка исключений." : "HTCHome.exe is not yet present in both exclusion lists."; } }
+        public static string NvidiaExclusionNote { get { return russian ? "Manager изменяет только ExcludeList.overlay.txt и ExcludeList.txt в папке NVIDIA FrameView. Существующие файлы перед первым изменением копируются в .mugen-backup. Это не гарантирует, что nvspcap64.dll перестанет загружаться в процесс." : "Manager changes only ExcludeList.overlay.txt and ExcludeList.txt in the NVIDIA FrameView folder. Existing files are backed up to .mugen-backup before the first change. This does not guarantee that nvspcap64.dll will stop loading into the process."; } }
+        public static string NvidiaApplyExclusions { get { return russian ? "Добавить исключения" : "Add exclusions"; } }
+        public static string NvidiaRefresh { get { return russian ? "Обновить" : "Refresh"; } }
+        public static string NvidiaClose { get { return russian ? "Закрыть" : "Close"; } }
+        public static string NvidiaApplyQuestion { get { return russian ? "Добавить HTCHome.exe в оба списка исключений NVIDIA FrameView?" : "Add HTCHome.exe to both NVIDIA FrameView exclusion lists?"; } }
+        public static string NvidiaApplySuccess { get { return russian ? "Исключения добавлены. Перезапустите экземпляры HTC Home для чистой проверки." : "Exclusions were added. Restart HTC Home instances for a clean test."; } }
+        public static string NvidiaAdminRequired { get { return russian ? "Windows не разрешила изменить файлы NVIDIA. Запустите Manager один раз от имени администратора и повторите действие." : "Windows did not allow the NVIDIA files to be changed. Run Manager as administrator once and try again."; } }
+        public static string NvidiaApplyFailed { get { return russian ? "Не удалось применить исключения NVIDIA." : "Could not apply NVIDIA exclusions."; } }
+        public static string NvidiaUpdated(DateTime time) { return russian ? "Обновлено: " + time.ToString("HH:mm:ss") : "Updated: " + time.ToString("HH:mm:ss"); }
+
         public static string DeleteQuestion(string name)
         {
             return russian ? "Удалить профиль «" + name + "»?" : "Delete profile \"" + name + "\"?";

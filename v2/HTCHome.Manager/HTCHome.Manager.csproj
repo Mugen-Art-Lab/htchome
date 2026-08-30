@@ -35,10 +35,13 @@
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></ApplicationDefinition>
     <Page Include="MainWindow.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
+    <Page Include="NvidiaCompatibilityWindow.xaml"><Generator>MSBuild:Compile</Generator><SubType>Designer</SubType></Page>
     <Compile Include="App.xaml.cs"><DependentUpon>App.xaml</DependentUpon></Compile>
     <Compile Include="AutostartController.cs" />
     <Compile Include="MainWindow.xaml.cs"><DependentUpon>MainWindow.xaml</DependentUpon></Compile>
     <Compile Include="ManagerText.cs" />
+    <Compile Include="NvidiaCompatibilityController.cs" />
+    <Compile Include="NvidiaCompatibilityWindow.xaml.cs"><DependentUpon>NvidiaCompatibilityWindow.xaml</DependentUpon></Compile>
     <Compile Include="ProcessController.cs" />
     <Compile Include="ProfileRecord.cs" />
     <Compile Include="ProfileStore.cs" />
