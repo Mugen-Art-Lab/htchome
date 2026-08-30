@@ -33,6 +33,11 @@
         <Grid>
             <Border BorderBrush="#33000000" BorderThickness="1" CornerRadius="6" />
             <ListView x:Name="RowsList" Margin="1" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
                         <GridViewColumn x:Name="ProfileColumn" Width="220">
