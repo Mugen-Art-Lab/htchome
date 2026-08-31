@@ -107,3 +107,5 @@ The goal is to correlate the successful/failed matrix paths with the exact inter
 - The hidden Mugen Manager can remain healthy on a bad HTC Home wake, proving the failure is not necessarily machine-wide across every WPF process.
 - DWM Cloak is not sufficient protection.
 - literal RAM exhaustion, right-click, weather Storyboards, AllowsTransparency, render mode, and same-PID Dispatcher/HwndTarget reconstruction are not necessary causes or viable recovery boundaries.
+
+Build-trigger note: run #54 validates the TargetOff/MediaContext instrumentation added after this result.
