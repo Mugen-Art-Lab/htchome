@@ -1,7 +1,7 @@
 <Window x:Class="HTCHome.Manager.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="HTC Home Mugen Manager" Height="490" Width="820" MinHeight="420" MinWidth="720"
+        Title="HTC Home Mugen Manager" Height="500" Width="980" MinHeight="430" MinWidth="880"
         WindowStartupLocation="CenterScreen" Closing="Window_Closing" StateChanged="Window_StateChanged">
     <DockPanel Margin="14">
         <Grid DockPanel.Dock="Top" Margin="0,0,0,12">
@@ -31,8 +31,17 @@
                     <Button x:Name="StopAllButton" Width="110" Click="StopAllButton_Click" />
                 </StackPanel>
             </Grid>
-            <CheckBox x:Name="ResumeHideControlCheckBox" Margin="0,0,0,10"
-                      Click="ResumeHideControlCheckBox_Click" />
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                <TextBlock x:Name="ResumeDiagnosticLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox x:Name="ResumeDiagnosticBox" Grid.Column="1" Width="260" SelectionChanged="ResumeDiagnosticBox_SelectionChanged">
+                    <ComboBoxItem x:Name="ResumeNormalItem" Tag="normal" />
+                    <ComboBoxItem x:Name="ResumeHideItem" Tag="hide" />
+                    <ComboBoxItem x:Name="ResumeCloakItem" Tag="cloak" />
+                    <ComboBoxItem x:Name="ResumeMinimizeItem" Tag="minimize" />
+                </ComboBox>
+                <TextBlock x:Name="ResumeDiagnosticHint" Grid.Column="2" VerticalAlignment="Center" Margin="12,0,0,0" Opacity="0.65" />
+            </Grid>
             <Grid>
                 <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                 <Button x:Name="NvidiaCompatibilityButton" Width="180" HorizontalAlignment="Left" Click="NvidiaCompatibilityButton_Click" />
@@ -57,22 +66,27 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn x:Name="NameColumn" Width="300">
+                        <GridViewColumn x:Name="NameColumn" Width="220">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate><TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" TextAlignment="Left" /></DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn x:Name="StatusColumn" Width="140">
+                        <GridViewColumn x:Name="StatusColumn" Width="110">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate><TextBlock Text="{Binding StatusText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn x:Name="AutoStartColumn" Width="120">
+                        <GridViewColumn x:Name="AutoStartColumn" Width="100">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate><TextBlock Text="{Binding AutoStartText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="ID" Width="190">
+                        <GridViewColumn x:Name="ResumeDiagnosticColumn" Width="260">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate><TextBlock Text="{Binding ResumeDiagnosticText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="ID" Width="150">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate>
                             </GridViewColumn.CellTemplate>

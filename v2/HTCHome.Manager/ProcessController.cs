@@ -40,8 +40,9 @@ namespace HTCHome.Manager
                 throw new FileNotFoundException(ManagerText.ExecutableNotFound, executable);
 
             string arguments = "--profile " + profile.Id;
-            if (profile.ResumeHideControl)
-                arguments += " --resume-hide-control";
+            string diagnosticMode = profile.EffectiveResumeDiagnosticMode;
+            if (!string.Equals(diagnosticMode, "normal", StringComparison.OrdinalIgnoreCase))
+                arguments += " --resume-diag " + diagnosticMode;
 
             Process.Start(new ProcessStartInfo
             {

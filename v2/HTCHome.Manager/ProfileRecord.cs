@@ -11,6 +11,7 @@ namespace HTCHome.Manager
         private string name;
         private bool autoStart;
         private bool resumeHideControl;
+        private string resumeDiagnosticMode;
         private bool isRunning;
 
         [DataMember(Order = 1)]
@@ -36,15 +37,36 @@ namespace HTCHome.Manager
             }
         }
 
+        // Legacy run #51 flag. Kept only so existing profile JSON migrates cleanly.
         [DataMember(Order = 4)]
         public bool ResumeHideControl
         {
             get { return resumeHideControl; }
+            set { resumeHideControl = value; }
+        }
+
+        [DataMember(Order = 5, EmitDefaultValue = false)]
+        public string ResumeDiagnosticMode
+        {
+            get { return resumeDiagnosticMode; }
             set
             {
-                if (resumeHideControl == value) return;
-                resumeHideControl = value;
+                if (string.Equals(resumeDiagnosticMode, value, StringComparison.OrdinalIgnoreCase)) return;
+                resumeDiagnosticMode = value;
                 OnPropertyChanged();
+                OnPropertyChanged("EffectiveResumeDiagnosticMode");
+                OnPropertyChanged("ResumeDiagnosticText");
+            }
+        }
+
+        public string EffectiveResumeDiagnosticMode
+        {
+            get
+            {
+                string mode = (ResumeDiagnosticMode ?? string.Empty).Trim().ToLowerInvariant();
+                if (mode == "hide" || mode == "cloak" || mode == "minimize" || mode == "normal")
+                    return mode;
+                return ResumeHideControl ? "hide" : "normal";
             }
         }
 
@@ -62,6 +84,7 @@ namespace HTCHome.Manager
 
         public string StatusText { get { return IsRunning ? ManagerText.Running : ManagerText.Stopped; } }
         public string AutoStartText { get { return AutoStart ? ManagerText.Yes : ManagerText.No; } }
+        public string ResumeDiagnosticText { get { return ManagerText.ResumeDiagnosticModeText(EffectiveResumeDiagnosticMode); } }
         public string ShortId { get { return string.IsNullOrEmpty(Id) ? string.Empty : Id.Substring(0, Math.Min(8, Id.Length)); } }
 
         public event PropertyChangedEventHandler PropertyChanged;
@@ -70,6 +93,7 @@ namespace HTCHome.Manager
         {
             OnPropertyChanged("StatusText");
             OnPropertyChanged("AutoStartText");
+            OnPropertyChanged("ResumeDiagnosticText");
         }
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)

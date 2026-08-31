@@ -26,6 +26,7 @@ namespace HTCHome.Manager
         public static string NameHeader { get { return russian ? "Имя" : "Name"; } }
         public static string StatusHeader { get { return russian ? "Статус" : "Status"; } }
         public static string AutoStartHeader { get { return russian ? "Автозапуск" : "Autostart"; } }
+        public static string ResumeDiagnosticHeader { get { return russian ? "Resume-эксперимент" : "Resume experiment"; } }
         public static string Add { get { return russian ? "+ Добавить" : "+ Add"; } }
         public static string Rename { get { return russian ? "Переименовать" : "Rename"; } }
         public static string Start { get { return russian ? "Запустить" : "Start"; } }
@@ -35,7 +36,12 @@ namespace HTCHome.Manager
         public static string StopAll { get { return russian ? "Остановить все" : "Stop all"; } }
         public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
         public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
-        public static string ResumeHideControl { get { return russian ? "Диагностика resume: скрывать этот профиль перед гибернацией (после перезапуска)" : "Resume diagnostic: hide this profile before hibernate (after restart)"; } }
+        public static string ResumeDiagnosticLabel { get { return russian ? "Resume-эксперимент:" : "Resume experiment:"; } }
+        public static string ResumeDiagnosticHint { get { return russian ? "Применяется после перезапуска выбранного профиля" : "Takes effect after restarting the selected profile"; } }
+        public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — ничего не менять" : "Baseline — no changes"; } }
+        public static string ResumeDiagnosticHide { get { return russian ? "WPF Hide — скрыть окно" : "WPF Hide — hide window"; } }
+        public static string ResumeDiagnosticCloak { get { return russian ? "DWM Cloak — убрать из DWM" : "DWM Cloak — remove from DWM"; } }
+        public static string ResumeDiagnosticMinimize { get { return russian ? "Minimize — свернуть HWND" : "Minimize — minimize HWND"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
         public static string Yes { get { return russian ? "Да" : "Yes"; } }
@@ -74,11 +80,12 @@ namespace HTCHome.Manager
         public static string NvidiaApplyFailed { get { return russian ? "Не удалось применить исключения NVIDIA." : "Could not apply NVIDIA exclusions."; } }
         public static string NvidiaUpdated(DateTime time) { return russian ? "Обновлено: " + time.ToString("HH:mm:ss") : "Updated: " + time.ToString("HH:mm:ss"); }
 
-        public static string ResumeControlAlreadyRunning(string name)
+        public static string ResumeDiagnosticModeText(string mode)
         {
-            return russian
-                ? "Сначала остановите текущий контрольный профиль «" + name + "». Диагностический флаг передаётся при запуске процесса."
-                : "Stop the current control profile \"" + name + "\" first. The diagnostic flag is passed when the process starts.";
+            if (string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticHide;
+            if (string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
+            if (string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMinimize;
+            return ResumeDiagnosticNormal;
         }
 
         public static string DeleteQuestion(string name)
