@@ -40,7 +40,9 @@ namespace HTCHome.Manager
         public static string ResumeDiagnosticHint { get { return russian ? "Применяется после перезапуска выбранного профиля" : "Takes effect after restarting the selected profile"; } }
         public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — ничего не менять" : "Baseline — no changes"; } }
         public static string ResumeDiagnosticHide { get { return russian ? "WPF Hide — скрыть окно" : "WPF Hide — hide window"; } }
-        public static string ResumeDiagnosticCloak { get { return russian ? "DWM Cloak — убрать из DWM" : "DWM Cloak — remove from DWM"; } }
+        // Name kept for XAML/code-behind compatibility; this slot now runs the
+        // narrower HwndTarget render-target disable experiment instead of DWM Cloak.
+        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget Disable — отключить рендер" : "HwndTarget Disable — disable render target"; } }
         public static string ResumeDiagnosticMinimize { get { return russian ? "Minimize — свернуть HWND" : "Minimize — minimize HWND"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
@@ -83,7 +85,8 @@ namespace HTCHome.Manager
         public static string ResumeDiagnosticModeText(string mode)
         {
             if (string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticHide;
-            if (string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
+            if (string.Equals(mode, "targetoff", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
             if (string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMinimize;
             return ResumeDiagnosticNormal;
         }

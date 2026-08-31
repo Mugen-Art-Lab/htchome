@@ -64,7 +64,11 @@ namespace HTCHome.Manager
             get
             {
                 string mode = (ResumeDiagnosticMode ?? string.Empty).Trim().ToLowerInvariant();
-                if (mode == "hide" || mode == "cloak" || mode == "minimize" || mode == "normal")
+                // Run #52/#53 used "cloak" on the right-monitor profile. Starting
+                // with the HwndTarget experiment, transparently reuse that slot as
+                // targetoff so the existing four-profile matrix needs no manual edit.
+                if (mode == "cloak") return "targetoff";
+                if (mode == "hide" || mode == "targetoff" || mode == "minimize" || mode == "normal")
                     return mode;
                 return ResumeHideControl ? "hide" : "normal";
             }

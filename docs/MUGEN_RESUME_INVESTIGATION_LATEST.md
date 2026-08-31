@@ -1,110 +1,109 @@
 # HTC Home Mugen — latest resume investigation result
 
-Updated: 2026-08-31 after the four-way composition matrix reproduced a bad wake.
+Updated: 2026-08-31 after run #53 HwndTarget/MediaContext state logs from a repeated bad hibernate cycle.
 
 Read this together with `docs/MUGEN_RESUME_INVESTIGATION.md`.
 
-## Decisive four-way matrix result
+## Repeated matrix result
 
-The same four long-lived HTC Home profile processes were assigned one suspend-time presentation mode each:
-
-```text
-TV              -> Baseline (no change)
-Монитор слева   -> WPF Hide
-Монитор справа  -> DWM Cloak
-Основной монитор -> Minimize
-```
-
-A healthy wake first established that all four matrix modes execute and restore correctly. In particular, `DWM Cloak` returned `hr=0` while the WPF Window remained `IsVisible=True`, `WindowState=Normal`, and non-iconic. This is an important control: Cloak removes the HWND from DWM presentation without asking WPF to hide or minimize its Window.
-
-The next reproduced bad wake split the matrix cleanly:
+The four-way matrix reproduced the same split on two bad cycles:
 
 ```text
-Baseline / TV          -> poisoned MediaSystem, widget frozen
-WPF Hide / left        -> healthy, fresh MediaContext OK, widget restored
-DWM Cloak / right      -> poisoned MediaSystem, fresh MediaContext OOM
-Minimize / main        -> healthy, fresh MediaContext OK, widget restored
+Baseline / TV       -> poisoned / bad
+WPF Hide / left     -> healthy
+DWM Cloak / right   -> poisoned / bad
+Minimize / main     -> healthy
 ```
 
-Both poisoned profiles failed in the familiar process-local WPF composition path:
+This makes the result substantially stronger than a one-off profile correlation. DWM Cloak successfully removed the HWND from DWM presentation while WPF still considered the Window visible, normal and non-minimized, yet it failed with Baseline. Hide and Minimize survived.
+
+The user also reports a practical UX distinction: after restore, the left/WPF-Hide widget does not noticeably jump above ordinary windows, while the main/Minimize widget can reappear above them. This is only a UX observation, not a causal result, but it makes Hide a better reference behavior if a later product-safe presentation strategy is needed.
+
+## New key finding: poisoning starts during Suspend
+
+Run #53 added passive private-state snapshots and exposed an earlier failure point than the post-resume display reconfiguration we had been focusing on.
+
+On a bad cycle, the first real WPF OutOfMemoryException in the Baseline and Cloak processes occurred at the transition into hibernate, around the Suspend event, before the later resume-time DisplaySettingsChanged burst. The stack involved the interlocked-presentation/vsync path:
 
 ```text
 System.OutOfMemoryException
-   at System.Windows.Media.Composition.DUCE.Channel.SyncFlush()
-   at System.Windows.Media.MediaContext.CompleteRender()
-   at System.Windows.Media.MediaContext.CreateChannels()
-   at System.Windows.Media.MediaSystem.ConnectChannels(MediaContext mc)
+  at System.Windows.Media.MediaContext.CompleteRender()
+  at System.Windows.Media.MediaContext.LeaveInterlockedPresentation()
+  at System.Windows.Media.MediaContext.ScheduleNextRenderOp(...)
+  at System.Windows.Media.MediaContext.EstimatedNextVSyncTimeExpired(...)
+  at System.Windows.Threading.DispatcherTimer.FireTick(...)
 ```
 
-The Hide and Minimize controls could create a fresh STA Dispatcher / MediaContext / HwndSource on the exact same bad system wake and returned to working UI with the original HWNDs.
-
-The Cloak result is especially discriminating. `DwmSetWindowAttribute(DWMWA_CLOAK)` succeeded, the HWND stayed alive, and DWM was told not to present it, but WPF still considered the Window visible, normal, and non-minimized. That process acquired the same poisoned MediaSystem state as Baseline. Therefore simply removing the HWND from visible DWM presentation is **not sufficient** to prevent the failure.
-
-The right/Cloak process later disappeared from Manager around the restore interval. Its log proves the earlier fresh-MediaContext OOM, but the final terminating stack was not captured, so the exact cause of process exit remains probable rather than proven.
-
-## Current interpretation
-
-The strongest discriminator is now not user-visible pixels or DWM visibility by itself. It is something in the WPF presentation state changed by both `Window.Hide()` and `WindowState=Minimized`, but **not** changed by DWM Cloak.
-
-A leading target is the existing WPF `HwndTarget` state machine around the late display reconfiguration after resume. Across many runs Windows emits a burst of `DisplaySettingsChanging/Changed` roughly +9 to +12 seconds after `PowerModes.Resume`, even when all four display devices remain enumerated and the NVIDIA adapter reports healthy status. On at least one wake a display work area was observed transiently as `0,0,0x0` during that burst before returning to normal.
-
-This is consistent with the older failure stacks involving `HwndTarget.UpdateWindowSettings` / `UpdateWindowPos` and DUCE synchronization, but the exact causal state transition is not yet proven.
-
-`Tier 0` remains only an observation, not the definition of the bug. Healthy Hide/Minimize controls can initially resume at Tier 0 and then create a fresh Tier-2 MediaContext. The reliable poisoned-state marker remains inability to create a fresh MediaContext/HwndSource in the same PID with the DUCE OOM stack.
-
-## Next diagnostic: passive HwndTarget state timeline
-
-The next build keeps the four-way matrix behavior unchanged and adds a passive `ResumeHwndTargetStateProbe`.
-
-It records the existing HwndTarget private fields already used in earlier investigation:
+The state split immediately after Suspend intervention was approximately:
 
 ```text
-_isSuspended
-_needsRePresentOnWake
-_hasRePresentedSinceWake
-_isRenderTargetEnabled
-_disableCookie
-_isMinimized
-_isSessionDisconnected
-_lastWakeOrUnlockEvent
+Baseline: _isSuspended=True, _isRenderTargetEnabled=True,  _isMinimized=False
+Cloak:    _isSuspended=True, _isRenderTargetEnabled=True,  _isMinimized=False
+Hide:     _isSuspended=True, _isRenderTargetEnabled=False, _isMinimized=False
+Minimize: _isSuspended=True, _isRenderTargetEnabled=True,  _isMinimized=True
 ```
 
-Snapshots are recorded for:
+The disable cookie also advanced on the protected paths as WPF changed presentation state.
 
-- the cached healthy state immediately before Suspend intervention;
-- the live state immediately after the matrix applies Hide/Cloak/Minimize;
-- Resume +0, +250 ms, +1 s, +3 s, +10 s, +12 s, +21 s, +24 s, and +30 s;
-- every `DisplaySettingsChanging` and `DisplaySettingsChanged` notification;
-- unhandled AppDomain exceptions and process exit.
+This shifts the leading hypothesis. The vulnerable event is now likely an active WPF presentation/render path that remains eligible for an estimated-next-vsync/render operation while the MediaContext/HwndTarget is entering suspended graphics state. The late display-topology burst after resume may still aggravate a damaged process, but it is no longer required as the primary trigger on this reproduced bad cycle.
 
-The probe does not change HwndTarget state or add another recovery mechanism. Its goal is to identify the exact field/state transition shared by Hide + Minimize but absent from Baseline + Cloak.
+## Diagnostic contamination found in run #53
 
-If such a discriminator is found, the following experiment should manipulate only that narrow WPF presentation state while leaving the Window visible and normal. That is the path toward a root-cause fix rather than an automated hide/restart workaround.
+The new HwndTarget timeline itself exposed a probe bug: it asked for `RenderCapability.Tier` from a background timeline thread. In a process that was already poisoned, this could create a fresh thread-local MediaContext, hit the familiar `DUCE.Channel.SyncFlush -> MediaContext.CreateChannels -> MediaSystem.ConnectChannels` OOM, and become an unhandled background exception that terminated the PID.
 
-## Earlier decisive hidden-profile result — generation 11
+Therefore the fact that Baseline/Cloak appeared as `Stopped` in Manager in run #53 is partly diagnostic contamination. The poisoning itself and the earlier Suspend-time OOM are real; the final process termination was accelerated by the state probe.
 
-Before the four-way matrix, one profile was hidden with `Window.Hide()` while three peers remained visible. On the same bad wake all three visible processes acquired the MediaSystem/DUCE failure while the hidden profile survived, created a fresh MediaContext, and returned with the same HWND. The hidden Mugen Manager also remained healthy.
+The next build removes all background-thread Tier queries from the passive state timeline. The dedicated fresh-Dispatcher probe remains because it catches its own OOM and is intentionally the health test.
 
-That experiment established that preventing one HTC Home process from normal visible WPF presentation during the vulnerable wake could change the outcome without restarting or rebuilding the process.
+## Next matrix: isolate HwndTarget render-target enable state
 
-## Earlier decisive fresh-Dispatcher result
+DWM Cloak has completed its purpose and is replaced with `HwndTarget Disable`:
 
-Before the hidden-profile experiment, all four visible HTC Home processes were taken through consecutive hibernate/resume cycles. On a bad generation all four fresh STA Dispatcher probes failed before creating their off-screen HwndSource with the same `DUCE.Channel.SyncFlush -> MediaContext.CreateChannels -> MediaSystem.ConnectChannels` OOM stack.
+```text
+TV               -> Baseline
+Монитор слева    -> WPF Hide
+Монитор справа   -> HwndTarget Disable
+Основной монитор -> Minimize
+```
 
-That established that once an HTC Home PID is poisoned, replacing only Window/HwndTarget/Dispatcher state inside that same process is not a viable post-failure recovery boundary.
+`HwndTarget Disable` is deliberately narrower than Hide:
 
-## What is already ruled out as a necessary cause
+- Window.IsVisible remains true;
+- WindowState remains Normal;
+- HWND remains the same;
+- WPF's existing private `HwndTarget.UpdateWindowSettings(false)` path is invoked;
+- WPF's internal auto-reenable message is suppressed during the protected interval;
+- on restore the suppression hook is removed and the same HwndTarget is enabled again.
 
-- literal RAM exhaustion
-- right-click/context menu as the trigger
-- NVIDIA overlay handle leak as the only cause
-- weather animation / cloud Storyboards
-- `AllowsTransparency=True` / layered windows
-- existing HwndTarget hardware rendering mode
-- switching HwndTarget to SoftwareOnly before suspend
-- switching HwndTarget to SoftwareOnly after resume
-- creating a fresh HWND/HwndTarget on the old Dispatcher after failure
-- creating a fresh Dispatcher/MediaContext inside the same poisoned process after failure
-- a machine-wide failure that necessarily poisons every WPF process on the bad wake
-- DWM Cloak / non-presentation by itself as sufficient protection
-- Tier 0 by itself as a sufficient definition of the poisoned state
+The Manager maps the old stored `cloak` assignment to `targetoff` automatically, so the existing right-monitor profile becomes the new control without manual profile editing.
+
+If Baseline fails while TargetOff + Hide + Minimize survive the same bad Suspend, that will be strong evidence that disabling normal HwndTarget presentation/render participation is sufficient protection even when the HWND remains visible and normal.
+
+## MediaContext state timeline
+
+The passive probe now also caches the already-existing UI-thread MediaContext and records selected private state without creating a new MediaContext on the timeline thread:
+
+```text
+_interlockState
+_needToCommitChannel
+_commitPendingAfterRender
+_animationRenderRate
+_lastPresentationResults
+_lastCommitTime
+_renderOp
+_estimatedNextVSyncTimer
+```
+
+The goal is to correlate the successful/failed matrix paths with the exact interlocked-presentation/vsync state around Suspend and the first OOM.
+
+## Reliable bad-state marker
+
+`Tier 0` remains only an observation, not the definition of the bug. Healthy protected controls can initially resume at Tier 0 and later create a healthy Tier-2 MediaContext. The reliable poisoned-state marker remains inability to create a fresh MediaContext/HwndSource in the same PID with the DUCE OOM stack.
+
+## Earlier decisive results retained
+
+- Four visible long-lived profile processes can all poison on the same bad wake; fresh Dispatcher reconstruction in the same PID then fails.
+- A single WPF-Hide control survived a bad wake while three visible peers failed, with the same HWND before and after hide/show.
+- The hidden Mugen Manager can remain healthy on a bad HTC Home wake, proving the failure is not necessarily machine-wide across every WPF process.
+- DWM Cloak is not sufficient protection.
+- literal RAM exhaustion, right-click, weather Storyboards, AllowsTransparency, render mode, and same-PID Dispatcher/HwndTarget reconstruction are not necessary causes or viable recovery boundaries.
