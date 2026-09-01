@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Condition="'$(MSBuildProjectName)' == 'HTC Home'">
     <Compile Include="ResumeRenderRecovery.cs" />
+    <Compile Include="ResumePrototypeFixWatchdog.cs" />
     <Compile Include="ResumeHwndTargetStateProbe.cs" />
   </ItemGroup>
 </Project>

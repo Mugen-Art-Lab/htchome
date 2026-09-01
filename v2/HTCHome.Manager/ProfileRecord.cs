@@ -64,14 +64,13 @@ namespace HTCHome.Manager
             {
                 string mode = (ResumeDiagnosticMode ?? string.Empty).Trim().ToLowerInvariant();
 
-                // Timing-matrix migration. Reuse the exact profile slots from run #54:
-                // old Hide -> immediate target restore, old TargetOff/Cloak -> +3s,
-                // old Minimize -> +12s. No Window Hide/Minimize is used by these modes.
-                if (mode == "hide") return "target0";
-                if (mode == "targetoff" || mode == "cloak") return "target3";
-                if (mode == "minimize") return "target12";
-                if (mode == "target0" || mode == "target3" || mode == "target12" || mode == "normal")
-                    return mode;
+                // Prototype-fix convergence after run #56. All previously protected
+                // laboratory slots now use the same proven path:
+                // TargetOff on Suspend -> synchronous TargetOn at PowerModes.Resume.
+                if (mode == "normal") return "normal";
+                if (mode == "target0" || mode == "target3" || mode == "target12" ||
+                    mode == "targetoff" || mode == "hide" || mode == "cloak" || mode == "minimize")
+                    return "target0";
 
                 return ResumeHideControl ? "target0" : "normal";
             }

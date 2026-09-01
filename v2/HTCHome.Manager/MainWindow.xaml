@@ -34,11 +34,11 @@
             <Grid Margin="0,0,0,10">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <TextBlock x:Name="ResumeDiagnosticLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
-                <ComboBox x:Name="ResumeDiagnosticBox" Grid.Column="1" Width="320" SelectionChanged="ResumeDiagnosticBox_SelectionChanged">
+                <ComboBox x:Name="ResumeDiagnosticBox" Grid.Column="1" Width="340" SelectionChanged="ResumeDiagnosticBox_SelectionChanged">
                     <ComboBoxItem x:Name="ResumeNormalItem" Tag="normal" />
                     <ComboBoxItem x:Name="ResumeHideItem" Tag="target0" />
-                    <ComboBoxItem x:Name="ResumeCloakItem" Tag="target3" />
-                    <ComboBoxItem x:Name="ResumeMinimizeItem" Tag="target12" />
+                    <ComboBoxItem x:Name="ResumeCloakItem" Tag="target3" Visibility="Collapsed" />
+                    <ComboBoxItem x:Name="ResumeMinimizeItem" Tag="target12" Visibility="Collapsed" />
                 </ComboBox>
                 <TextBlock x:Name="ResumeDiagnosticHint" Grid.Column="2" VerticalAlignment="Center" Margin="12,0,0,0" Opacity="0.65" />
             </Grid>
@@ -69,8 +69,8 @@
                         <GridViewColumn x:Name="NameColumn" Width="220"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" TextAlignment="Left" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
                         <GridViewColumn x:Name="StatusColumn" Width="110"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding StatusText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
                         <GridViewColumn x:Name="AutoStartColumn" Width="100"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding AutoStartText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn x:Name="ResumeDiagnosticColumn" Width="320"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ResumeDiagnosticText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn Header="ID" Width="120"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn x:Name="ResumeDiagnosticColumn" Width="340"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ResumeDiagnosticText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn Header="ID" Width="100"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

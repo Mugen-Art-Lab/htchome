@@ -1,113 +1,113 @@
 # HTC Home Mugen — latest resume investigation result
 
-Updated: 2026-09-01 after run #55 exposed a healthy-process stale-frame state and a timing flaw in the restore experiment.
+Updated: 2026-09-01 after run #56 reproduced a true Baseline poison while every protected HwndTarget path survived.
 
 Read this together with `docs/MUGEN_RESUME_INVESTIGATION.md`.
 
-## What remains proven from run #54
+## Run #56: true bad transition, Baseline only
 
-A visible, Normal HTC Home Window can survive a reproduced bad early wake when only its existing WPF HwndTarget is disabled before suspend. No process restart, HWND recreation, Window.Hide, or Minimize is required for protection.
-
-On that bad wake Baseline poisoned in the familiar DUCE/MediaContext path while the HwndTarget Disable control remained healthy and was later restored with the same HWND.
-
-The primary poison still occurs during early wake/SxTransition before the ordinary .NET `PowerModes.Resume` callback reaches the application.
-
-## Run #55: Target12 produced a different failure class
-
-The timing matrix was intended to compare restore at Resume +0 / +3 / +12 seconds. On the observed wake:
-
-```text
-TV / Baseline      -> working
-left / target0     -> working
-right / target3    -> working
-main / target12    -> old frame remained frozen at 18:12
-Manager from tray  -> Win32 frame/menu responsive, WPF client appeared white
-```
-
-The main/target12 process was **not MediaSystem-poisoned**. Its dedicated fresh STA Dispatcher successfully created a new HwndSource/MediaContext and rendered the probe. The existing application Dispatcher also remained responsive.
-
-The user manually demonstrated that the stale main widget could:
-
-- be dragged around the desktop;
-- open and operate its context menu;
-- accept the `Refresh` command;
-- accept a change to the `Show 5-day forecast` setting;
-
-while the displayed frame still showed 18:12 and the old forecast strip. This proves the stale image is not an ordinary UI-thread hang. DWM can move the existing surface and the app can process input/state changes while the original HwndTarget fails to present a new frame.
-
-## Timing flaw discovered in run #55
-
-The +0 and +3 modes used a background sleep followed by `Dispatcher.BeginInvoke`. During resume the UI Dispatcher was busy for roughly 9–10 seconds, so the actual target enable times did not match the labels:
-
-```text
-target0 restore request: immediately at Resume
-actual UI-thread restore: about +10s
-
-target3 restore request: +3s
-actual UI-thread restore: about +9–10s
-```
-
-Therefore run #55 cannot establish a minimum safe time delay. Future timing comparisons must execute synchronously on the actual event boundary instead of sleeping and then queueing work.
-
-## Diagnostic correction: `_renderOp` was the wrong field
-
-The previous passive MediaContext probe logged `_renderOp`. .NET Framework WPF uses `_currentRenderOp` for the queued Dispatcher render operation. A `<null>` value from the old probe therefore did not prove that no render operation was queued; the field simply did not exist and the old logger collapsed missing fields to null.
-
-The corrected probe records:
-
-```text
-_currentRenderOp + DispatcherOperation Status/Priority
-_inputMarkerOp
-_isRendering
-_isDisposed
-_isConnected
-_isDisconnecting
-_promoteRenderOpToInput
-_promoteRenderOpToRender
-_estimatedNextVSyncTimer
-```
-
-alongside the existing HwndTarget and interlock/commit state.
-
-## Relevant WPF source behavior
-
-The .NET Framework WPF HwndTarget implementation does several things that directly matter to this investigation:
-
-1. `UpdateWindowSettings(true)` already calls `MediaContext.PostRender()`. Therefore an extra `InvalidateVisual()` is not a meaningful standalone fix if normal re-enable has already failed to present.
-2. `UpdateWindowSettings(false)` posts WPF's private `s_updateWindowSettings` message to avoid accidentally leaving a visible target disabled. The experiment suppresses that auto-reenable while the machine crosses the vulnerable early-wake interval.
-3. On `WM_POWERBROADCAST` resume, HwndTarget clears `_isSuspended`, optionally invalidates if `_needsRePresentOnWake`, calls `DoPaint()`, and updates `_lastWakeOrUnlockEvent`.
-4. `WM_PAINT` -> `DoPaint()` converts the native dirty region into a WPF composition-target invalidate. This is a stronger re-present path than a visual-tree invalidation alone.
-
-The run #55 stale-frame case is therefore consistent with holding the target disabled while WPF processed its normal power-resume paint/re-present path, then enabling it later after that opportunity had already passed.
-
-## Next matrix: event boundary + re-present path
-
-The existing saved profile slots are reused without manual reconfiguration:
+Matrix:
 
 ```text
 TV / normal       -> Baseline
-left / target0    -> TargetOff, synchronously re-enable inside PowerModes.Resume
-right / target3   -> TargetOff, re-enable on first DisplaySettingsChanged; no extra paint
-main / target12   -> TargetOff, re-enable on the same DisplaySettingsChanged + Win32 InvalidateRect/UpdateWindow
+left / target0    -> TargetOff, synchronous re-enable at PowerModes.Resume
+right / target3   -> TargetOff, re-enable at DisplaySettingsChanged
+main / target12   -> TargetOff, DisplaySettingsChanged + native WM_PAINT kick
 ```
 
-The right/main comparison is the key A/B test. Both restore from the same type of system event; the only intended difference is whether the restored target is forced through a real native WM_PAINT/DoPaint re-present.
+On the reproduced transition the user observed one HTC Home OOM dialog and the TV/Baseline widget failed, while all three protected widgets continued working. Mugen Manager also returned normally from tray.
 
-Interpretation:
+The TV/Baseline OOM was logged before the user saw the dialog. On this cycle it occurred immediately after the system's Suspend transition while the WPF HwndTarget was already marked suspended but remained render-target enabled. The process subsequently exhibited the familiar poisoned state: MediaContext channel/interlock activity stopped making progress and the dedicated fresh STA Dispatcher could not create a new MediaContext/HwndSource in the same PID, failing in `MediaSystem.ConnectChannels -> DUCE.Channel.SyncFlush`.
 
-- right stale, main working -> the missing native re-present/dirty-region step is strongly implicated;
-- both working -> the previous stale frame was timing/order dependent and we need the corrected `_currentRenderOp` trace;
-- both stale -> WM_PAINT alone is insufficient and the next target is the MediaContext render operation / composition channel state;
-- left survives a natural bad wake -> synchronous PowerModes.Resume is a strong candidate for the eventual almost-invisible product fix.
+This matters because earlier bad cycles placed the first OOM during early wake/SxTransition. Taken together, the evidence no longer supports one exact callback such as DisplaySettingsChanged or one exact side of the sleep transition as the sole trigger. The common condition is an **active WPF HwndTarget/MediaContext participating in DUCE rendering/channel synchronization while the graphics stack crosses a low-power transition**.
 
-A fallback restores DisplayChanged modes after 18 seconds if Windows emits no display-change event. The fresh same-PID health probe runs at +23 seconds.
+All three protected profiles had the same essential precondition removed: their existing HwndTarget was disabled before the machine crossed the vulnerable transition. They kept the same Window, same HWND, and same process.
 
-## Manager white-client investigation
+## Run #56 re-present comparison
 
-Manager has now shown a white WPF client while its native frame/tray/context actions remain responsive. The existing Manager fresh-WPF probe has repeatedly remained healthy, so the next build passively logs the Manager main Window's HwndTarget and MediaContext on visibility/state transitions, including opening from tray.
+The run also clarified the second, non-poisoned stale-frame effect found in run #55.
 
-This should tell us whether the Manager white-client symptom belongs to the same stale-presentation class as the run #55 main widget.
+- synchronous `UpdateWindowSettings(true)` at PowerModes.Resume survived and returned to normal presentation;
+- restore on DisplaySettingsChanged without a native repaint survived;
+- restore on the same event plus `InvalidateRect/UpdateWindow` also survived.
 
-## Reliable poisoned-state marker
+Therefore WM_PAINT is **not required on the normal successful restore path**. The run #55 stale 18:12 frame is best treated as a missed/late re-present edge case caused by the previous `Sleep + Dispatcher.BeginInvoke` ordering rather than proof that every HwndTarget restore needs a forced repaint.
 
-Tier 0 remains only an observation. The reliable poison marker is still inability to create a fresh MediaContext/HwndSource in the same PID with the `MediaSystem.ConnectChannels -> DUCE.Channel.SyncFlush` OOM path.
+The corrected MediaContext trace uses the real `_currentRenderOp` field rather than the earlier incorrect `_renderOp` name.
+
+## Manager result
+
+Manager remained healthy on run #56. Its new window-state probe recorded the normal tray-return sequence:
+
+```text
+Window becomes visible while HwndTarget is still disabled
+-> HwndTarget becomes enabled
+-> MediaContext has a Pending Render DispatcherOperation
+-> within a few hundred milliseconds the render operation is gone/completed
+-> client area is rendered normally
+```
+
+This provides a useful healthy reference for a future white-client Manager occurrence.
+
+## Strongest current root-cause model
+
+The original HTC Home hibernate bug is now best modeled as a WPF/DUCE low-power transition race:
+
+```text
+visible/Normal WPF Window
++ active HwndTarget render target
++ MediaContext render/channel work
++ graphics stack entering or leaving low-power transition
+-> unlucky DUCE SyncFlush / presentation synchronization failure
+-> MediaContext stops making forward progress
+-> process-local WPF MediaSystem becomes poisoned
+```
+
+Once poisoned, creating a new Window, HwndTarget, Dispatcher, or MediaContext inside the same PID does not recover the process. The reliable bad-state marker remains a fresh same-PID MediaContext/HwndSource failing in `MediaSystem.ConnectChannels -> DUCE.Channel.SyncFlush`.
+
+The successful prevention boundary is much earlier and narrower: disable the **existing HwndTarget render target before Suspend**, then re-enable that same target after ordinary PowerModes.Resume reaches the application.
+
+No Window.Hide, WindowState.Minimized, HWND recreation, process restart, or DWM Cloak is required.
+
+## Next build: prototype fix
+
+The next build converges all previously protected laboratory modes onto one candidate product behavior:
+
+```text
+TV               -> Baseline / no protection
+left             -> Prototype fix
+right            -> Prototype fix
+main             -> Prototype fix
+```
+
+Prototype fix:
+
+```text
+PowerModes.Suspend
+  -> invoke WPF's existing HwndTarget.UpdateWindowSettings(false)
+  -> suppress WPF's private visible-window auto-reenable message during sleep transition
+
+PowerModes.Resume
+  -> remove suppression hook
+  -> synchronously invoke UpdateWindowSettings(true) on the same HwndTarget
+```
+
+All Window/ HWND identity and z-order state remain unchanged.
+
+### Stale-surface watchdog
+
+Run #55 proved that a healthy process can occasionally have a re-enabled HwndTarget that keeps presenting an old DWM frame if restoration happens in an unfortunate order. The prototype therefore adds a one-shot passive watchdog rather than forcing WM_PAINT on every resume.
+
+After the normal synchronous restore it observes the original MediaContext's `_lastCommitTime` and `_currentRenderOp`. If no new commit is observed after a short grace period while the target is enabled and the HWND is unchanged, it sends one native `InvalidateRect + UpdateWindow` kick and logs the result. Healthy targets are left untouched.
+
+This keeps the normal path as close as possible to stock WPF while providing an emergency re-present for the separate stale-surface failure class.
+
+## Validation goal
+
+Repeated bad cycles should now produce the strongest possible A/B test:
+
+```text
+Baseline poisons while all three Prototype-fix profiles survive
+```
+
+If that result repeats across several naturally occurring bad transitions, the HwndTarget Suspend/Resume guard is ready to move from diagnostic mode toward the default profile behavior. The Manager white-client symptom should remain separately instrumented until its own state trace is captured on failure.

@@ -26,7 +26,7 @@ namespace HTCHome.Manager
         public static string NameHeader { get { return russian ? "Имя" : "Name"; } }
         public static string StatusHeader { get { return russian ? "Статус" : "Status"; } }
         public static string AutoStartHeader { get { return russian ? "Автозапуск" : "Autostart"; } }
-        public static string ResumeDiagnosticHeader { get { return russian ? "Resume-эксперимент" : "Resume experiment"; } }
+        public static string ResumeDiagnosticHeader { get { return russian ? "Resume-защита" : "Resume protection"; } }
         public static string Add { get { return russian ? "+ Добавить" : "+ Add"; } }
         public static string Rename { get { return russian ? "Переименовать" : "Rename"; } }
         public static string Start { get { return russian ? "Запустить" : "Start"; } }
@@ -36,12 +36,12 @@ namespace HTCHome.Manager
         public static string StopAll { get { return russian ? "Остановить все" : "Stop all"; } }
         public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
         public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
-        public static string ResumeDiagnosticLabel { get { return russian ? "Resume-эксперимент:" : "Resume experiment:"; } }
-        public static string ResumeDiagnosticHint { get { return russian ? "Окно не скрывается; сравниваем момент и способ возврата WPF presentation" : "Window stays visible; compare WPF presentation restore path"; } }
-        public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — ничего не менять" : "Baseline — no changes"; } }
-        public static string ResumeDiagnosticHide { get { return russian ? "HwndTarget — синхронно прямо на Resume" : "HwndTarget — synchronous at Resume"; } }
-        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget — на DisplayChanged" : "HwndTarget — at DisplayChanged"; } }
-        public static string ResumeDiagnosticMinimize { get { return russian ? "HwndTarget — DisplayChanged + WM_PAINT" : "HwndTarget — DisplayChanged + WM_PAINT"; } }
+        public static string ResumeDiagnosticLabel { get { return russian ? "Resume-защита:" : "Resume protection:"; } }
+        public static string ResumeDiagnosticHint { get { return russian ? "Prototype fix: окно не скрывается и не сворачивается; HwndTarget отключается только на переход сна" : "Prototype fix: window stays visible/normal; HwndTarget is disabled only across the sleep transition"; } }
+        public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — без защиты" : "Baseline — no protection"; } }
+        public static string ResumeDiagnosticHide { get { return russian ? "Prototype fix — TargetOff → синхронный Resume" : "Prototype fix — TargetOff → synchronous Resume"; } }
+        public static string ResumeDiagnosticCloak { get { return ResumeDiagnosticHide; } }
+        public static string ResumeDiagnosticMinimize { get { return ResumeDiagnosticHide; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
         public static string Yes { get { return russian ? "Да" : "Yes"; } }
@@ -82,9 +82,15 @@ namespace HTCHome.Manager
 
         public static string ResumeDiagnosticModeText(string mode)
         {
-            if (string.Equals(mode, "target0", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticHide;
-            if (string.Equals(mode, "target3", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "targetoff", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
-            if (string.Equals(mode, "target12", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMinimize;
+            if (string.Equals(mode, "normal", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticNormal;
+            if (string.Equals(mode, "target0", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "target3", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "target12", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "targetoff", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase))
+                return ResumeDiagnosticHide;
             return ResumeDiagnosticNormal;
         }
 
