@@ -37,11 +37,11 @@ namespace HTCHome.Manager
         public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
         public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
         public static string ResumeDiagnosticLabel { get { return russian ? "Resume-эксперимент:" : "Resume experiment:"; } }
-        public static string ResumeDiagnosticHint { get { return russian ? "Окно не скрывается; отличается только задержка возврата WPF-рендера" : "Window stays visible; only WPF render restore delay differs"; } }
+        public static string ResumeDiagnosticHint { get { return russian ? "Окно не скрывается; сравниваем момент и способ возврата WPF presentation" : "Window stays visible; compare WPF presentation restore path"; } }
         public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — ничего не менять" : "Baseline — no changes"; } }
-        public static string ResumeDiagnosticHide { get { return russian ? "HwndTarget Disable — сразу на Resume" : "HwndTarget Disable — restore at Resume"; } }
-        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget Disable — вернуть через 3 с" : "HwndTarget Disable — restore after 3s"; } }
-        public static string ResumeDiagnosticMinimize { get { return russian ? "HwndTarget Disable — вернуть через 12 с" : "HwndTarget Disable — restore after 12s"; } }
+        public static string ResumeDiagnosticHide { get { return russian ? "HwndTarget — синхронно прямо на Resume" : "HwndTarget — synchronous at Resume"; } }
+        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget — на DisplayChanged" : "HwndTarget — at DisplayChanged"; } }
+        public static string ResumeDiagnosticMinimize { get { return russian ? "HwndTarget — DisplayChanged + WM_PAINT" : "HwndTarget — DisplayChanged + WM_PAINT"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
         public static string Yes { get { return russian ? "Да" : "Yes"; } }

@@ -14,18 +14,18 @@ using Microsoft.Win32;
 
 namespace HTCHome
 {
-    // Timing experiment after run #54 proved that disabling only the existing
-    // HwndTarget can protect a visible, Normal Window on a bad early resume.
-    // All protected modes use exactly the same TargetOff mechanism; only the
-    // restore delay differs (0s / 3s / 12s). No Window.Hide or Minimize is used.
+    // Re-present experiment after run #55 showed that a late TargetOff restore can
+    // leave the original HWND displaying an old frame even though the process,
+    // Dispatcher and fresh MediaContext remain healthy. The modes below compare the
+    // actual restore event and the native WM_PAINT/re-present path, not arbitrary sleeps.
     internal static class ResumeRenderRecovery
     {
         private enum ResumeDiagnosticMode
         {
             Normal,
-            Target0,
-            Target3,
-            Target12
+            ResumeSync,
+            DisplayChanged,
+            DisplayChangedPaint
         }
 
         private sealed class ControlledWindow
@@ -41,7 +41,8 @@ namespace HTCHome
             public bool TargetDisableApplied;
         }
 
-        private const int ProbeDelayMs = 15000;
+        private const int ProbeDelayMs = 23000;
+        private const int DisplayFallbackMs = 18000;
 
         private static readonly object Sync = new object();
         private static readonly List<ControlledWindow> ControlledWindows = new List<ControlledWindow>();
@@ -49,10 +50,20 @@ namespace HTCHome
         private static ResumeDiagnosticMode diagnosticMode;
         private static int resumeGeneration;
         private static int probeGeneration;
+        private static int claimedRestoreGeneration;
+        private static int awaitingDisplayGeneration;
 
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool IsIconic(IntPtr hWnd);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool InvalidateRect(IntPtr hWnd, IntPtr lpRect, bool bErase);
+
+        [DllImport("user32.dll")]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        private static extern bool UpdateWindow(IntPtr hWnd);
 
         public static bool Start()
         {
@@ -66,10 +77,9 @@ namespace HTCHome
             }
 
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
+            SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
             SafeLog("[ResumeProbe] FRESH_DISPATCHER probe armed");
-            SafeLog("[ResumeTiming] ARMED profile=" + GetProfileId() +
-                " mode=" + ModeName(diagnosticMode) +
-                " restoreDelayMs=" + RestoreDelayMs(diagnosticMode));
+            SafeLog("[ResumeRePresent] ARMED profile=" + GetProfileId() + " mode=" + ModeName(diagnosticMode));
             return true;
         }
 
@@ -98,7 +108,7 @@ namespace HTCHome
             {
                 string value = null;
                 if (string.Equals(args[i], "--resume-hide-control", StringComparison.OrdinalIgnoreCase))
-                    return ResumeDiagnosticMode.Target0;
+                    return ResumeDiagnosticMode.ResumeSync;
                 if (string.Equals(args[i], "--resume-diag", StringComparison.OrdinalIgnoreCase))
                 {
                     if (i + 1 < args.Length) value = args[i + 1];
@@ -107,9 +117,9 @@ namespace HTCHome
                     value = args[i].Substring("--resume-diag=".Length);
 
                 if (string.IsNullOrWhiteSpace(value)) continue;
-                if (string.Equals(value, "target0", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target0;
-                if (string.Equals(value, "target3", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "targetoff", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target3;
-                if (string.Equals(value, "target12", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target12;
+                if (string.Equals(value, "target0", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.ResumeSync;
+                if (string.Equals(value, "target3", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "targetoff", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.DisplayChanged;
+                if (string.Equals(value, "target12", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.DisplayChangedPaint;
                 return ResumeDiagnosticMode.Normal;
             }
             return ResumeDiagnosticMode.Normal;
@@ -119,21 +129,10 @@ namespace HTCHome
         {
             switch (mode)
             {
-                case ResumeDiagnosticMode.Target0: return "target0";
-                case ResumeDiagnosticMode.Target3: return "target3";
-                case ResumeDiagnosticMode.Target12: return "target12";
+                case ResumeDiagnosticMode.ResumeSync: return "resume-sync";
+                case ResumeDiagnosticMode.DisplayChanged: return "display-changed";
+                case ResumeDiagnosticMode.DisplayChangedPaint: return "display-changed-paint";
                 default: return "normal";
-            }
-        }
-
-        private static int RestoreDelayMs(ResumeDiagnosticMode mode)
-        {
-            switch (mode)
-            {
-                case ResumeDiagnosticMode.Target3: return 3000;
-                case ResumeDiagnosticMode.Target12: return 12000;
-                case ResumeDiagnosticMode.Target0: return 0;
-                default: return -1;
             }
         }
 
@@ -153,7 +152,7 @@ namespace HTCHome
             if (e.Mode == PowerModes.Suspend)
             {
                 if (diagnosticMode == ResumeDiagnosticMode.Normal)
-                    SafeLog("[ResumeTiming] SUSPEND_BASELINE mode=normal thread=" + Thread.CurrentThread.ManagedThreadId);
+                    SafeLog("[ResumeRePresent] SUSPEND_BASELINE thread=" + Thread.CurrentThread.ManagedThreadId);
                 else
                     ApplySuspendTargetOff();
                 return;
@@ -162,16 +161,30 @@ namespace HTCHome
             if (e.Mode != PowerModes.Resume) return;
 
             int generation;
-            lock (Sync) { resumeGeneration++; generation = resumeGeneration; }
+            lock (Sync)
+            {
+                resumeGeneration++;
+                generation = resumeGeneration;
+                claimedRestoreGeneration = 0;
+                awaitingDisplayGeneration = 0;
+            }
 
             SafeLog("[ResumeProbe] RESUME generation=" + generation + " mainThread=" + Thread.CurrentThread.ManagedThreadId);
-            SafeLog("[ResumeTiming] RESUME generation=" + generation +
-                " mode=" + ModeName(diagnosticMode) +
+            SafeLog("[ResumeRePresent] RESUME generation=" + generation + " mode=" + ModeName(diagnosticMode) +
                 " controlledWindows=" + GetControlledWindowCount() +
-                " restoreDelayMs=" + RestoreDelayMs(diagnosticMode));
+                " targetSuspended=" + FirstTargetField("_isSuspended") +
+                " targetEnabled=" + FirstTargetField("_isRenderTargetEnabled"));
 
-            if (diagnosticMode != ResumeDiagnosticMode.Normal)
-                ScheduleTargetRestore(generation, RestoreDelayMs(diagnosticMode));
+            if (diagnosticMode == ResumeDiagnosticMode.ResumeSync)
+            {
+                RestoreControlledWindows(generation, "power-resume-sync", false);
+            }
+            else if (diagnosticMode == ResumeDiagnosticMode.DisplayChanged ||
+                     diagnosticMode == ResumeDiagnosticMode.DisplayChangedPaint)
+            {
+                lock (Sync) awaitingDisplayGeneration = generation;
+                ScheduleDisplayFallback(generation);
+            }
 
             Thread launcher = new Thread(new ThreadStart(delegate
             {
@@ -188,21 +201,62 @@ namespace HTCHome
             launcher.Start();
         }
 
+        private static void SystemEvents_DisplaySettingsChanged(object sender, EventArgs e)
+        {
+            if (diagnosticMode != ResumeDiagnosticMode.DisplayChanged &&
+                diagnosticMode != ResumeDiagnosticMode.DisplayChangedPaint) return;
+
+            int generation;
+            lock (Sync)
+            {
+                generation = resumeGeneration;
+                if (generation == 0 || awaitingDisplayGeneration != generation || claimedRestoreGeneration == generation)
+                    return;
+            }
+
+            bool paint = diagnosticMode == ResumeDiagnosticMode.DisplayChangedPaint;
+            SafeLog("[ResumeRePresent] DISPLAY_CHANGED_TRIGGER generation=" + generation +
+                " mode=" + ModeName(diagnosticMode) +
+                " thread=" + Thread.CurrentThread.ManagedThreadId +
+                " forcePaint=" + paint);
+            RestoreControlledWindows(generation, "display-changed", paint);
+        }
+
+        private static void ScheduleDisplayFallback(int generation)
+        {
+            Thread fallback = new Thread(new ThreadStart(delegate
+            {
+                Thread.Sleep(DisplayFallbackMs);
+                lock (Sync)
+                {
+                    if (generation != resumeGeneration || claimedRestoreGeneration == generation) return;
+                }
+
+                bool paint = diagnosticMode == ResumeDiagnosticMode.DisplayChangedPaint;
+                SafeLog("[ResumeRePresent] DISPLAY_FALLBACK generation=" + generation +
+                    " mode=" + ModeName(diagnosticMode) + " forcePaint=" + paint);
+                RestoreControlledWindows(generation, "display-fallback", paint);
+            }));
+            fallback.IsBackground = true;
+            fallback.Name = "Mugen Display Restore Fallback";
+            fallback.Start();
+        }
+
         private static void ApplySuspendTargetOff()
         {
             Application app = Application.Current;
             if (app == null)
             {
-                SafeLog("[ResumeTiming] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + " application=<null>");
+                SafeLog("[ResumeRePresent] SUSPEND_APPLY_FAILED application=<null>");
                 return;
             }
 
-            SafeLog("[ResumeTiming] SUSPEND_APPLY_BEGIN mode=" + ModeName(diagnosticMode) +
+            SafeLog("[ResumeRePresent] SUSPEND_APPLY_BEGIN mode=" + ModeName(diagnosticMode) +
                 " thread=" + Thread.CurrentThread.ManagedThreadId);
 
             try
             {
-                app.Dispatcher.Invoke(DispatcherPriority.Send, new Action(delegate
+                Action apply = delegate
                 {
                     List<ControlledWindow> records = new List<ControlledWindow>();
                     foreach (Window window in app.Windows)
@@ -223,27 +277,14 @@ namespace HTCHome
                         };
                         records.Add(record);
 
-                        SafeLog("[ResumeTiming] WINDOW_BEFORE mode=" + ModeName(diagnosticMode) +
-                            " type=" + window.GetType().FullName +
-                            " hwnd=0x" + hwnd.ToInt64().ToString("X") +
-                            " visible=" + window.IsVisible +
-                            " state=" + window.WindowState +
+                        SafeLog("[ResumeRePresent] WINDOW_BEFORE hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                            " visible=" + window.IsVisible + " state=" + window.WindowState +
                             " iconic=" + SafeIsIconic(hwnd) +
                             " targetEnabled=" + ReadField(target, "_isRenderTargetEnabled") +
-                            " minimizedFlag=" + ReadField(target, "_isMinimized") +
-                            " disableCookie=" + ReadField(target, "_disableCookie"));
+                            " suspended=" + ReadField(target, "_isSuspended") +
+                            " render=" + ReadRenderState(target));
 
                         ApplyTargetOff(record);
-
-                        SafeLog("[ResumeTiming] WINDOW_APPLIED mode=" + ModeName(diagnosticMode) +
-                            " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
-                            " visible=" + record.Window.IsVisible +
-                            " state=" + record.Window.WindowState +
-                            " iconic=" + SafeIsIconic(record.Hwnd) +
-                            " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                            " minimizedFlag=" + ReadField(record.Target, "_isMinimized") +
-                            " disableCookie=" + ReadField(record.Target, "_disableCookie") +
-                            " targetDisableApplied=" + record.TargetDisableApplied);
                     }
 
                     lock (Sync)
@@ -252,14 +293,17 @@ namespace HTCHome
                         ControlledWindows.AddRange(records);
                     }
 
-                    SafeLog("[ResumeTiming] SUSPEND_APPLY_OK mode=" + ModeName(diagnosticMode) +
+                    SafeLog("[ResumeRePresent] SUSPEND_APPLY_OK mode=" + ModeName(diagnosticMode) +
                         " controlledWindows=" + records.Count +
                         " uiThread=" + Thread.CurrentThread.ManagedThreadId);
-                }));
+                };
+
+                if (app.Dispatcher.CheckAccess()) apply();
+                else app.Dispatcher.Invoke(DispatcherPriority.Send, apply);
             }
             catch (Exception ex)
             {
-                SafeLog("[ResumeTiming] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
+                SafeLog("[ResumeRePresent] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
             }
         }
 
@@ -281,8 +325,7 @@ namespace HTCHome
                 if (msg == record.UpdateWindowSettingsMessage)
                 {
                     handled = true;
-                    SafeLog("[ResumeTiming] TARGET_REENABLE_SUPPRESSED mode=" + ModeName(diagnosticMode) +
-                        " hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                    SafeLog("[ResumeRePresent] TARGET_REENABLE_SUPPRESSED hwnd=0x" + hwnd.ToInt64().ToString("X") +
                         " msg=0x" + msg.ToString("X", CultureInfo.InvariantCulture));
                 }
                 return IntPtr.Zero;
@@ -292,87 +335,92 @@ namespace HTCHome
             record.UpdateWindowSettings.Invoke(record.Target, new object[] { false });
             record.TargetDisableApplied = !ReadBoolField(record.Target, "_isRenderTargetEnabled", true);
 
-            SafeLog("[ResumeTiming] TARGET_OFF_APPLIED mode=" + ModeName(diagnosticMode) +
-                " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
-                " updateMsg=0x" + record.UpdateWindowSettingsMessage.ToString("X", CultureInfo.InvariantCulture) +
+            SafeLog("[ResumeRePresent] TARGET_OFF_APPLIED hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                " visible=" + record.Window.IsVisible + " state=" + record.Window.WindowState +
                 " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                " disableCookie=" + ReadField(record.Target, "_disableCookie"));
+                " disableCookie=" + ReadField(record.Target, "_disableCookie") +
+                " render=" + ReadRenderState(record.Target));
         }
 
-        private static void ScheduleTargetRestore(int generation, int delayMs)
+        private static void RestoreControlledWindows(int generation, string reason, bool forcePaint)
         {
-            Thread restorer = new Thread(new ThreadStart(delegate
+            lock (Sync)
             {
-                if (delayMs > 0) Thread.Sleep(delayMs);
-                lock (Sync) { if (generation != resumeGeneration) return; }
+                if (generation != resumeGeneration || claimedRestoreGeneration == generation) return;
+                claimedRestoreGeneration = generation;
+                awaitingDisplayGeneration = 0;
+            }
 
-                Application app = Application.Current;
-                if (app == null)
+            Application app = Application.Current;
+            if (app == null)
+            {
+                SafeLog("[ResumeRePresent] RESTORE_FAILED generation=" + generation + " reason=" + reason + " application=<null>");
+                lock (Sync) claimedRestoreGeneration = 0;
+                return;
+            }
+
+            SafeLog("[ResumeRePresent] RESTORE_BEGIN generation=" + generation +
+                " mode=" + ModeName(diagnosticMode) + " reason=" + reason +
+                " forcePaint=" + forcePaint + " callerThread=" + Thread.CurrentThread.ManagedThreadId);
+
+            try
+            {
+                Action restore = delegate
                 {
-                    SafeLog("[ResumeTiming] RESTORE_FAILED generation=" + generation + " application=<null>");
-                    return;
-                }
-
-                SafeLog("[ResumeTiming] RESTORE_QUEUE generation=" + generation +
-                    " mode=" + ModeName(diagnosticMode) +
-                    " delayMs=" + delayMs +
-                    " controlledWindows=" + GetControlledWindowCount());
-
-                try
-                {
-                    app.Dispatcher.BeginInvoke(DispatcherPriority.Send, new Action(delegate
+                    List<ControlledWindow> records;
+                    lock (Sync)
                     {
-                        List<ControlledWindow> records;
-                        lock (Sync)
-                        {
-                            records = new List<ControlledWindow>(ControlledWindows);
-                            ControlledWindows.Clear();
-                        }
+                        records = new List<ControlledWindow>(ControlledWindows);
+                        ControlledWindows.Clear();
+                    }
 
-                        int restored = 0;
-                        foreach (ControlledWindow record in records)
+                    int restored = 0;
+                    foreach (ControlledWindow record in records)
+                    {
+                        try
                         {
-                            try
-                            {
-                                RestoreTarget(record);
-                                restored++;
-                                SafeLog("[ResumeTiming] WINDOW_RESTORED mode=" + ModeName(diagnosticMode) +
-                                    " delayMs=" + delayMs +
-                                    " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
-                                    " sameHwnd=" + (new WindowInteropHelper(record.Window).Handle == record.Hwnd) +
-                                    " visible=" + record.Window.IsVisible +
-                                    " state=" + record.Window.WindowState +
-                                    " iconic=" + SafeIsIconic(record.Hwnd) +
-                                    " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                                    " disableCookie=" + ReadField(record.Target, "_disableCookie"));
-                            }
-                            catch (Exception ex)
-                            {
-                                SafeLog("[ResumeTiming] RESTORE_WINDOW_FAILED mode=" + ModeName(diagnosticMode) +
-                                    " delayMs=" + delayMs +
-                                    " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") + "\n" + Unwrap(ex));
-                            }
-                        }
+                            SafeLog("[ResumeRePresent] TARGET_BEFORE_RESTORE hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                                " suspended=" + ReadField(record.Target, "_isSuspended") +
+                                " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
+                                " needsRePresent=" + ReadField(record.Target, "_needsRePresentOnWake") +
+                                " render=" + ReadRenderState(record.Target));
 
-                        SafeLog("[ResumeTiming] RESTORE_OK generation=" + generation +
-                            " mode=" + ModeName(diagnosticMode) +
-                            " delayMs=" + delayMs +
-                            " restoredWindows=" + restored +
-                            " uiThread=" + Thread.CurrentThread.ManagedThreadId);
-                    }));
-                }
-                catch (Exception ex)
-                {
-                    SafeLog("[ResumeTiming] RESTORE_QUEUE_FAILED generation=" + generation +
-                        " mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
-                }
-            }));
-            restorer.IsBackground = true;
-            restorer.Name = "Mugen HwndTarget Restore " + delayMs + "ms";
-            restorer.Start();
+                            RestoreTarget(record, forcePaint);
+                            restored++;
+
+                            SafeLog("[ResumeRePresent] WINDOW_RESTORED generation=" + generation +
+                                " reason=" + reason + " forcePaint=" + forcePaint +
+                                " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                                " sameHwnd=" + (new WindowInteropHelper(record.Window).Handle == record.Hwnd) +
+                                " visible=" + record.Window.IsVisible + " state=" + record.Window.WindowState +
+                                " iconic=" + SafeIsIconic(record.Hwnd) +
+                                " suspended=" + ReadField(record.Target, "_isSuspended") +
+                                " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
+                                " render=" + ReadRenderState(record.Target));
+                        }
+                        catch (Exception ex)
+                        {
+                            SafeLog("[ResumeRePresent] RESTORE_WINDOW_FAILED generation=" + generation +
+                                " reason=" + reason + " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") + "\n" + Unwrap(ex));
+                        }
+                    }
+
+                    SafeLog("[ResumeRePresent] RESTORE_OK generation=" + generation +
+                        " reason=" + reason + " forcePaint=" + forcePaint +
+                        " restoredWindows=" + restored + " uiThread=" + Thread.CurrentThread.ManagedThreadId);
+                };
+
+                if (app.Dispatcher.CheckAccess()) restore();
+                else app.Dispatcher.Invoke(DispatcherPriority.Send, restore);
+            }
+            catch (Exception ex)
+            {
+                SafeLog("[ResumeRePresent] RESTORE_DISPATCH_FAILED generation=" + generation +
+                    " reason=" + reason + "\n" + Unwrap(ex));
+            }
         }
 
-        private static void RestoreTarget(ControlledWindow record)
+        private static void RestoreTarget(ControlledWindow record, bool forcePaint)
         {
             if (record.Source != null && record.SuppressReenableHook != null)
             {
@@ -382,10 +430,62 @@ namespace HTCHome
             if (record.TargetWasEnabled && record.Target != null && record.UpdateWindowSettings != null)
                 record.UpdateWindowSettings.Invoke(record.Target, new object[] { true });
 
-            SafeLog("[ResumeTiming] TARGET_RESTORED mode=" + ModeName(diagnosticMode) +
-                " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+            SafeLog("[ResumeRePresent] TARGET_ON hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
                 " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                " disableCookie=" + ReadField(record.Target, "_disableCookie"));
+                " disableCookie=" + ReadField(record.Target, "_disableCookie") +
+                " renderAfterPostRender=" + ReadRenderState(record.Target));
+
+            if (forcePaint)
+            {
+                bool invalidated = InvalidateRect(record.Hwnd, IntPtr.Zero, true);
+                bool updated = UpdateWindow(record.Hwnd);
+                SafeLog("[ResumeRePresent] WM_PAINT_KICK hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                    " invalidateRect=" + invalidated + " updateWindow=" + updated +
+                    " renderAfterPaint=" + ReadRenderState(record.Target));
+            }
+        }
+
+        private static string ReadRenderState(HwndTarget target)
+        {
+            object mc = GetExistingMediaContext(target);
+            if (mc == null) return "mc=<null>";
+            object op = GetFieldValue(mc, "_currentRenderOp");
+            string opText = FormatDispatcherOperation(op);
+            return "mcId=" + RuntimeHelpersSafeHash(mc) +
+                ",interlock=" + ReadField(mc, "_interlockState") +
+                ",currentRenderOp=" + opText +
+                ",isRendering=" + ReadField(mc, "_isRendering") +
+                ",needCommit=" + ReadField(mc, "_needToCommitChannel") +
+                ",commitPending=" + ReadField(mc, "_commitPendingAfterRender");
+        }
+
+        private static object GetExistingMediaContext(HwndTarget target)
+        {
+            if (target == null) return null;
+            try
+            {
+                Type type = typeof(Visual).Assembly.GetType("System.Windows.Media.MediaContext", false);
+                if (type == null) return null;
+                MethodInfo from = type.GetMethod("From", BindingFlags.Static | BindingFlags.NonPublic,
+                    null, new[] { typeof(Dispatcher) }, null);
+                return from == null ? null : from.Invoke(null, new object[] { target.Dispatcher });
+            }
+            catch { return null; }
+        }
+
+        private static string FormatDispatcherOperation(object value)
+        {
+            DispatcherOperation op = value as DispatcherOperation;
+            if (op == null) return value == null ? "<null>" : "<" + value.GetType().Name + ">";
+            try { return "status=" + op.Status + ",priority=" + op.Priority; }
+            catch { return "<DispatcherOperation>"; }
+        }
+
+        private static int RuntimeHelpersSafeHash(object value)
+        {
+            if (value == null) return 0;
+            try { return System.Runtime.CompilerServices.RuntimeHelpers.GetHashCode(value); }
+            catch { return 0; }
         }
 
         private static MethodInfo FindUpdateWindowSettings(HwndTarget target)
@@ -413,6 +513,17 @@ namespace HTCHome
                 type = type.BaseType;
             }
             return null;
+        }
+
+        private static object GetFieldValue(object instance, string name)
+        {
+            if (instance == null) return null;
+            try
+            {
+                FieldInfo field = FindField(instance.GetType(), name, false);
+                return field == null ? null : field.GetValue(instance);
+            }
+            catch { return null; }
         }
 
         private static string ReadField(object instance, string name)
@@ -450,6 +561,15 @@ namespace HTCHome
                 return value == null ? 0 : Convert.ToInt32(value, CultureInfo.InvariantCulture);
             }
             catch { return 0; }
+        }
+
+        private static string FirstTargetField(string name)
+        {
+            lock (Sync)
+            {
+                if (ControlledWindows.Count == 0) return "<none>";
+                return ReadField(ControlledWindows[0].Target, name);
+            }
         }
 
         private static string Unwrap(Exception ex)
@@ -537,8 +657,7 @@ namespace HTCHome
                         finishTimer.Stop();
                         pulseTimer.Stop();
                         SafeLog("[ResumeProbe] NEW_DISPATCHER_PROBE_OK generation=" + generation +
-                            " ticks=" + ticks +
-                            " tier=" + (RenderCapability.Tier >> 16) +
+                            " ticks=" + ticks + " tier=" + (RenderCapability.Tier >> 16) +
                             " renderMode=" + (source.CompositionTarget == null ? "<null>" : source.CompositionTarget.RenderMode.ToString()));
                         source.Dispose();
                         Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Send);

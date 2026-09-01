@@ -1,6 +1,8 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Windows;
@@ -17,6 +19,7 @@ namespace HTCHome.Manager
     {
         private static int generation;
         private static bool started;
+        private static bool windowHooksAttached;
         private static readonly object Sync = new object();
 
         public static void Start()
@@ -28,6 +31,14 @@ namespace HTCHome.Manager
             }
             SystemEvents.PowerModeChanged += PowerModeChanged;
             Write("MANAGER_WPF_PROBE_ARMED");
+
+            try
+            {
+                Application app = Application.Current;
+                if (app != null)
+                    app.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(AttachMainWindowHooks));
+            }
+            catch { }
         }
 
         public static void Stop()
@@ -38,6 +49,38 @@ namespace HTCHome.Manager
                 started = false;
             }
             try { SystemEvents.PowerModeChanged -= PowerModeChanged; } catch { }
+        }
+
+        private static void AttachMainWindowHooks()
+        {
+            if (windowHooksAttached) return;
+            Application app = Application.Current;
+            if (app == null) return;
+
+            Window window = app.MainWindow;
+            if (window == null && app.Windows != null && app.Windows.Count > 0)
+                window = app.Windows[0];
+            if (window == null)
+            {
+                app.Dispatcher.BeginInvoke(DispatcherPriority.ApplicationIdle, new Action(AttachMainWindowHooks));
+                return;
+            }
+
+            windowHooksAttached = true;
+            Window captured = window;
+            captured.IsVisibleChanged += delegate
+            {
+                TraceWindow(captured, "visibility-changed");
+                if (captured.IsVisible)
+                {
+                    captured.Dispatcher.BeginInvoke(DispatcherPriority.Render,
+                        new Action(delegate { TraceWindow(captured, "visible+render-priority"); }));
+                    ScheduleWindowTrace(captured, "visible+250ms", 250);
+                    ScheduleWindowTrace(captured, "visible+1000ms", 1000);
+                }
+            };
+            captured.StateChanged += delegate { TraceWindow(captured, "state-changed"); };
+            TraceWindow(captured, "hooks-attached");
         }
 
         private static void PowerModeChanged(object sender, PowerModeChangedEventArgs e)
@@ -84,6 +127,9 @@ namespace HTCHome.Manager
 
                         Write("MANAGER_WPF_UI_OK label=" + label + " generation=" + current +
                               " tier=" + tier + " windows=" + windows + " visible=" + visible + " source=" + sourceState);
+
+                        Window main = app.MainWindow;
+                        if (main != null) TraceWindow(main, "resume-existing-ui");
                     }
                     catch (Exception ex)
                     {
@@ -95,6 +141,123 @@ namespace HTCHome.Manager
             {
                 Write("MANAGER_WPF_UI_QUEUE_FAILED generation=" + current + " " + ex);
             }
+        }
+
+        private static void ScheduleWindowTrace(Window window, string label, int delayMs)
+        {
+            if (window == null) return;
+            DispatcherTimer timer = new DispatcherTimer(DispatcherPriority.Background, window.Dispatcher);
+            timer.Interval = TimeSpan.FromMilliseconds(delayMs);
+            timer.Tick += delegate
+            {
+                timer.Stop();
+                TraceWindow(window, label);
+            };
+            timer.Start();
+        }
+
+        private static void TraceWindow(Window window, string label)
+        {
+            try
+            {
+                if (window == null)
+                {
+                    Write("MANAGER_WINDOW_STATE label=" + label + " window=<null>");
+                    return;
+                }
+
+                HwndSource source = PresentationSource.FromVisual(window) as HwndSource;
+                if (source == null)
+                {
+                    Write("MANAGER_WINDOW_STATE label=" + label +
+                        " visible=" + window.IsVisible + " state=" + window.WindowState + " source=<null>");
+                    return;
+                }
+
+                HwndTarget target = source.CompositionTarget;
+                object mediaContext = GetExistingMediaContext(target);
+                object currentRenderOp = GetFieldValue(mediaContext, "_currentRenderOp");
+
+                Write("MANAGER_WINDOW_STATE label=" + label +
+                    " hwnd=0x" + source.Handle.ToInt64().ToString("X") +
+                    " visible=" + window.IsVisible +
+                    " state=" + window.WindowState +
+                    " active=" + window.IsActive +
+                    " targetId=" + (target == null ? 0 : RuntimeHelpers.GetHashCode(target)) +
+                    " target.suspended=" + ReadField(target, "_isSuspended") +
+                    " target.enabled=" + ReadField(target, "_isRenderTargetEnabled") +
+                    " target.needsRePresent=" + ReadField(target, "_needsRePresentOnWake") +
+                    " target.hasRePresented=" + ReadField(target, "_hasRePresentedSinceWake") +
+                    " target.disableCookie=" + ReadField(target, "_disableCookie") +
+                    " mcId=" + (mediaContext == null ? 0 : RuntimeHelpers.GetHashCode(mediaContext)) +
+                    " mc.interlock=" + ReadField(mediaContext, "_interlockState") +
+                    " mc.currentRenderOp=" + FormatDispatcherOperation(currentRenderOp) +
+                    " mc.isRendering=" + ReadField(mediaContext, "_isRendering") +
+                    " mc.needCommit=" + ReadField(mediaContext, "_needToCommitChannel") +
+                    " mc.commitPending=" + ReadField(mediaContext, "_commitPendingAfterRender"));
+            }
+            catch (Exception ex)
+            {
+                Write("MANAGER_WINDOW_STATE_FAILED label=" + label + " " + ex);
+            }
+        }
+
+        private static object GetExistingMediaContext(HwndTarget target)
+        {
+            if (target == null) return null;
+            try
+            {
+                Type type = typeof(Visual).Assembly.GetType("System.Windows.Media.MediaContext", false);
+                if (type == null) return null;
+                MethodInfo from = type.GetMethod("From", BindingFlags.Static | BindingFlags.NonPublic,
+                    null, new[] { typeof(Dispatcher) }, null);
+                return from == null ? null : from.Invoke(null, new object[] { target.Dispatcher });
+            }
+            catch { return null; }
+        }
+
+        private static FieldInfo FindField(Type type, string name)
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
+            while (type != null)
+            {
+                FieldInfo field = type.GetField(name, flags);
+                if (field != null) return field;
+                type = type.BaseType;
+            }
+            return null;
+        }
+
+        private static object GetFieldValue(object instance, string name)
+        {
+            if (instance == null) return null;
+            try
+            {
+                FieldInfo field = FindField(instance.GetType(), name);
+                return field == null ? null : field.GetValue(instance);
+            }
+            catch { return null; }
+        }
+
+        private static string ReadField(object instance, string name)
+        {
+            if (instance == null) return "<null>";
+            try
+            {
+                FieldInfo field = FindField(instance.GetType(), name);
+                if (field == null) return "<missing>";
+                object value = field.GetValue(instance);
+                return value == null ? "<null>" : Convert.ToString(value, CultureInfo.InvariantCulture);
+            }
+            catch (Exception ex) { return "<error:" + ex.GetType().Name + ">"; }
+        }
+
+        private static string FormatDispatcherOperation(object value)
+        {
+            DispatcherOperation op = value as DispatcherOperation;
+            if (op == null) return value == null ? "<null>" : "<" + value.GetType().Name + ">";
+            try { return "status=" + op.Status + ",priority=" + op.Priority; }
+            catch { return "<DispatcherOperation>"; }
         }
 
         private static void RunFreshDispatcherAfterDelay(int current, int delayMs)

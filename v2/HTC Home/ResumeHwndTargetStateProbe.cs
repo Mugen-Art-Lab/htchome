@@ -12,10 +12,10 @@ using Microsoft.Win32;
 
 namespace HTCHome
 {
-    // Passive state recorder for the suspend matrix. It intentionally avoids
-    // RenderCapability.Tier from background timeline threads: run #53 proved that
-    // asking for Tier on a poisoned background thread can create another MediaContext
-    // and terminate the already-damaged process, contaminating the experiment.
+    // Passive state recorder. Run #55 exposed that the earlier diagnostic used the
+    // non-existent field name _renderOp; .NET Framework WPF actually uses
+    // _currentRenderOp. This version records the real DispatcherOperation and the
+    // promotion/render timers so we can see whether PostRender actually queued work.
     internal static class ResumeHwndTargetStateProbe
     {
         private sealed class TargetRecord
@@ -35,14 +35,16 @@ namespace HTCHome
         {
             "_isSuspended", "_needsRePresentOnWake", "_hasRePresentedSinceWake",
             "_isRenderTargetEnabled", "_disableCookie", "_isMinimized",
-            "_isSessionDisconnected", "_lastWakeOrUnlockEvent"
+            "_isSessionDisconnected", "_lastWakeOrUnlockEvent", "_windowPosChanging", "_userInputResize"
         };
 
         private static readonly string[] MediaContextFields =
         {
             "_interlockState", "_needToCommitChannel", "_commitPendingAfterRender",
             "_animationRenderRate", "_lastPresentationResults", "_lastCommitTime",
-            "_renderOp", "_estimatedNextVSyncTimer"
+            "_isRendering", "_isDisposed", "_isConnected", "_isDisconnecting",
+            "_currentRenderOp", "_inputMarkerOp", "_promoteRenderOpToInput",
+            "_promoteRenderOpToRender", "_estimatedNextVSyncTimer"
         };
 
         private static readonly List<TargetRecord> Targets = new List<TargetRecord>();
@@ -179,7 +181,7 @@ namespace HTCHome
         {
             Thread thread = new Thread(new ThreadStart(delegate
             {
-                int[] offsets = { 250, 1000, 3000, 10000, 12000, 21000, 24000, 30000 };
+                int[] offsets = { 250, 1000, 3000, 8000, 10000, 12000, 15000, 20000, 24000, 30000 };
                 int previous = 0;
                 foreach (int offset in offsets)
                 {
@@ -260,27 +262,47 @@ namespace HTCHome
             var parts = new List<string>();
             foreach (string fieldName in MediaContextFields)
             {
-                object value = GetFieldValue(mediaContext, fieldName);
-                parts.Add("mc." + fieldName + "=" + FormatValue(value));
-                if (fieldName == "_estimatedNextVSyncTimer" && value != null)
+                FieldInfo field = FindField(mediaContext.GetType(), fieldName);
+                if (field == null)
                 {
-                    parts.Add("mc.vsyncTimer._isEnabled=" + ReadField(value, "_isEnabled"));
-                    parts.Add("mc.vsyncTimer._interval=" + ReadField(value, "_interval"));
-                    parts.Add("mc.vsyncTimer._tag=" + ReadField(value, "_tag"));
+                    parts.Add("mc." + fieldName + "=<missing>");
+                    continue;
+                }
+
+                object value = null;
+                try { value = field.GetValue(mediaContext); }
+                catch (Exception ex)
+                {
+                    parts.Add("mc." + fieldName + "=<error:" + ex.GetType().Name + ">");
+                    continue;
+                }
+
+                parts.Add("mc." + fieldName + "=" + FormatValue(value));
+
+                DispatcherOperation op = value as DispatcherOperation;
+                if (op != null)
+                {
+                    try
+                    {
+                        parts.Add("mc." + fieldName + ".status=" + op.Status);
+                        parts.Add("mc." + fieldName + ".priority=" + op.Priority);
+                    }
+                    catch { }
+                }
+
+                DispatcherTimer timer = value as DispatcherTimer;
+                if (timer != null)
+                {
+                    try
+                    {
+                        parts.Add("mc." + fieldName + ".enabled=" + timer.IsEnabled);
+                        parts.Add("mc." + fieldName + ".interval=" + timer.Interval);
+                        parts.Add("mc." + fieldName + ".tag=" + FormatValue(timer.Tag));
+                    }
+                    catch { }
                 }
             }
             return string.Join(" ", parts.ToArray());
-        }
-
-        private static object GetFieldValue(object instance, string fieldName)
-        {
-            if (instance == null) return null;
-            try
-            {
-                FieldInfo field = FindField(instance.GetType(), fieldName);
-                return field == null ? null : field.GetValue(instance);
-            }
-            catch { return null; }
         }
 
         private static string ReadField(object instance, string fieldName)
@@ -380,7 +402,7 @@ namespace HTCHome
             string[] args = Environment.GetCommandLineArgs();
             for (int i = 1; i < args.Length; i++)
             {
-                if (string.Equals(args[i], "--resume-hide-control", StringComparison.OrdinalIgnoreCase)) return "hide";
+                if (string.Equals(args[i], "--resume-hide-control", StringComparison.OrdinalIgnoreCase)) return "target0";
                 if (string.Equals(args[i], "--resume-diag", StringComparison.OrdinalIgnoreCase)) return i + 1 < args.Length ? args[i + 1] : "normal";
                 if (args[i].StartsWith("--resume-diag=", StringComparison.OrdinalIgnoreCase)) return args[i].Substring("--resume-diag=".Length);
             }
