@@ -37,7 +37,6 @@ namespace HTCHome.Manager
             }
         }
 
-        // Legacy run #51 flag. Kept only so existing profile JSON migrates cleanly.
         [DataMember(Order = 4)]
         public bool ResumeHideControl
         {
@@ -64,13 +63,17 @@ namespace HTCHome.Manager
             get
             {
                 string mode = (ResumeDiagnosticMode ?? string.Empty).Trim().ToLowerInvariant();
-                // Run #52/#53 used "cloak" on the right-monitor profile. Starting
-                // with the HwndTarget experiment, transparently reuse that slot as
-                // targetoff so the existing four-profile matrix needs no manual edit.
-                if (mode == "cloak") return "targetoff";
-                if (mode == "hide" || mode == "targetoff" || mode == "minimize" || mode == "normal")
+
+                // Timing-matrix migration. Reuse the exact profile slots from run #54:
+                // old Hide -> immediate target restore, old TargetOff/Cloak -> +3s,
+                // old Minimize -> +12s. No Window Hide/Minimize is used by these modes.
+                if (mode == "hide") return "target0";
+                if (mode == "targetoff" || mode == "cloak") return "target3";
+                if (mode == "minimize") return "target12";
+                if (mode == "target0" || mode == "target3" || mode == "target12" || mode == "normal")
                     return mode;
-                return ResumeHideControl ? "hide" : "normal";
+
+                return ResumeHideControl ? "target0" : "normal";
             }
         }
 

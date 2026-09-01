@@ -37,13 +37,11 @@ namespace HTCHome.Manager
         public static string ManagerAutoStart { get { return russian ? "Запускать Manager вместе с Windows" : "Start Manager with Windows"; } }
         public static string ProfileAutoStart { get { return russian ? "Автозапуск профиля" : "Profile autostart"; } }
         public static string ResumeDiagnosticLabel { get { return russian ? "Resume-эксперимент:" : "Resume experiment:"; } }
-        public static string ResumeDiagnosticHint { get { return russian ? "Применяется после перезапуска выбранного профиля" : "Takes effect after restarting the selected profile"; } }
+        public static string ResumeDiagnosticHint { get { return russian ? "Окно не скрывается; отличается только задержка возврата WPF-рендера" : "Window stays visible; only WPF render restore delay differs"; } }
         public static string ResumeDiagnosticNormal { get { return russian ? "Baseline — ничего не менять" : "Baseline — no changes"; } }
-        public static string ResumeDiagnosticHide { get { return russian ? "WPF Hide — скрыть окно" : "WPF Hide — hide window"; } }
-        // Name kept for XAML/code-behind compatibility; this slot now runs the
-        // narrower HwndTarget render-target disable experiment instead of DWM Cloak.
-        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget Disable — отключить рендер" : "HwndTarget Disable — disable render target"; } }
-        public static string ResumeDiagnosticMinimize { get { return russian ? "Minimize — свернуть HWND" : "Minimize — minimize HWND"; } }
+        public static string ResumeDiagnosticHide { get { return russian ? "HwndTarget Disable — сразу на Resume" : "HwndTarget Disable — restore at Resume"; } }
+        public static string ResumeDiagnosticCloak { get { return russian ? "HwndTarget Disable — вернуть через 3 с" : "HwndTarget Disable — restore after 3s"; } }
+        public static string ResumeDiagnosticMinimize { get { return russian ? "HwndTarget Disable — вернуть через 12 с" : "HwndTarget Disable — restore after 12s"; } }
         public static string Running { get { return russian ? "Запущен" : "Running"; } }
         public static string Stopped { get { return russian ? "Остановлен" : "Stopped"; } }
         public static string Yes { get { return russian ? "Да" : "Yes"; } }
@@ -84,10 +82,9 @@ namespace HTCHome.Manager
 
         public static string ResumeDiagnosticModeText(string mode)
         {
-            if (string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticHide;
-            if (string.Equals(mode, "targetoff", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
-            if (string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMinimize;
+            if (string.Equals(mode, "target0", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticHide;
+            if (string.Equals(mode, "target3", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "targetoff", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticCloak;
+            if (string.Equals(mode, "target12", StringComparison.OrdinalIgnoreCase) || string.Equals(mode, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMinimize;
             return ResumeDiagnosticNormal;
         }
 

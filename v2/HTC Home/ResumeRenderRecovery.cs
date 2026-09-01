@@ -14,25 +14,24 @@ using Microsoft.Win32;
 
 namespace HTCHome
 {
-    // Four-way suspend/resume experiment after run #53 narrowed the split to
-    // Baseline+Cloak bad vs Hide+Minimize good. TargetOff is deliberately narrower
-    // than Hide: Window.IsVisible stays true, WindowState stays Normal and the HWND
-    // is preserved; only WPF's existing HwndTarget render target is disabled.
+    // Timing experiment after run #54 proved that disabling only the existing
+    // HwndTarget can protect a visible, Normal Window on a bad early resume.
+    // All protected modes use exactly the same TargetOff mechanism; only the
+    // restore delay differs (0s / 3s / 12s). No Window.Hide or Minimize is used.
     internal static class ResumeRenderRecovery
     {
         private enum ResumeDiagnosticMode
         {
             Normal,
-            Hide,
-            TargetOff,
-            Minimize
+            Target0,
+            Target3,
+            Target12
         }
 
         private sealed class ControlledWindow
         {
             public Window Window;
             public IntPtr Hwnd;
-            public WindowState PreviousWindowState;
             public HwndSource Source;
             public HwndTarget Target;
             public MethodInfo UpdateWindowSettings;
@@ -42,8 +41,7 @@ namespace HTCHome
             public bool TargetDisableApplied;
         }
 
-        private const int ProbeDelayMs = 12000;
-        private const int ControlRestoreDelayMs = 22000;
+        private const int ProbeDelayMs = 15000;
 
         private static readonly object Sync = new object();
         private static readonly List<ControlledWindow> ControlledWindows = new List<ControlledWindow>();
@@ -69,9 +67,9 @@ namespace HTCHome
 
             SystemEvents.PowerModeChanged += SystemEvents_PowerModeChanged;
             SafeLog("[ResumeProbe] FRESH_DISPATCHER probe armed");
-            SafeLog("[ResumeMatrix] ARMED profile=" + GetProfileId() +
+            SafeLog("[ResumeTiming] ARMED profile=" + GetProfileId() +
                 " mode=" + ModeName(diagnosticMode) +
-                " restoreDelayMs=" + ControlRestoreDelayMs);
+                " restoreDelayMs=" + RestoreDelayMs(diagnosticMode));
             return true;
         }
 
@@ -98,8 +96,9 @@ namespace HTCHome
             string[] args = Environment.GetCommandLineArgs();
             for (int i = 1; i < args.Length; i++)
             {
-                if (string.Equals(args[i], "--resume-hide-control", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Hide;
                 string value = null;
+                if (string.Equals(args[i], "--resume-hide-control", StringComparison.OrdinalIgnoreCase))
+                    return ResumeDiagnosticMode.Target0;
                 if (string.Equals(args[i], "--resume-diag", StringComparison.OrdinalIgnoreCase))
                 {
                     if (i + 1 < args.Length) value = args[i + 1];
@@ -108,10 +107,9 @@ namespace HTCHome
                     value = args[i].Substring("--resume-diag=".Length);
 
                 if (string.IsNullOrWhiteSpace(value)) continue;
-                if (string.Equals(value, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Hide;
-                if (string.Equals(value, "targetoff", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(value, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.TargetOff;
-                if (string.Equals(value, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Minimize;
+                if (string.Equals(value, "target0", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "hide", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target0;
+                if (string.Equals(value, "target3", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "targetoff", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "cloak", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target3;
+                if (string.Equals(value, "target12", StringComparison.OrdinalIgnoreCase) || string.Equals(value, "minimize", StringComparison.OrdinalIgnoreCase)) return ResumeDiagnosticMode.Target12;
                 return ResumeDiagnosticMode.Normal;
             }
             return ResumeDiagnosticMode.Normal;
@@ -121,10 +119,21 @@ namespace HTCHome
         {
             switch (mode)
             {
-                case ResumeDiagnosticMode.Hide: return "hide";
-                case ResumeDiagnosticMode.TargetOff: return "targetoff";
-                case ResumeDiagnosticMode.Minimize: return "minimize";
+                case ResumeDiagnosticMode.Target0: return "target0";
+                case ResumeDiagnosticMode.Target3: return "target3";
+                case ResumeDiagnosticMode.Target12: return "target12";
                 default: return "normal";
+            }
+        }
+
+        private static int RestoreDelayMs(ResumeDiagnosticMode mode)
+        {
+            switch (mode)
+            {
+                case ResumeDiagnosticMode.Target3: return 3000;
+                case ResumeDiagnosticMode.Target12: return 12000;
+                case ResumeDiagnosticMode.Target0: return 0;
+                default: return -1;
             }
         }
 
@@ -144,21 +153,25 @@ namespace HTCHome
             if (e.Mode == PowerModes.Suspend)
             {
                 if (diagnosticMode == ResumeDiagnosticMode.Normal)
-                    SafeLog("[ResumeMatrix] SUSPEND_BASELINE mode=normal thread=" + Thread.CurrentThread.ManagedThreadId);
+                    SafeLog("[ResumeTiming] SUSPEND_BASELINE mode=normal thread=" + Thread.CurrentThread.ManagedThreadId);
                 else
-                    ApplySuspendControl();
+                    ApplySuspendTargetOff();
                 return;
             }
+
             if (e.Mode != PowerModes.Resume) return;
 
             int generation;
             lock (Sync) { resumeGeneration++; generation = resumeGeneration; }
 
             SafeLog("[ResumeProbe] RESUME generation=" + generation + " mainThread=" + Thread.CurrentThread.ManagedThreadId);
-            SafeLog("[ResumeMatrix] RESUME generation=" + generation + " mode=" + ModeName(diagnosticMode) +
-                " controlledWindows=" + GetControlledWindowCount());
+            SafeLog("[ResumeTiming] RESUME generation=" + generation +
+                " mode=" + ModeName(diagnosticMode) +
+                " controlledWindows=" + GetControlledWindowCount() +
+                " restoreDelayMs=" + RestoreDelayMs(diagnosticMode));
 
-            if (diagnosticMode != ResumeDiagnosticMode.Normal) ScheduleControlRestore(generation);
+            if (diagnosticMode != ResumeDiagnosticMode.Normal)
+                ScheduleTargetRestore(generation, RestoreDelayMs(diagnosticMode));
 
             Thread launcher = new Thread(new ThreadStart(delegate
             {
@@ -175,16 +188,16 @@ namespace HTCHome
             launcher.Start();
         }
 
-        private static void ApplySuspendControl()
+        private static void ApplySuspendTargetOff()
         {
             Application app = Application.Current;
             if (app == null)
             {
-                SafeLog("[ResumeMatrix] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + " application=<null>");
+                SafeLog("[ResumeTiming] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + " application=<null>");
                 return;
             }
 
-            SafeLog("[ResumeMatrix] SUSPEND_APPLY_BEGIN mode=" + ModeName(diagnosticMode) +
+            SafeLog("[ResumeTiming] SUSPEND_APPLY_BEGIN mode=" + ModeName(diagnosticMode) +
                 " thread=" + Thread.CurrentThread.ManagedThreadId);
 
             try
@@ -195,6 +208,7 @@ namespace HTCHome
                     foreach (Window window in app.Windows)
                     {
                         if (window == null || !window.IsVisible) continue;
+
                         IntPtr hwnd = new WindowInteropHelper(window).Handle;
                         HwndSource source = HwndSource.FromHwnd(hwnd);
                         HwndTarget target = source == null ? null : source.CompositionTarget;
@@ -203,23 +217,33 @@ namespace HTCHome
                         {
                             Window = window,
                             Hwnd = hwnd,
-                            PreviousWindowState = window.WindowState,
                             Source = source,
                             Target = target,
                             TargetWasEnabled = ReadBoolField(target, "_isRenderTargetEnabled", true)
                         };
                         records.Add(record);
 
-                        SafeLog("[ResumeMatrix] WINDOW_BEFORE mode=" + ModeName(diagnosticMode) +
+                        SafeLog("[ResumeTiming] WINDOW_BEFORE mode=" + ModeName(diagnosticMode) +
                             " type=" + window.GetType().FullName +
                             " hwnd=0x" + hwnd.ToInt64().ToString("X") +
-                            " visible=" + window.IsVisible + " state=" + window.WindowState +
+                            " visible=" + window.IsVisible +
+                            " state=" + window.WindowState +
                             " iconic=" + SafeIsIconic(hwnd) +
                             " targetEnabled=" + ReadField(target, "_isRenderTargetEnabled") +
                             " minimizedFlag=" + ReadField(target, "_isMinimized") +
                             " disableCookie=" + ReadField(target, "_disableCookie"));
 
-                        ApplyModeToWindow(record);
+                        ApplyTargetOff(record);
+
+                        SafeLog("[ResumeTiming] WINDOW_APPLIED mode=" + ModeName(diagnosticMode) +
+                            " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                            " visible=" + record.Window.IsVisible +
+                            " state=" + record.Window.WindowState +
+                            " iconic=" + SafeIsIconic(record.Hwnd) +
+                            " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
+                            " minimizedFlag=" + ReadField(record.Target, "_isMinimized") +
+                            " disableCookie=" + ReadField(record.Target, "_disableCookie") +
+                            " targetDisableApplied=" + record.TargetDisableApplied);
                     }
 
                     lock (Sync)
@@ -228,46 +252,14 @@ namespace HTCHome
                         ControlledWindows.AddRange(records);
                     }
 
-                    SafeLog("[ResumeMatrix] SUSPEND_APPLY_OK mode=" + ModeName(diagnosticMode) +
-                        " controlledWindows=" + records.Count + " uiThread=" + Thread.CurrentThread.ManagedThreadId);
+                    SafeLog("[ResumeTiming] SUSPEND_APPLY_OK mode=" + ModeName(diagnosticMode) +
+                        " controlledWindows=" + records.Count +
+                        " uiThread=" + Thread.CurrentThread.ManagedThreadId);
                 }));
             }
             catch (Exception ex)
             {
-                SafeLog("[ResumeMatrix] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
-            }
-        }
-
-        private static void ApplyModeToWindow(ControlledWindow record)
-        {
-            try
-            {
-                switch (diagnosticMode)
-                {
-                    case ResumeDiagnosticMode.Hide:
-                        record.Window.Hide();
-                        break;
-                    case ResumeDiagnosticMode.TargetOff:
-                        ApplyTargetOff(record);
-                        break;
-                    case ResumeDiagnosticMode.Minimize:
-                        record.Window.WindowState = WindowState.Minimized;
-                        break;
-                }
-
-                SafeLog("[ResumeMatrix] WINDOW_APPLIED mode=" + ModeName(diagnosticMode) +
-                    " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
-                    " visible=" + record.Window.IsVisible + " state=" + record.Window.WindowState +
-                    " iconic=" + SafeIsIconic(record.Hwnd) +
-                    " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                    " minimizedFlag=" + ReadField(record.Target, "_isMinimized") +
-                    " disableCookie=" + ReadField(record.Target, "_disableCookie") +
-                    " targetDisableApplied=" + record.TargetDisableApplied);
-            }
-            catch (Exception ex)
-            {
-                SafeLog("[ResumeMatrix] WINDOW_APPLY_FAILED mode=" + ModeName(diagnosticMode) +
-                    " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") + "\n" + Unwrap(ex));
+                SafeLog("[ResumeTiming] SUSPEND_APPLY_FAILED mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
             }
         }
 
@@ -289,7 +281,8 @@ namespace HTCHome
                 if (msg == record.UpdateWindowSettingsMessage)
                 {
                     handled = true;
-                    SafeLog("[ResumeMatrix] TARGETOFF_REENABLE_SUPPRESSED hwnd=0x" + hwnd.ToInt64().ToString("X") +
+                    SafeLog("[ResumeTiming] TARGET_REENABLE_SUPPRESSED mode=" + ModeName(diagnosticMode) +
+                        " hwnd=0x" + hwnd.ToInt64().ToString("X") +
                         " msg=0x" + msg.ToString("X", CultureInfo.InvariantCulture));
                 }
                 return IntPtr.Zero;
@@ -299,27 +292,30 @@ namespace HTCHome
             record.UpdateWindowSettings.Invoke(record.Target, new object[] { false });
             record.TargetDisableApplied = !ReadBoolField(record.Target, "_isRenderTargetEnabled", true);
 
-            SafeLog("[ResumeMatrix] TARGETOFF_APPLIED hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+            SafeLog("[ResumeTiming] TARGET_OFF_APPLIED mode=" + ModeName(diagnosticMode) +
+                " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
                 " updateMsg=0x" + record.UpdateWindowSettingsMessage.ToString("X", CultureInfo.InvariantCulture) +
                 " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
                 " disableCookie=" + ReadField(record.Target, "_disableCookie"));
         }
 
-        private static void ScheduleControlRestore(int generation)
+        private static void ScheduleTargetRestore(int generation, int delayMs)
         {
             Thread restorer = new Thread(new ThreadStart(delegate
             {
-                Thread.Sleep(ControlRestoreDelayMs);
+                if (delayMs > 0) Thread.Sleep(delayMs);
                 lock (Sync) { if (generation != resumeGeneration) return; }
 
                 Application app = Application.Current;
                 if (app == null)
                 {
-                    SafeLog("[ResumeMatrix] RESTORE_FAILED generation=" + generation + " application=<null>");
+                    SafeLog("[ResumeTiming] RESTORE_FAILED generation=" + generation + " application=<null>");
                     return;
                 }
 
-                SafeLog("[ResumeMatrix] RESTORE_QUEUE generation=" + generation + " mode=" + ModeName(diagnosticMode) +
+                SafeLog("[ResumeTiming] RESTORE_QUEUE generation=" + generation +
+                    " mode=" + ModeName(diagnosticMode) +
+                    " delayMs=" + delayMs +
                     " controlledWindows=" + GetControlledWindowCount());
 
                 try
@@ -338,58 +334,58 @@ namespace HTCHome
                         {
                             try
                             {
-                                RestoreWindow(record);
+                                RestoreTarget(record);
                                 restored++;
-                                SafeLog("[ResumeMatrix] WINDOW_RESTORED mode=" + ModeName(diagnosticMode) +
+                                SafeLog("[ResumeTiming] WINDOW_RESTORED mode=" + ModeName(diagnosticMode) +
+                                    " delayMs=" + delayMs +
                                     " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
                                     " sameHwnd=" + (new WindowInteropHelper(record.Window).Handle == record.Hwnd) +
-                                    " visible=" + record.Window.IsVisible + " state=" + record.Window.WindowState +
+                                    " visible=" + record.Window.IsVisible +
+                                    " state=" + record.Window.WindowState +
                                     " iconic=" + SafeIsIconic(record.Hwnd) +
                                     " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
                                     " disableCookie=" + ReadField(record.Target, "_disableCookie"));
                             }
                             catch (Exception ex)
                             {
-                                SafeLog("[ResumeMatrix] RESTORE_WINDOW_FAILED mode=" + ModeName(diagnosticMode) +
+                                SafeLog("[ResumeTiming] RESTORE_WINDOW_FAILED mode=" + ModeName(diagnosticMode) +
+                                    " delayMs=" + delayMs +
                                     " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") + "\n" + Unwrap(ex));
                             }
                         }
-                        SafeLog("[ResumeMatrix] RESTORE_OK generation=" + generation + " mode=" + ModeName(diagnosticMode) +
-                            " restoredWindows=" + restored + " uiThread=" + Thread.CurrentThread.ManagedThreadId);
+
+                        SafeLog("[ResumeTiming] RESTORE_OK generation=" + generation +
+                            " mode=" + ModeName(diagnosticMode) +
+                            " delayMs=" + delayMs +
+                            " restoredWindows=" + restored +
+                            " uiThread=" + Thread.CurrentThread.ManagedThreadId);
                     }));
                 }
                 catch (Exception ex)
                 {
-                    SafeLog("[ResumeMatrix] RESTORE_QUEUE_FAILED generation=" + generation + " mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
+                    SafeLog("[ResumeTiming] RESTORE_QUEUE_FAILED generation=" + generation +
+                        " mode=" + ModeName(diagnosticMode) + "\n" + Unwrap(ex));
                 }
             }));
             restorer.IsBackground = true;
-            restorer.Name = "Mugen Resume Matrix Restorer";
+            restorer.Name = "Mugen HwndTarget Restore " + delayMs + "ms";
             restorer.Start();
         }
 
-        private static void RestoreWindow(ControlledWindow record)
+        private static void RestoreTarget(ControlledWindow record)
         {
-            switch (diagnosticMode)
+            if (record.Source != null && record.SuppressReenableHook != null)
             {
-                case ResumeDiagnosticMode.Hide:
-                    record.Window.Show();
-                    break;
-                case ResumeDiagnosticMode.TargetOff:
-                    if (record.Source != null && record.SuppressReenableHook != null)
-                    {
-                        try { record.Source.RemoveHook(record.SuppressReenableHook); } catch { }
-                    }
-                    if (record.TargetWasEnabled && record.Target != null && record.UpdateWindowSettings != null)
-                        record.UpdateWindowSettings.Invoke(record.Target, new object[] { true });
-                    SafeLog("[ResumeMatrix] TARGETOFF_RESTORED hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
-                        " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
-                        " disableCookie=" + ReadField(record.Target, "_disableCookie"));
-                    break;
-                case ResumeDiagnosticMode.Minimize:
-                    record.Window.WindowState = record.PreviousWindowState;
-                    break;
+                try { record.Source.RemoveHook(record.SuppressReenableHook); } catch { }
             }
+
+            if (record.TargetWasEnabled && record.Target != null && record.UpdateWindowSettings != null)
+                record.UpdateWindowSettings.Invoke(record.Target, new object[] { true });
+
+            SafeLog("[ResumeTiming] TARGET_RESTORED mode=" + ModeName(diagnosticMode) +
+                " hwnd=0x" + record.Hwnd.ToInt64().ToString("X") +
+                " targetEnabled=" + ReadField(record.Target, "_isRenderTargetEnabled") +
+                " disableCookie=" + ReadField(record.Target, "_disableCookie"));
         }
 
         private static MethodInfo FindUpdateWindowSettings(HwndTarget target)
@@ -479,11 +475,10 @@ namespace HTCHome
             {
                 HwndSource source = null;
                 DispatcherTimer finishTimer = null;
-                Dispatcher dispatcher = null;
 
                 try
                 {
-                    dispatcher = Dispatcher.CurrentDispatcher;
+                    Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
                     SafeLog("[ResumeProbe] NEW_DISPATCHER_BEGIN generation=" + generation +
                         " thread=" + Thread.CurrentThread.ManagedThreadId);
 
@@ -498,7 +493,10 @@ namespace HTCHome
                     };
 
                     HwndSourceParameters p = new HwndSourceParameters("HTC Home Mugen WPF Resume Probe");
-                    p.Width = 96; p.Height = 96; p.PositionX = -32000; p.PositionY = -32000;
+                    p.Width = 96;
+                    p.Height = 96;
+                    p.PositionX = -32000;
+                    p.PositionY = -32000;
                     p.WindowStyle = unchecked((int)0x80000000);
                     p.ExtendedWindowStyle = 0x00000080 | 0x08000000;
                     source = new HwndSource(p);
@@ -506,12 +504,16 @@ namespace HTCHome
                     Border visual = new Border { Width = 96, Height = 96, Background = Brushes.White };
                     visual.Child = new TextBlock
                     {
-                        Text = "Mugen", Foreground = Brushes.Black, FontSize = 16,
+                        Text = "Mugen",
+                        Foreground = Brushes.Black,
+                        FontSize = 16,
                         HorizontalAlignment = HorizontalAlignment.Center,
                         VerticalAlignment = VerticalAlignment.Center
                     };
+
                     DoubleAnimation pulse = new DoubleAnimation(0.25, 1.0, TimeSpan.FromMilliseconds(300));
-                    pulse.AutoReverse = true; pulse.RepeatBehavior = RepeatBehavior.Forever;
+                    pulse.AutoReverse = true;
+                    pulse.RepeatBehavior = RepeatBehavior.Forever;
                     visual.BeginAnimation(UIElement.OpacityProperty, pulse);
                     source.RootVisual = visual;
 
@@ -532,14 +534,17 @@ namespace HTCHome
                     finishTimer.Interval = TimeSpan.FromSeconds(6);
                     finishTimer.Tick += delegate
                     {
-                        finishTimer.Stop(); pulseTimer.Stop();
+                        finishTimer.Stop();
+                        pulseTimer.Stop();
                         SafeLog("[ResumeProbe] NEW_DISPATCHER_PROBE_OK generation=" + generation +
-                            " ticks=" + ticks + " tier=" + (RenderCapability.Tier >> 16) +
+                            " ticks=" + ticks +
+                            " tier=" + (RenderCapability.Tier >> 16) +
                             " renderMode=" + (source.CompositionTarget == null ? "<null>" : source.CompositionTarget.RenderMode.ToString()));
                         source.Dispose();
                         Dispatcher.CurrentDispatcher.BeginInvokeShutdown(DispatcherPriority.Send);
                     };
                     finishTimer.Start();
+
                     Dispatcher.Run();
                     SafeLog("[ResumeProbe] NEW_DISPATCHER_END generation=" + generation);
                 }
@@ -554,6 +559,7 @@ namespace HTCHome
                     try { if (source != null) source.Dispose(); } catch { }
                 }
             }));
+
             thread.IsBackground = true;
             thread.Name = "Mugen Fresh WPF Dispatcher Probe";
             thread.SetApartmentState(ApartmentState.STA);
