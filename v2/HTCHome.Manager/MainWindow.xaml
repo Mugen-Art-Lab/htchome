@@ -31,7 +31,10 @@
                     <Button x:Name="StopAllButton" Width="110" Click="StopAllButton_Click" />
                 </StackPanel>
             </Grid>
-            <Grid Margin="0,0,0,10">
+            <!-- Run #58: the validated resume guard is now normal profile behavior.
+                 Keep these named controls instantiated but hidden so old Manager code
+                 and profile configuration remain binary/config compatible. -->
+            <Grid Margin="0,0,0,10" Visibility="Collapsed">
                 <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
                 <TextBlock x:Name="ResumeDiagnosticLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
                 <ComboBox x:Name="ResumeDiagnosticBox" Grid.Column="1" Width="340" SelectionChanged="ResumeDiagnosticBox_SelectionChanged">
@@ -66,11 +69,11 @@
                 </ListView.ItemContainerStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn x:Name="NameColumn" Width="220"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" TextAlignment="Left" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn x:Name="StatusColumn" Width="110"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding StatusText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn x:Name="AutoStartColumn" Width="100"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding AutoStartText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn x:Name="ResumeDiagnosticColumn" Width="340"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ResumeDiagnosticText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
-                        <GridViewColumn Header="ID" Width="100"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn x:Name="NameColumn" Width="300"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding Name}" HorizontalAlignment="Stretch" TextAlignment="Left" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn x:Name="StatusColumn" Width="160"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding StatusText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn x:Name="AutoStartColumn" Width="160"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding AutoStartText}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn x:Name="ResumeDiagnosticColumn" Width="0"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ResumeDiagnosticText}" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
+                        <GridViewColumn Header="ID" Width="180"><GridViewColumn.CellTemplate><DataTemplate><TextBlock Text="{Binding ShortId}" HorizontalAlignment="Stretch" TextAlignment="Center" /></DataTemplate></GridViewColumn.CellTemplate></GridViewColumn>
                     </GridView>
                 </ListView.View>
             </ListView>

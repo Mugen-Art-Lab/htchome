@@ -39,10 +39,15 @@ namespace HTCHome.Manager
             if (!File.Exists(executable))
                 throw new FileNotFoundException(ManagerText.ExecutableNotFound, executable);
 
-            string arguments = "--profile " + profile.Id;
-            string diagnosticMode = profile.EffectiveResumeDiagnosticMode;
-            if (!string.Equals(diagnosticMode, "normal", StringComparison.OrdinalIgnoreCase))
-                arguments += " --resume-diag " + diagnosticMode;
+            // Run #57 produced two consecutive natural bad transitions where the
+            // unprotected TV/Baseline process poisoned while all three identical
+            // TargetOff -> synchronous Resume profiles survived. Run #58 promotes
+            // that path to the normal Manager launch behavior for every profile.
+            //
+            // We intentionally keep --resume-diag normal available only for manual
+            // diagnostic launches; the Manager no longer exposes or honors a saved
+            // Baseline selection.
+            string arguments = "--profile " + profile.Id + " --resume-diag target0";
 
             Process.Start(new ProcessStartInfo
             {

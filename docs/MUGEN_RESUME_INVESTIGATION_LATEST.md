@@ -1,113 +1,90 @@
 # HTC Home Mugen — latest resume investigation result
 
-Updated: 2026-09-01 after run #56 reproduced a true Baseline poison while every protected HwndTarget path survived.
+Updated: 2026-09-02 for run #58 candidate product behavior.
 
 Read this together with `docs/MUGEN_RESUME_INVESTIGATION.md`.
 
-## Run #56: true bad transition, Baseline only
+## Root cause model
 
-Matrix:
+The hibernate/resume failure is a process-local WPF/DUCE low-power transition race. A visible WPF Window whose existing `HwndTarget` remains render-target enabled can continue MediaContext/channel work while the graphics stack enters or leaves low-power state. On an unlucky transition a DUCE `SyncFlush` stops making forward progress; the process-local WPF MediaSystem then becomes poisoned.
 
-```text
-TV / normal       -> Baseline
-left / target0    -> TargetOff, synchronous re-enable at PowerModes.Resume
-right / target3   -> TargetOff, re-enable at DisplaySettingsChanged
-main / target12   -> TargetOff, DisplaySettingsChanged + native WM_PAINT kick
-```
-
-On the reproduced transition the user observed one HTC Home OOM dialog and the TV/Baseline widget failed, while all three protected widgets continued working. Mugen Manager also returned normally from tray.
-
-The TV/Baseline OOM was logged before the user saw the dialog. On this cycle it occurred immediately after the system's Suspend transition while the WPF HwndTarget was already marked suspended but remained render-target enabled. The process subsequently exhibited the familiar poisoned state: MediaContext channel/interlock activity stopped making progress and the dedicated fresh STA Dispatcher could not create a new MediaContext/HwndSource in the same PID, failing in `MediaSystem.ConnectChannels -> DUCE.Channel.SyncFlush`.
-
-This matters because earlier bad cycles placed the first OOM during early wake/SxTransition. Taken together, the evidence no longer supports one exact callback such as DisplaySettingsChanged or one exact side of the sleep transition as the sole trigger. The common condition is an **active WPF HwndTarget/MediaContext participating in DUCE rendering/channel synchronization while the graphics stack crosses a low-power transition**.
-
-All three protected profiles had the same essential precondition removed: their existing HwndTarget was disabled before the machine crossed the vulnerable transition. They kept the same Window, same HWND, and same process.
-
-## Run #56 re-present comparison
-
-The run also clarified the second, non-poisoned stale-frame effect found in run #55.
-
-- synchronous `UpdateWindowSettings(true)` at PowerModes.Resume survived and returned to normal presentation;
-- restore on DisplaySettingsChanged without a native repaint survived;
-- restore on the same event plus `InvalidateRect/UpdateWindow` also survived.
-
-Therefore WM_PAINT is **not required on the normal successful restore path**. The run #55 stale 18:12 frame is best treated as a missed/late re-present edge case caused by the previous `Sleep + Dispatcher.BeginInvoke` ordering rather than proof that every HwndTarget restore needs a forced repaint.
-
-The corrected MediaContext trace uses the real `_currentRenderOp` field rather than the earlier incorrect `_renderOp` name.
-
-## Manager result
-
-Manager remained healthy on run #56. Its new window-state probe recorded the normal tray-return sequence:
+The reliable poison marker is not RenderCapability Tier and not a frozen clock. It is failure to create a fresh same-PID MediaContext/HwndSource, with the characteristic path:
 
 ```text
-Window becomes visible while HwndTarget is still disabled
--> HwndTarget becomes enabled
--> MediaContext has a Pending Render DispatcherOperation
--> within a few hundred milliseconds the render operation is gone/completed
--> client area is rendered normally
+MediaSystem.ConnectChannels
+-> MediaContext.CreateChannels
+-> DUCE.Channel.SyncFlush
+-> OutOfMemoryException
 ```
 
-This provides a useful healthy reference for a future white-client Manager occurrence.
+Once this state exists, a new Window, HWND, HwndTarget, Dispatcher, or MediaContext inside the same PID does not recover it.
 
-## Strongest current root-cause model
+## Proven prevention boundary
 
-The original HTC Home hibernate bug is now best modeled as a WPF/DUCE low-power transition race:
-
-```text
-visible/Normal WPF Window
-+ active HwndTarget render target
-+ MediaContext render/channel work
-+ graphics stack entering or leaving low-power transition
--> unlucky DUCE SyncFlush / presentation synchronization failure
--> MediaContext stops making forward progress
--> process-local WPF MediaSystem becomes poisoned
-```
-
-Once poisoned, creating a new Window, HwndTarget, Dispatcher, or MediaContext inside the same PID does not recover the process. The reliable bad-state marker remains a fresh same-PID MediaContext/HwndSource failing in `MediaSystem.ConnectChannels -> DUCE.Channel.SyncFlush`.
-
-The successful prevention boundary is much earlier and narrower: disable the **existing HwndTarget render target before Suspend**, then re-enable that same target after ordinary PowerModes.Resume reaches the application.
-
-No Window.Hide, WindowState.Minimized, HWND recreation, process restart, or DWM Cloak is required.
-
-## Next build: prototype fix
-
-The next build converges all previously protected laboratory modes onto one candidate product behavior:
-
-```text
-TV               -> Baseline / no protection
-left             -> Prototype fix
-right            -> Prototype fix
-main             -> Prototype fix
-```
-
-Prototype fix:
+The narrow prevention mechanism is:
 
 ```text
 PowerModes.Suspend
-  -> invoke WPF's existing HwndTarget.UpdateWindowSettings(false)
-  -> suppress WPF's private visible-window auto-reenable message during sleep transition
+  -> existing HwndTarget.UpdateWindowSettings(false)
+  -> suppress WPF's private visible-window auto-reenable message
 
 PowerModes.Resume
   -> remove suppression hook
-  -> synchronously invoke UpdateWindowSettings(true) on the same HwndTarget
+  -> synchronously call UpdateWindowSettings(true) on the same HwndTarget
 ```
 
-All Window/ HWND identity and z-order state remain unchanged.
+The Window stays visible and Normal. The process, Window, HWND, position and z-order are preserved. `Hide`, `Minimize`, DWM Cloak and process restart are not required.
 
-### Stale-surface watchdog
+A one-shot watchdog observes the old MediaContext after restore. Healthy targets are untouched. If an enabled same-HWND target fails to produce a new commit, the watchdog sends one `InvalidateRect + UpdateWindow` native repaint kick to cover the separate healthy-process stale-surface edge case discovered in run #55.
 
-Run #55 proved that a healthy process can occasionally have a re-enabled HwndTarget that keeps presenting an old DWM frame if restoration happens in an unfortunate order. The prototype therefore adds a one-shot passive watchdog rather than forcing WM_PAINT on every resume.
+## Run #57 validation
 
-After the normal synchronous restore it observes the original MediaContext's `_lastCommitTime` and `_currentRenderOp`. If no new commit is observed after a short grace period while the target is enabled and the HWND is unchanged, it sends one native `InvalidateRect + UpdateWindow` kick and logs the result. Healthy targets are left untouched.
+Run #57 used one unprotected TV/Baseline profile and three identical protected profiles.
 
-This keeps the normal path as close as possible to stock WPF while providing an emergency re-present for the separate stale-surface failure class.
-
-## Validation goal
-
-Repeated bad cycles should now produce the strongest possible A/B test:
+Two consecutive natural bad transitions produced the same A/B result:
 
 ```text
-Baseline poisons while all three Prototype-fix profiles survive
+bad cycle #1: TV/Baseline poisoned; left/right/main protected profiles healthy
+bad cycle #2: TV/Baseline poisoned; left/right/main protected profiles healthy
 ```
 
-If that result repeats across several naturally occurring bad transitions, the HwndTarget Suspend/Resume guard is ready to move from diagnostic mode toward the default profile behavior. The Manager white-client symptom should remain separately instrumented until its own state trace is captured on failure.
+Across those two bad cycles the protected side produced six out of six healthy observations. Their watchdogs saw normal render/commit progress and did not need the emergency WM_PAINT path. Their independent fresh Dispatcher/HwndSource probes remained healthy at Tier 2 while the Baseline TV failed the fresh same-PID probe with the characteristic ConnectChannels/SyncFlush OOM.
+
+This is sufficient to promote the guard from a laboratory profile option to the normal profile launch path for the next candidate build.
+
+## Run #58 behavior
+
+HTC Home Mugen Manager now launches **every profile** with the validated guard:
+
+```text
+HTCHome.exe --profile <id> --resume-diag target0
+```
+
+The old per-profile Baseline / Prototype-fix UI is hidden. Existing profile config fields remain readable for compatibility, but Manager no longer uses a saved Baseline choice when starting a process.
+
+An unprotected control remains available only for deliberate manual diagnostics:
+
+```text
+HTCHome.exe --profile <id> --resume-diag normal
+```
+
+This prevents an old saved `normal` value (notably the former TV control profile) from accidentally leaving a normal user profile unprotected.
+
+## NVIDIA status
+
+The FrameView/NVIDIA DLL hypothesis is no longer considered the root cause. NVIDIA injection may affect timing but the decisive A/B split follows HwndTarget protection state under otherwise shared graphics conditions.
+
+Run #58 should therefore be exercised in the user's ordinary NVIDIA environment, including the normal NVIDIA overlay. The NVIDIA diagnostics page may remain useful for observing DLL presence and handle trends, but FrameView exclusions are not required for the resume guard.
+
+Small handle changes of a few handles between samples are expected; the historical diagnostic concern was sustained unbounded growth correlated with resume cycles, not ordinary +1/+2 fluctuations.
+
+## Validation goal for #58
+
+Use normal daily hibernate/resume behavior with all four profiles protected and NVIDIA returned to the user's normal configuration. Watch for:
+
+- any protected profile poisoning or freezing;
+- any watchdog WM_PAINT recovery events;
+- any Manager white-client recurrence;
+- sustained abnormal NVIDIA handle growth rather than small fluctuations.
+
+If several days / roughly 15–25 ordinary sleep-resume cycles complete without a protected failure, the guard can move from candidate behavior toward the default release implementation and the heavy diagnostic probes can be reduced.
