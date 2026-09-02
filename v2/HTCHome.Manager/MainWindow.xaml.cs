@@ -151,6 +151,7 @@ namespace HTCHome.Manager
             Topmost = true;
             Topmost = false;
             Focus();
+            ManagerPresentationRecovery.Arm(this, "show-manager");
         }
 
         private void HideToTray()
@@ -200,7 +201,13 @@ namespace HTCHome.Manager
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
         {
-            try { processes.Start(SelectedProfile); await Task.Delay(250); await RefreshStatusesAsync(); }
+            try
+            {
+                processes.Start(SelectedProfile);
+                await Task.Delay(250);
+                await RefreshStatusesAsync();
+                ManagerPresentationRecovery.Arm(this, "start-profile");
+            }
             catch (Exception ex) { MessageBox.Show(ex.Message, "HTC Home Mugen", MessageBoxButton.OK, MessageBoxImage.Error); }
         }
 
@@ -210,6 +217,7 @@ namespace HTCHome.Manager
             if (profile == null) return;
             await Task.Run(() => processes.Stop(profile));
             await RefreshStatusesAsync();
+            ManagerPresentationRecovery.Arm(this, "stop-profile");
         }
 
         private async void StartAllButton_Click(object sender, RoutedEventArgs e) { await StartAllAsync(); }
@@ -222,6 +230,7 @@ namespace HTCHome.Manager
             foreach (var profile in profiles) processes.Start(profile);
             await Task.Delay(300);
             await RefreshStatusesAsync();
+            ManagerPresentationRecovery.Arm(this, "start-all");
         }
 
         private async Task StopAllAsync()
@@ -232,6 +241,7 @@ namespace HTCHome.Manager
                 foreach (var profile in snapshot) processes.Stop(profile);
             });
             await RefreshStatusesAsync();
+            ManagerPresentationRecovery.Arm(this, "stop-all");
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
