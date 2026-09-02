@@ -39,6 +39,7 @@
     <Compile Include="App.xaml.cs"><DependentUpon>App.xaml</DependentUpon></Compile>
     <Compile Include="AutostartController.cs" />
     <Compile Include="MainWindow.xaml.cs"><DependentUpon>MainWindow.xaml</DependentUpon></Compile>
+    <Compile Include="ManagerPresentationRecovery.cs" />
     <Compile Include="ManagerText.cs" />
     <Compile Include="ManagerWpfResumeProbe.cs" />
     <Compile Include="NvidiaCompatibilityController.cs" />
